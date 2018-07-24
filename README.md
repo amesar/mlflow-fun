@@ -1,4 +1,6 @@
-# MLflow Samples
+# mlflow-fun
+
+MLflow samples.
 
 ## Install
 **Install miniconda3**

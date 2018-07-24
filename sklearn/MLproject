@@ -1,0 +1,11 @@
+name: sklearn
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      num_iters: int
+      min_samples_leaf: int
+      max_depth: int
+    command: "python sklearn_sample.py {num_iters} {min_samples_leaf} {max_depth}"
