@@ -9,9 +9,9 @@ plt.rcdefaults()
 import mlflow
 import mlflow.sklearn
 import mlflow_utils
+from mlflow import version
 
-
-def run(min_samples_leaf, max_depth, dataset_data, dataset_target, idx):
+def train(min_samples_leaf, max_depth, dataset_data, dataset_target):
     mlflow.log_param("min_samples_leaf", min_samples_leaf)
     mlflow.log_param("max_depth", max_depth)
 
@@ -31,15 +31,21 @@ def run(min_samples_leaf, max_depth, dataset_data, dataset_target, idx):
     mlflow.log_metric("accuracy_score", accuracy_score)
     mlflow.log_metric("zero_one_loss", zero_one_loss)
 
-    print("Index:",idx)
     print("Params:  min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
     print("Metrics: auc={} accuracy_score={} zero_one_loss={}".format(auc,accuracy_score,zero_one_loss))
+
+    write_artifact('confusion_matrix.txt',str(metrics.confusion_matrix(expected, predicted)))
+    write_artifact('classification_report.txt',metrics.classification_report(expected, predicted))
     
     fig = make_simple_plot(auc, accuracy_score, zero_one_loss)
     plot_filename = "simple_plot.png"
     fig.savefig(plot_filename)
     mlflow.log_artifact(plot_filename)
 
+def write_artifact(file, data):
+    with open(file, 'w') as f:
+        f.write(data)
+    mlflow.log_artifact(file)
 
 def make_simple_plot(auc, accuracy_score, zero_one_loss):
     fig = plt.figure()
@@ -53,19 +59,19 @@ def make_simple_plot(auc, accuracy_score, zero_one_loss):
     plt.close(fig)
     return fig
 
-
 if __name__ == "__main__":
-    num_iters = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-    min_samples_leaf = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-    max_depth = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+    min_samples_leaf = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+    max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 1
     dataset = datasets.load_iris()
 
-    current_file = os.path.basename(__file__)
-    #experiment_name = current_file.replace(".py","")
-    experiment_name = "SklearnDecisionTree.py"
-    experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
+    print("MLflow Version:", version.VERSION)
+    assert "0.4.2" == version.VERSION
+    print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
-    print("Params: num_iters={} min_samples_leaf={} max_depth={}".format(num_iters,min_samples_leaf,max_depth))
-    for j in range(num_iters):
-        with mlflow.start_run(experiment_id=experiment_id, source_name=current_file):
-            run(min_samples_leaf+j, max_depth+j, dataset.data, dataset.target, j)
+    experiment_name = "Iris/DecisionTree"
+    experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
+    source_name = os.path.basename(__file__)
+
+    print("Params: min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
+    with mlflow.start_run(experiment_id=experiment_id, source_name=source_name):
+        train(min_samples_leaf, max_depth, dataset.data, dataset.target)
