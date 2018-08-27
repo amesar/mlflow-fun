@@ -67,7 +67,7 @@ if __name__ == "__main__":
     print("MLflow Version:", version.VERSION)
     print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
-    experiment_name = "Iris/DecisionTree"
+    experiment_name = "py/Iris/DecisionTree"
     experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
     source_name = os.path.basename(__file__)
 
