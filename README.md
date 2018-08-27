@@ -68,7 +68,7 @@ More details at: [https://github.com/amesar/mlflow/tree/java-client-jackson/mlfl
 
 Source: [DecisionTreeRegressionExample.scala](examples/spark-scala/src/main/scala/org/andre/mlflow/examples/DecisionTreeRegressionExample.scala)
 ```
-cd examples/spark-scala
+cd examples/spark-scala-jackson
 mvn package
 spark-submit \
   --class org.andre.mlflow.examples.DecisionTreeRegressionExample \
