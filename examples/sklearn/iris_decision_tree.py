@@ -65,7 +65,6 @@ if __name__ == "__main__":
     dataset = datasets.load_iris()
 
     print("MLflow Version:", version.VERSION)
-    assert "0.4.2" == version.VERSION
     print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
     experiment_name = "Iris/DecisionTree"
