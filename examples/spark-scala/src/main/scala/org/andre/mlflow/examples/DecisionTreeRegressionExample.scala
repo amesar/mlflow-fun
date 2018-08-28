@@ -6,9 +6,8 @@ import org.apache.spark.ml.feature.VectorIndexer
 import org.apache.spark.ml.regression.DecisionTreeRegressionModel
 import org.apache.spark.ml.regression.DecisionTreeRegressor
 import org.apache.spark.sql.SparkSession
-import org.mlflow.client.ApiClient
+import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.{RunStatus,SourceType}
-import org.mlflow.client.objects.ObjectUtils
 import scala.collection.JavaConversions._
 
 object DecisionTreeRegressionExample {
@@ -16,7 +15,7 @@ object DecisionTreeRegressionExample {
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
 
     println(s"Tracking URI: ${args(0)}")
-    val mlflowClient = ApiClient.fromTrackingUri(args(0))
+    val mlflowClient = new MlflowClient(args(0))
 
     // Load the data stored in LIBSVM format as a DataFrame
     val dataPath = args(1)
@@ -27,7 +26,7 @@ object DecisionTreeRegressionExample {
     train(mlflowClient, spark, dataPath,maxDepth,maxBins)
   }
 
-  def train(mlflowClient: ApiClient, spark: SparkSession, dataPath: String, maxDepth: Int, maxBins: Int) {
+  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, maxDepth: Int, maxBins: Int) {
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -59,13 +58,12 @@ object DecisionTreeRegressionExample {
 
     // MLflow - create run
     val sourceName = getClass().getSimpleName()+".scala"
-    val request = ObjectUtils.makeCreateRun(expId, "MyScalaRun", SourceType.LOCAL, sourceName, System.currentTimeMillis(), "doe")
-    val runInfo = mlflowClient.createRun(request)
+    val runInfo = mlflowClient.createRun(expId, sourceName);
     val runId = runInfo.getRunUuid()
 
     // MLflow - Log parameters
-    mlflowClient.logParameter(runId, "maxDepth",""+dt.getMaxDepth)
-    mlflowClient.logParameter(runId, "maxBins",""+dt.getMaxBins)
+    mlflowClient.logParam(runId, "maxDepth",""+dt.getMaxDepth)
+    mlflowClient.logParam(runId, "maxBins",""+dt.getMaxBins)
 
     // Chain indexer and tree in a Pipeline.
     val pipeline = new Pipeline().setStages(Array(featureIndexer, dt))
@@ -97,6 +95,6 @@ object DecisionTreeRegressionExample {
     mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
 
     // MLflow - close run
-    mlflowClient.updateRun(runId, RunStatus.FINISHED, System.currentTimeMillis())
+    mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
   }
 }
