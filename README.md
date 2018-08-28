@@ -38,7 +38,13 @@ mlflow server --host 0.0.0.0
 
 **Run sample**
 
-Source: [iris_decision_tree.py](examples/sklearn/iris_decision_tree.py)
+Simple Scikit-learn [DecisionTreeClassifier](http://scikit-learn.org/stable/modules/tree.html) that:
+* Logs parameters and metrics 
+* Saves text artifacts: confusion_matrix.txt and classification_report.txt
+* Saves plot artifact: simple_plot.png
+* Saves model as a pickle file
+
+Source: [iris_decision_tree.py](examples/sklearn/iris_decision_tree.py).
 
 ```
 export MLFLOW_TRACKING_URI=http://localhost:5000
