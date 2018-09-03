@@ -34,9 +34,14 @@ mlflow server --host 0.0.0.0
 ```
 ## Run Samples
 
-### Python Scikit-learn sample
+### Python Scikit-learn samples
 
-**Run sample**
+Set the URI of your MLflow tracking server:
+```
+export MLFLOW_TRACKING_URI=http://localhost:5000
+```
+
+#### Iris Decision Tree
 
 Simple Scikit-learn [DecisionTreeClassifier](http://scikit-learn.org/stable/modules/tree.html) that:
 * Logs parameters and metrics 
@@ -47,13 +52,21 @@ Simple Scikit-learn [DecisionTreeClassifier](http://scikit-learn.org/stable/modu
 Source: [train_iris_decision_tree.py](examples/scikit-learn/iris/train_iris_decision_tree.py)
 
 ```
-export MLFLOW_TRACKING_URI=http://localhost:5000
 cd examples/scikit-learn/iris
 python train_iris_decision_tree.py
 ```
-**Check Results in UI**
+Check Results in UI
 ```
-http://localhost:5000/experiments/1
+http://localhost:5011/#/experiments/1
+```
+
+#### Wine Quality Elastic Net
+
+Source: [train_wine_quality.py](examples/scikit-learn/wine-quality/train_wine_quality.py)
+
+```
+cd examples/scikit-learn/wine-quality
+python train_wine_quality.py
 ```
 
 ### Scala Spark ML sample
