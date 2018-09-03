@@ -3,11 +3,7 @@
 import mlflow
 
 def get_experiment_id(experiment_name):
-    try:
-        experiments = mlflow.tracking.list_experiments() # older 0.4.2
-    except Exception as e:
-        experiments = exps = mlflow.tracking.get_service().list_experiments()
-
+    experiments = exps = mlflow.tracking.get_service().list_experiments()
     for exp in experiments:
         if experiment_name == exp.name:
             return exp.experiment_id

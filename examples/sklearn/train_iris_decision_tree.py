@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import sys, os
+sys.path.append("..")
 from sklearn import datasets, metrics
 from sklearn.tree import DecisionTreeClassifier
 import matplotlib.pyplot as plt
@@ -60,17 +61,19 @@ def make_simple_plot(auc, accuracy_score, zero_one_loss):
     return fig
 
 if __name__ == "__main__":
-    min_samples_leaf = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-    max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    min_samples_leaf = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+    max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     dataset = datasets.load_iris()
 
     print("MLflow Version:", version.VERSION)
     print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
-    experiment_name = "py/Iris/DecisionTree"
+    experiment_name = "py/sk/DecisionTree/Iris"
     experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
     source_name = os.path.basename(__file__)
 
     print("Params: min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
     with mlflow.start_run(experiment_id=experiment_id, source_name=source_name):
+        run_id = mlflow.active_run().info.run_uuid
+        print("run_id:",run_id)
         train(min_samples_leaf, max_depth, dataset.data, dataset.target)
