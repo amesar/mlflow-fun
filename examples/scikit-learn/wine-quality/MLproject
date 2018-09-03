@@ -1,0 +1,11 @@
+name: wine_quality_elastic_net
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      alpha: float
+      l1_ratio: {type: float, default: 0.1}
+      data_path: {type: string, default: "wine-quality.csv" }
+    command: "python train_wine_quality.py {alpha} {l1_ratio} {data_path}"

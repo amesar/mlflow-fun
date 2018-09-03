@@ -13,5 +13,5 @@ def get_or_create_experiment_id(experiment_name):
     experiment_id = get_experiment_id(experiment_name)
     if experiment_id == None:
         experiment_id = mlflow.create_experiment(experiment_name)
-    print("experiment_name={} experiment_id={}".format(experiment_name,experiment_id))
+    print("experiment_id={} experiment_name={}".format(experiment_id,experiment_name))
     return experiment_id

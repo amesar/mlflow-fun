@@ -5,7 +5,6 @@
 import os
 import sys
 sys.path.append("../..")
-import warnings
 
 import pandas as pd
 import numpy as np
@@ -28,7 +27,7 @@ def train(data_path, alpha, l1_ratio):
     np.random.seed(40)
 
     # Read the wine-quality csv file (make sure you're running this from the root of MLflow!)
-    data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), data_path)
+    #data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), data_path)
     print("data_path:",data_path)
     data = pd.read_csv(data_path)
 
@@ -81,7 +80,8 @@ def train(data_path, alpha, l1_ratio):
 
 
 if __name__ == "__main__":
-    warnings.filterwarnings("ignore")
-    alpha = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
-    l1_ratio = float(sys.argv[3]) if len(sys.argv) > 3 else 0.5
-    train(sys.argv[1], alpha, l1_ratio)
+    if len(sys.argv) < 3: 
+        print("ERROR: Expecting alpha and l1_ratio values")
+        sys.exit(1)
+    data_path = sys.argv[3] if len(sys.argv) > 3 else "wine-quality.csv"
+    train(data_path, float(sys.argv[1]), float(sys.argv[2]))

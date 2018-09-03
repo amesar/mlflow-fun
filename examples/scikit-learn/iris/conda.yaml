@@ -1,0 +1,11 @@
+name: mlflow-fun-iris_decision_tree
+channels:
+- conda-forge
+dependencies:
+- python=3.6
+- pip:
+    - mlflow
+    - scikit-learn==0.19.1
+    - numpy==1.14.5
+    - scipy==1.1.0
+    - matplotlib==2.2.2

@@ -53,11 +53,16 @@ Source: [train_iris_decision_tree.py](examples/scikit-learn/iris/train_iris_deci
 
 ```
 cd examples/scikit-learn/iris
-python train_iris_decision_tree.py
+python train_iris_decision_tree.py 5 3
 ```
 Check Results in UI
 ```
 http://localhost:5011/#/experiments/1
+```
+
+To run with the [MLproject](examples/scikit-learn/iris/MLproject) file:
+```
+mlflow run . -Pmin_samples_leaf=5 -Pmax_depth=3
 ```
 
 #### Wine Quality Elastic Net
@@ -66,7 +71,12 @@ Source: [train_wine_quality.py](examples/scikit-learn/wine-quality/train_wine_qu
 
 ```
 cd examples/scikit-learn/wine-quality
-python train_wine_quality.py
+python train_wine_quality.py wine.csv 0.5 0.5
+```
+
+To run with the [MLproject](examples/scikit-learn/wine-quality/MLproject) file:
+```
+mlflow run . -Palpha=0.01 -Pl1_ratio=0.75 
 ```
 
 ### Scala Spark ML sample
