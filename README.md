@@ -4,9 +4,9 @@ MLflow examples for Python and Scala training models.
 
 Examples:
 * Python scikit-learn classifiers showing:
- *  Saving text and plot artifacts 
- *  Saving models in pickle format
- *  Serving models with mlflow.load_model() or MLflow serving web server
+  *  Saving text and plot artifacts 
+  *  Saving models in pickle format
+  *  Serving models with mlflow.load_model() or MLflow serving web server
 * Spark Scala classifier using MLFlow Java client.
 
 ## Install
