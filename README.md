@@ -107,7 +107,8 @@ curl -X POST -H "Content-Type:application/json" -d @predictions.json http://loca
     "sulphates": 0.45,
     "alcohol": 8.8
   }
-]```
+]
+```
 
 **Custom Serving with load_model()**
 
