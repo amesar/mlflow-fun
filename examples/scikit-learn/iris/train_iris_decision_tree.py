@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 import sys, os
-sys.path.append("..")
+sys.path.append("../..")
 from sklearn import datasets, metrics
 from sklearn.tree import DecisionTreeClassifier
 import matplotlib.pyplot as plt
