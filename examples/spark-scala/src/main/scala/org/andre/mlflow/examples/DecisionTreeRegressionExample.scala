@@ -11,6 +11,8 @@ import org.mlflow.api.proto.Service.{RunStatus,SourceType}
 import scala.collection.JavaConversions._
 
 object DecisionTreeRegressionExample {
+  val expName = "scala/DecisionTree"
+
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
 
@@ -41,7 +43,6 @@ object DecisionTreeRegressionExample {
     val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3))
 
     // MLflow - create or get existing experiment
-    val expName = "scala/SimpleDecisionTreeRegression"
     val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
     println("Experiment name: "+expName)
     println("Experiment ID: "+expId)
