@@ -147,6 +147,13 @@ To run with the [MLproject](examples/scikit-learn/iris/MLproject) file:
 mlflow run . -Pmin_samples_leaf=5 -Pmax_depth=3
 ```
 
+### PySpark ML sample
+
+Source: [train_decision_tree.py](examples/pyspark/train_decision_tree.py)
+```
+cd examples/pyspark
+spark-submit --master local[2] train_decision_tree.py
+```
 
 ### Scala Spark ML sample
 
