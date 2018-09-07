@@ -7,25 +7,29 @@ import org.apache.spark.ml.regression.DecisionTreeRegressionModel
 import org.apache.spark.ml.regression.DecisionTreeRegressor
 import org.apache.spark.sql.SparkSession
 import org.mlflow.tracking.MlflowClient
-import org.mlflow.api.proto.Service.{RunStatus,SourceType}
+import org.mlflow.tracking.creds.BasicMlflowHostCreds
+import org.mlflow.api.proto.Service.RunStatus
 import scala.collection.JavaConversions._
 
 object DecisionTreeRegressionExample {
-  val expName = "scala/DecisionTree"
+  val expName = "scala/SimpleDecisionTreeRegression"
 
   def main(args: Array[String]): Unit = {
+    if (args.length < 4) {
+      println("ERROR: Expecting TRACKING_SERVER_URI DATA_PATH MAX_DEPTH MAX_BINS (TOKEN)")
+      System.exit(1)
+    }
+
+    val trackingUri = args(0)
+    println(s"Tracking URI: $trackingUri")
+    val mlflowClient = 
+      if (args.length > 4) {
+        new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(4)))
+      } else {
+        new MlflowClient(trackingUri)
+      }
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-
-    println(s"Tracking URI: ${args(0)}")
-    val mlflowClient = new MlflowClient(args(0))
-
-    // Load the data stored in LIBSVM format as a DataFrame
-    val dataPath = args(1)
-
-    val maxDepth = if (args.length > 2) args(2).toInt else -1
-    val maxBins = if (args.length > 3) args(3).toInt else -1
-
-    train(mlflowClient, spark, dataPath,maxDepth,maxBins)
+    train(mlflowClient, spark,  args(1), args(2).toInt, args(3).toInt)
   }
 
   def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, maxDepth: Int, maxBins: Int) {
