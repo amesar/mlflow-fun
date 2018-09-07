@@ -10,6 +10,7 @@
     <scala.version>2.11.8</scala.version>
     <scala.binary.version>2.11</scala.binary.version>
     <spark.version>2.3.0</spark.version>
+    <mlflow.version>0.6.0</mlflow.version>
   </properties>
 
   <dependencies>
@@ -46,7 +47,7 @@
       <type>jar</type>
       <groupId>org.mlflow</groupId>
       <artifactId>mlflow-client</artifactId>
-      <version>0.5.2</version>
+      <version>${mlflow.version}</version>
     </dependency>
 
   </dependencies>
