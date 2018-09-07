@@ -15,7 +15,6 @@ More details at: [https://github.com/mlflow/mlflow/tree/java-client/mlflow/java/
 ## Run sample
 
 ```
-cd examples/spark-scala
 mvn package
 spark-submit \
   --class org.andre.mlflow.examples.DecisionTreeRegressionExample \

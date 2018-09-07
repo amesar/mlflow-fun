@@ -14,7 +14,7 @@ Source: [train_wine_quality.py](wine-quality/train_wine_quality.py).
 
 To run with standard main function:
 ```
-cd examples/scikit-learn/wine-quality
+cd wine-quality
 python train_wine_quality.py wine.csv 0.5 0.5
 ```
 
@@ -98,7 +98,7 @@ Source: [train_iris_decision_tree.py](iris/train_iris_decision_tree.py)
 
 To run with standard main function:
 ```
-cd examples/scikit-learn/iris
+cd iris
 python train_iris_decision_tree.py 5 3
 ```
 
