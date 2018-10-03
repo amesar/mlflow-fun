@@ -3,20 +3,19 @@
 MLflow examples for Python and Scala training models.
 
 ## Examples
-* [Python Scikit-learn examples](examples/scikit-learn/README.md):
-  *  Saves text and plot artifacts 
-  *  Saves models in pickle format
-  *  Serves models with mlflow.load_model() or MLflow serving web server
-* [PySpark ML example](examples/pyspark/README.md)
-* [Scala Spark ML example](examples/spark-scala/README.md) - uses MLFlow Java client
-* [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)
+* Python examples:
+  * [Python Scikit-learn examples](examples/scikit-learn/README.md)
+  * [PySpark ML examples](examples/pyspark/README.md)
+* [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
+* Legacy:
+  * [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)
 
 
 ## Install and Run MLflow Server
 
-### Install mlflow either with PyPi or Miniconda.
+Before running the examples, you need to install the MLflow Python environment and launch a MLflow server.
 
-Install mlflow either with PyPi or Miniconda.
+### Install 
 
 #### PyPi
 
@@ -34,5 +33,5 @@ Install mlflow either with PyPi or Miniconda.
 mlflow server --host 0.0.0.0 
 ```
 
-You are now ready to run the examples various languages.
+You are now ready to run the examples in the different languages.
 

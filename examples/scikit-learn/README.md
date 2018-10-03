@@ -1,5 +1,10 @@
 # mlflow-fun Scikit-learn Examples
 
+## Overview
+
+*  Saves text and plot artifacts
+*  Saves models in pickle format
+*  Serves models with mlflow.load_model() or MLflow serving web server
 
 ## Initialization
 
@@ -8,7 +13,9 @@ Set the URI of your MLflow tracking server:
 export MLFLOW_TRACKING_URI=http://localhost:5000
 ```
 
-## Wine Quality Elastic Net Example
+## Examples
+
+### Wine Quality Elastic Net Example
 
 Source: [train_wine_quality.py](wine-quality/train_wine_quality.py).
 
@@ -86,7 +93,7 @@ predicted = clf.predict(df)
 print("predicted:",predicted)
 ```
 
-## Iris Decision Tree Example
+### Iris Decision Tree Example
 
 Simple Scikit-learn [DecisionTreeClassifier](http://scikit-learn.org/stable/modules/tree.html) that:
 * Logs parameters and metrics 

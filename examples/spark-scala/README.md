@@ -2,16 +2,6 @@
 
 ## Install MLflow Java Client
 
-Until the Java client jar is pushed to Maven central, you will need to install the jar locally.
-
-```
-git clone -b java-client https://github.com/mlflow/mlflow mlflow
-cd mlflow/mlflow/java
-mvn -DskipTests=true install
-```
-
-More details at: [https://github.com/mlflow/mlflow/tree/java-client/mlflow/java/client](https://github.com/mlflow/mlflow/tree/java-client/mlflow/java/client).
-
 ## Run sample
 
 ```
