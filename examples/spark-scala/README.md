@@ -30,6 +30,7 @@ Source snippet from [DecisionTreeRegressionExample.scala](src/main/scala/org/and
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
 
+// Create client
 val mlflowClient = new MlflowClient("http://localhost:5000")
 
 // MLflow - create or get existing experiment
@@ -38,8 +39,7 @@ val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 
 // MLflow - create run
 val sourceName = getClass().getSimpleName()+".scala"
-val request = ObjectUtils.makeCreateRun(expId, "MyScalaRun", SourceType.LOCAL, sourceName, System.currentTimeMillis(), "doe")
-val runInfo = mlflowClient.createRun(request)
+val runInfo = mlflowClient.createRun(expId, sourceName);
 val runId = runInfo.getRunUuid()
 
 . . .
@@ -54,5 +54,5 @@ mlflowClient.logParameter(runId, "maxBins",""+dt.getMaxBins)
 mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
 
 // MLflow - close run
-mlflowClient.updateRun(runId, RunStatus.FINISHED, System.currentTimeMillis())
+mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
