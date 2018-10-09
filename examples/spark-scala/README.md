@@ -50,9 +50,9 @@ spark-submit \
   --class org.andre.mlflow.examples.DecisionTreeRegressionExample \
   --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
-  http://localhost:5000 \
-  data/sample_libsvm_data.txt \
-  5 5
+  --trackingUri http://localhost:5000 \
+  --dataPath data/sample_libsvm_data.txt \
+  --maxDepth 5 --maxBins 5
 
 Experiment name: scala/DecisionTreeRegressionExample
 Experiment ID: 2

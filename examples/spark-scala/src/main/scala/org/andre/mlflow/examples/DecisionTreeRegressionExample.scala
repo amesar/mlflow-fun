@@ -3,33 +3,33 @@ package org.andre.mlflow.examples
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.VectorIndexer
-import org.apache.spark.ml.regression.DecisionTreeRegressionModel
-import org.apache.spark.ml.regression.DecisionTreeRegressor
+import org.apache.spark.ml.regression.{DecisionTreeRegressionModel,DecisionTreeRegressor}
 import org.apache.spark.sql.SparkSession
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.RunStatus
+import com.beust.jcommander.{JCommander, Parameter}
 import scala.collection.JavaConversions._
 
 object DecisionTreeRegressionExample {
   val expName = "scala/SimpleDecisionTreeRegression"
 
-  def main(args: Array[String]): Unit = {
-    if (args.length < 4) {
-      println("ERROR: Expecting TRACKING_SERVER_URI DATA_PATH MAX_DEPTH MAX_BINS (TOKEN)")
-      System.exit(1)
-    }
-
-    val trackingUri = args(0)
-    println(s"Tracking URI: $trackingUri")
+  def main(args: Array[String]) {
+    new JCommander(opts, args.toArray: _*)
+    println("Options:")
+    println(s"  Tracking URI: ${opts.trackingUri}")
+    println(s"  token: ${opts.token}")
+    println(s"  dataPath: ${opts.dataPath}")
+    println(s"  maxDepth: ${opts.maxDepth}")
+    println(s"  maxBins: ${opts.maxBins}")
     val mlflowClient = 
-      if (args.length > 4) {
-        new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(4)))
+      if (opts.token != null) {
+        new MlflowClient(new BasicMlflowHostCreds(opts.trackingUri,opts.token))
       } else {
-        new MlflowClient(trackingUri)
+        new MlflowClient(opts.trackingUri)
       }
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-    train(mlflowClient, spark,  args(1), args(2).toInt, args(3).toInt)
+    train(mlflowClient, spark,  opts.dataPath, opts.maxDepth, opts.maxBins)
   }
 
   def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, maxDepth: Int, maxBins: Int) {
@@ -101,5 +101,22 @@ object DecisionTreeRegressionExample {
 
     // MLflow - close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+  }
+
+  object opts {
+    @Parameter(names = Array("--trackingUri" ), description = "Tracking Server URI", required=true)
+    var trackingUri: String = null
+
+    @Parameter(names = Array("--token" ), description = "REST API token", required=false)
+    var token: String = null
+
+    @Parameter(names = Array("--dataPath" ), description = "Data path", required=true)
+    var dataPath: String = null
+
+    @Parameter(names = Array("--maxDepth" ), description = "maxDepth", required=false)
+    var maxDepth = -1
+
+    @Parameter(names = Array("--maxBins" ), description = "maxBins", required=false)
+    var maxBins = -1
   }
 }

@@ -11,6 +11,7 @@
     <scala.binary.version>2.11</scala.binary.version>
     <spark.version>2.3.1</spark.version>
     <mlflow.version>0.7.0</mlflow.version>
+    <jcommander.version>1.72</jcommander.version>
   </properties>
 
   <dependencies>
@@ -48,6 +49,12 @@
       <groupId>org.mlflow</groupId>
       <artifactId>mlflow-client</artifactId>
       <version>${mlflow.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.beust</groupId>
+      <artifactId>jcommander</artifactId>
+      <version>${jcommander.version}</version>
     </dependency>
 
   </dependencies>
