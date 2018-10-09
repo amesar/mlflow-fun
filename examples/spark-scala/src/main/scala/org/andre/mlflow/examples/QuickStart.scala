@@ -5,10 +5,11 @@ import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.RunStatus
 
 object QuickStart {
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]) {
     val trackingUri = args(0)
     println(s"Tracking URI: $trackingUri")
 
+    // Create client
     val mlflowClient = 
       if (args.length > 1) {
         new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(1)))
@@ -27,7 +28,7 @@ object QuickStart {
     val runInfo = mlflowClient.createRun(expId, sourceName);
     val runId = runInfo.getRunUuid()
 
-    // Log stuff
+    // Log params and metrics
     mlflowClient.logParam(runId, "p1","hi")
     mlflowClient.logMetric(runId, "m1",0.123F)
 
