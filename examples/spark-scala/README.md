@@ -1,11 +1,51 @@
 # mlflow-fun - Spark Scala Example
 
-## Install MLflow Java Client
-
-## Run sample
-
+## Build
 ```
-mvn package
+mvn clean package
+```
+
+## Samples
+
+### Quick Start Sample
+#### Run
+```
+spark-submit \
+  --class org.andre.mlflow.examples.QuickStart \
+  --master local[2] \
+  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  http://localhost:5000 \
+```
+
+#### Source
+Source snippet from [QuickStart.scala](src/main/scala/org/andre/mlflow/examples/QuickStart.scala).
+```
+// Create client
+val trackingUri = args(0)
+val mlflowClient = new MlflowClient(trackingUri)
+
+// Create or get existing experiment
+val expName = "scala/QuickStart"
+val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
+println("Experiment name: "+expName)
+println("Experiment ID: "+expId)
+
+// Create run
+val sourceName = getClass().getSimpleName()+".scala"
+val runInfo = mlflowClient.createRun(expId, sourceName);
+val runId = runInfo.getRunUuid()
+
+// Log params and metrics
+mlflowClient.logParam(runId, "p1","hi")
+mlflowClient.logMetric(runId, "m1",0.123F)
+
+// Close run
+mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+```
+
+### Spark ML DecisionTreeRegressionExample Sample
+#### Run
+```
 spark-submit \
   --class org.andre.mlflow.examples.DecisionTreeRegressionExample \
   --master local[2] \
@@ -23,7 +63,7 @@ Then check results in UI:
 http://localhost:5000/experiments/2
 ```
 
-## Source
+#### Source
 
 Source snippet from [DecisionTreeRegressionExample.scala](src/main/scala/org/andre/mlflow/examples/DecisionTreeRegressionExample.scala).
 ```
