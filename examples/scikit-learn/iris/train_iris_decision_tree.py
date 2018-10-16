@@ -12,7 +12,7 @@ import mlflow.sklearn
 import mlflow_utils
 from mlflow import version
 
-def train(min_samples_leaf, max_depth, dataset_data, dataset_target):
+def train(min_samples_leaf, max_depth, dataset_data, dataset_target, tag):
     mlflow.log_param("min_samples_leaf", min_samples_leaf)
     mlflow.log_param("max_depth", max_depth)
 
@@ -31,6 +31,8 @@ def train(min_samples_leaf, max_depth, dataset_data, dataset_target):
     mlflow.log_metric("auc", auc)
     mlflow.log_metric("accuracy_score", accuracy_score)
     mlflow.log_metric("zero_one_loss", zero_one_loss)
+
+    mlflow.set_tag("runner", tag)
 
     print("Params:  min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
     print("Metrics: auc={} accuracy_score={} zero_one_loss={}".format(auc,accuracy_score,zero_one_loss))
@@ -61,8 +63,11 @@ def make_simple_plot(auc, accuracy_score, zero_one_loss):
     return fig
 
 if __name__ == "__main__":
-    min_samples_leaf = int(sys.argv[1]) if len(sys.argv) > 1 else 3
-    max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 5
+    #min_samples_leaf = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+    #max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 5
+    min_samples_leaf = int(sys.argv[1]) 
+    max_depth = int(sys.argv[2]) 
+    tag = sys.argv[3] if len(sys.argv) > 3 else "no_set"
     dataset = datasets.load_iris()
 
     print("MLflow Version:", version.VERSION)
@@ -73,7 +78,7 @@ if __name__ == "__main__":
     source_name = os.path.basename(__file__)
 
     print("Params: min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
-    with mlflow.start_run(experiment_id=experiment_id, source_name=source_name):
-        run_id = mlflow.active_run().info.run_uuid
+    with mlflow.start_run(experiment_id=experiment_id, source_name=source_name) as run:
+        run_id = run.info.run_uuid
         print("run_id:",run_id)
-        train(min_samples_leaf, max_depth, dataset.data, dataset.target)
+        train(min_samples_leaf, max_depth, dataset.data, dataset.target, tag)

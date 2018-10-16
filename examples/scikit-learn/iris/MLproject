@@ -7,4 +7,5 @@ entry_points:
     parameters:
       min_samples_leaf: int
       max_depth: int
-    command: "python train_iris_decision_tree.py {min_samples_leaf} {max_depth}"
+      tag: {type: string, default: "default" }
+    command: "python train_iris_decision_tree.py {min_samples_leaf} {max_depth} {tag}"
