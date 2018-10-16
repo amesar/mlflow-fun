@@ -109,7 +109,13 @@ cd iris
 python train_iris_decision_tree.py 5 3
 ```
 
-To run with the [MLproject](iris/MLproject) file:
+To run locally with the [MLproject](iris/MLproject) file:
 ```
 mlflow run . -Pmin_samples_leaf=5 -Pmax_depth=3
+```
+
+To run from git with the [MLproject](iris/MLproject) file:
+```
+mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/iris -Pmin_samples_leaf=5 -Pmax_depth=3 -Ptag=RunFromGit
+
 ```
