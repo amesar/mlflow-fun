@@ -18,11 +18,11 @@ object QuickStartFluent {
 
     val expName = "scala/QuickStart"
     val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
-    println("Experiment name: "+expName)
-    println("Experiment ID: "+expId)
+    println(s"Experiment name: $expName")
+    println(s"Experiment ID: $expId")
 
     val sourceName = getClass().getSimpleName()+".scala"
-    println(s"sourceName: $sourceName")
+    println(s"Source Name: $sourceName")
 
     new RunContext(mlflowClient, expId, sourceName) {
       println(s"Run ID: ${getRunId()}")
@@ -31,13 +31,14 @@ object QuickStartFluent {
       logMetric("metric1",0.123F)
       setTag("fluent","true")
 
-      new PrintWriter("/tmp/info.txt") { write("Info: "+new java.util.Date()) ; close }
+      val now = new java.util.Date()
+      new PrintWriter("/tmp/info.txt") { write("Info: $now") ; close }
       logArtifact(new File("/tmp/info.txt"),"info")
 
       val dir = new File("/tmp/run_artifacts")
       dir.mkdirs()
-      new PrintWriter(dir+"/info1.txt") { write("Info1 at: "+new java.util.Date()) ; close }
-      new PrintWriter(dir+"/info2.txt") { write("Info2 at: "+new java.util.Date()) ; close }
+      new PrintWriter(dir+"/info1.txt") { write("Info1 at: $now") ; close }
+      new PrintWriter(dir+"/info2.txt") { write("Info2 at: $now") ; close }
       logArtifacts(dir)
       logArtifacts(dir,"dir")
     }
