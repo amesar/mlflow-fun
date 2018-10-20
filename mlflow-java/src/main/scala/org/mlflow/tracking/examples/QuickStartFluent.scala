@@ -28,7 +28,7 @@ object QuickStartFluent {
       println(s"Run ID: ${getRunId()}")
 
       logParam("param1","p1")
-      logMetric("metric1",0.123F)
+      logMetric("metric1",0.123987651)
       setTag("fluent","true")
 
       val now = new java.util.Date()
@@ -37,8 +37,8 @@ object QuickStartFluent {
 
       val dir = new File("/tmp/run_artifacts")
       dir.mkdirs()
-      new PrintWriter(dir+"/info1.txt") { write("Info1 at: $now") ; close }
-      new PrintWriter(dir+"/info2.txt") { write("Info2 at: $now") ; close }
+      new PrintWriter(s"$dir/info1.txt") { write("Info1 at: $now") ; close }
+      new PrintWriter(s"$dir/info2.txt") { write("Info2 at: $now") ; close }
       logArtifacts(dir)
       logArtifacts(dir,"dir")
     }

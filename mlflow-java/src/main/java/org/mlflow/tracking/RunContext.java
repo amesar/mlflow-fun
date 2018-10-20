@@ -33,7 +33,7 @@ public class RunContext implements AutoCloseable {
         mlflowClient.logParam(runId, key, value);
     }
 
-    public void logMetric(String key, float value) {
+    public void logMetric(String key, double value) {
         mlflowClient.logMetric(runId, key, value);
     }
 
