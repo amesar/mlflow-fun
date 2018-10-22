@@ -1,7 +1,10 @@
 # Sample Decision Tree Classifier using MLflow
 
 from __future__ import print_function
-import sys, os
+import matplotlib
+matplotlib.use('Agg')
+
+import sys, os, platform
 sys.path.append("../..")
 from sklearn import datasets, metrics
 from sklearn.tree import DecisionTreeClassifier
@@ -12,7 +15,7 @@ import mlflow.sklearn
 import mlflow_utils
 from mlflow import version
 
-def train(min_samples_leaf, max_depth, dataset_data, dataset_target, tag):
+def train(min_samples_leaf, max_depth, dataset_data, dataset_target):
     mlflow.log_param("min_samples_leaf", min_samples_leaf)
     mlflow.log_param("max_depth", max_depth)
 
@@ -32,10 +35,10 @@ def train(min_samples_leaf, max_depth, dataset_data, dataset_target, tag):
     mlflow.log_metric("accuracy_score", accuracy_score)
     mlflow.log_metric("zero_one_loss", zero_one_loss)
 
-    mlflow.set_tag("runner", tag)
 
     print("Params:  min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
     print("Metrics: auc={} accuracy_score={} zero_one_loss={}".format(auc,accuracy_score,zero_one_loss))
+    print("Tag:  tag={}".format(tag))
 
     write_artifact('confusion_matrix.txt',str(metrics.confusion_matrix(expected, predicted)))
     write_artifact('classification_report.txt',metrics.classification_report(expected, predicted))
@@ -78,7 +81,13 @@ if __name__ == "__main__":
     source_name = os.path.basename(__file__)
 
     print("Params: min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
+    print("source_name:",source_name)
     with mlflow.start_run(experiment_id=experiment_id, source_name=source_name) as run:
         run_id = run.info.run_uuid
         print("run_id:",run_id)
-        train(min_samples_leaf, max_depth, dataset.data, dataset.target, tag)
+        train(min_samples_leaf, max_depth, dataset.data, dataset.target)
+        mlflow.set_tag("runner", tag)
+        mlflow.set_tag("mlflow_version", version.VERSION)
+        mlflow.set_tag("experiment_id", experiment_id)
+        mlflow.set_tag("experiment_name", experiment_name)
+        mlflow.set_tag("platform", platform.system())
