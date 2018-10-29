@@ -46,11 +46,11 @@ See MLflow documentation:
 * [Tutorial - Serving the Model](https://www.mlflow.org/docs/latest/tutorial.html#serving-the-model)
 * [Quickstart - Saving and Serving Models](https://www.mlflow.org/docs/latest/quickstart.html#saving-and-serving-models)
 
-**MLflow Model Serving Web Server**
+**MLflow Model Serving from a Web Server**
 
 In one window run the server:
 ```
-mlflow sklearn serve -p 5001 -r 7e674524514846799310c41f10d6b99d
+mlflow sklearn serve -p 5001 -r 7e674524514846799310c41f10d6b99d -m model
 ```
 
 In another window, submit a prediction.

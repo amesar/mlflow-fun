@@ -4,6 +4,7 @@
 
 import os
 import sys
+import platform
 sys.path.append("../..")
 
 import pandas as pd
@@ -23,7 +24,8 @@ def eval_metrics(actual, pred):
     r2 = r2_score(actual, pred)
     return rmse, mae, r2
 
-def train(data_path, alpha, l1_ratio):
+def train(data_path, alpha, l1_ratio, tag):
+    print("tag:",tag)
     np.random.seed(40)
 
     # Read the wine-quality csv file (make sure you're running this from the root of MLflow!)
@@ -59,13 +61,16 @@ def train(data_path, alpha, l1_ratio):
         print("  MAE: %s" % mae)
         print("  R2: %s" % r2)
 
-        mlflow.log_param("data", data_path)
+        mlflow.log_param("input_data_path", data_path)
         mlflow.log_param("alpha", alpha)
         mlflow.log_param("l1_ratio", l1_ratio)
 
         mlflow.log_metric("rmse", rmse)
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
+
+        mlflow.set_tag("platform", platform.system())
+        mlflow.set_tag("tag", tag)
 
         mlflow.sklearn.log_model(clf, "model")
 
@@ -84,4 +89,5 @@ if __name__ == "__main__":
         print("ERROR: Expecting alpha and l1_ratio values")
         sys.exit(1)
     data_path = sys.argv[3] if len(sys.argv) > 3 else "wine-quality.csv"
-    train(data_path, float(sys.argv[1]), float(sys.argv[2]))
+    tag = sys.argv[4] if len(sys.argv) > 4 else ""
+    train(data_path, float(sys.argv[1]), float(sys.argv[2]), tag)
