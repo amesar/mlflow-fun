@@ -35,10 +35,9 @@ def train(min_samples_leaf, max_depth, dataset_data, dataset_target):
     mlflow.log_metric("accuracy_score", accuracy_score)
     mlflow.log_metric("zero_one_loss", zero_one_loss)
 
-
     print("Params:  min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
     print("Metrics: auc={} accuracy_score={} zero_one_loss={}".format(auc,accuracy_score,zero_one_loss))
-    print("Tag:  tag={}".format(tag))
+    print("Tag:     tag={}".format(tag))
 
     write_artifact('confusion_matrix.txt',str(metrics.confusion_matrix(expected, predicted)))
     write_artifact('classification_report.txt',metrics.classification_report(expected, predicted))
@@ -66,11 +65,9 @@ def make_simple_plot(auc, accuracy_score, zero_one_loss):
     return fig
 
 if __name__ == "__main__":
-    #min_samples_leaf = int(sys.argv[1]) if len(sys.argv) > 1 else 3
-    #max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     min_samples_leaf = int(sys.argv[1]) 
     max_depth = int(sys.argv[2]) 
-    tag = sys.argv[3] if len(sys.argv) > 3 else "no_set"
+    tag = sys.argv[3] if len(sys.argv) > 3 else ""
     dataset = datasets.load_iris()
 
     print("MLflow Version:", version.VERSION)
@@ -80,7 +77,6 @@ if __name__ == "__main__":
     experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
     source_name = os.path.basename(__file__)
 
-    print("Params: min_samples_leaf={} max_depth={}".format(min_samples_leaf,max_depth))
     print("source_name:",source_name)
     with mlflow.start_run(experiment_id=experiment_id, source_name=source_name) as run:
         run_id = run.info.run_uuid
