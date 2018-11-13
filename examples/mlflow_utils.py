@@ -2,19 +2,14 @@
 
 import mlflow
 
-def get_experiment_id(client, experiment_name):
-    exps = client.list_experiments()
-    for exp in exps:
-        if experiment_name == exp.name:
-            return exp.experiment_id
-    return None
-
 def get_or_create_experiment_id(experiment_name):
     tracking_uri = mlflow.tracking.get_tracking_uri()
     client = mlflow.tracking.MlflowClient(tracking_uri)
 
-    experiment_id = get_experiment_id(client, experiment_name)
-    if experiment_id == None:
+    exp = client.get_experiment_by_name(experiment_name)
+    if exp is None:
         experiment_id = mlflow.create_experiment(experiment_name)
-    print("experiment_id={} experiment_name={}".format(experiment_id,experiment_name))
+    else:
+        experiment_id = exp.experiment_id
+    print("experiment_name={} experiment_id={}".format(experiment_name,experiment_id))
     return experiment_id

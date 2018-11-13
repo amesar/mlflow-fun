@@ -10,7 +10,7 @@
     <scala.version>2.11.8</scala.version>
     <scala.binary.version>2.11</scala.binary.version>
     <spark.version>2.3.1</spark.version>
-    <mlflow.version>0.7.0</mlflow.version>
+    <mlflow.version>0.8.0</mlflow.version>
     <jcommander.version>1.72</jcommander.version>
   </properties>
 
