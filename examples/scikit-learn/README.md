@@ -25,15 +25,23 @@ cd wine-quality
 python train_wine_quality.py wine.csv 0.5 0.5
 ```
 
-To run with the [MLproject](wine-quality/MLproject) file:
-```
-mlflow run . -Palpha=0.01 -Pl1_ratio=0.75 
-```
-
 Check results in UI:
 ```
 http://localhost:5011/#/experiments/1
 ```
+
+**Managed Training Runs**
+
+To run locally with the [MLproject](iris/MLproject) file:
+```
+mlflow run . -Palpha=0.01 -Pl1_ratio=0.75
+```
+
+To run from git with the [MLproject](iris/MLproject) file:
+```
+mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality -Palpha=0.01 -Pl1_ratio=0.75
+```
+
 
 **Serving Models**
 
@@ -77,13 +85,12 @@ curl -X POST -H "Content-Type:application/json" -d @predictions.json http://loca
 ]
 ```
 
-**Custom Serving with load_model()**
+**Serving with mlflow.sklearn.load_model()**
 
-Run:
 ```
-python serve_loaded_model.py 7e674524514846799310c41f10d6b99d
+python serve_with_load_model.py 7e674524514846799310c41f10d6b99d
 ```
-Using ``mlflow.sklearn.load_model()`` as in [serve_loaded_model.py](wine-quality/serve_loaded_model.py):
+From [serve_with_load_model.py](wine-quality/serve_with_load_model.py):
 ```
 clf = mlflow.sklearn.load_model("model",run_id="7e674524514846799310c41f10d6b99d")
 with open("predictions.json", 'rb') as f:
@@ -108,6 +115,8 @@ To run with standard main function:
 cd iris
 python train_iris_decision_tree.py 5 3
 ```
+
+**Managed Training Runs**
 
 To run locally with the [MLproject](iris/MLproject) file:
 ```
