@@ -1,10 +1,12 @@
 
-import os
+# Serve predictions from a saved MLflow model
+
 import sys
 import json
 import pandas as pd
 from pandas.io.json import json_normalize
 import mlflow.sklearn
+import mlflow
 
 if __name__ == "__main__":
     if len(sys.argv) < 1:
@@ -21,4 +23,3 @@ if __name__ == "__main__":
     df = json_normalize(data)
     predicted = clf.predict(df)
     print("predicted:",predicted)
-
