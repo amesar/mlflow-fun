@@ -46,8 +46,8 @@ def train(data_path, alpha, l1_ratio, tag):
     experiment_name = "py/sk/ElasticNet/WineQuality"
     experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
 
-    with mlflow.start_run(experiment_id=experiment_id, source_name=current_file):
-        run_id = mlflow.active_run().info.run_uuid
+    with mlflow.start_run(experiment_id=experiment_id, source_name=current_file) as run:
+        run_id = run.info.run_uuid
         print("run_id:",run_id)
         clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
         clf.fit(train_x, train_y)
