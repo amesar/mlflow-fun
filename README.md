@@ -6,6 +6,7 @@ MLflow examples for Python and Scala training models.
 * Python examples:
   * [Python Scikit-learn examples](examples/scikit-learn/README.md)
   * [PySpark ML examples](examples/pyspark/README.md)
+  * [PyTorch ML examples](examples/pytorch/README.md)
 * [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
 * Legacy:
   * [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)
