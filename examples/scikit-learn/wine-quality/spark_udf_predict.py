@@ -7,16 +7,21 @@ import sys
 from pyspark.sql import SparkSession
 import mlflow
 import mlflow.sklearn
-experiment_name = "py/sk/ElasticNet/WineQuality"
 
 if __name__ == "__main__":
-    path = "wine-quality.csv"
+    path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality.csv"
     run_id = sys.argv[1]
+    print(">> path=",path)
+    print("run_id=",run_id)
     print("MLflow Version:", mlflow.version.VERSION)
 
     spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-    df = spark.read.option("inferSchema",True).option("header", True).csv(path)
-    df = df.drop("quality")
+
+    df = spark.read.option("inferSchema",True).option("header", True).csv(path) if path.endswith(".csv") \
+    else spark.read.option("multiLine",True).json(path)
+
+    if "quality" in df.columns:
+        df = df.drop("quality")
     df.show(10)
 
     udf = mlflow.pyfunc.spark_udf(spark, "model", run_id=run_id)
