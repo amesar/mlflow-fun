@@ -107,11 +107,11 @@ curl -X POST -H "Content-Type:application/json" -d @wine-quality.json http://loc
 #### 2. Predict with mlflow.sklearn.load_model()
 
 ```
-python load_model_predict.py 7e674524514846799310c41f10d6b99d
+python scikit_predict.py 7e674524514846799310c41f10d6b99d
 
 predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 ```
-From [load_model_predict.py](wine-quality/load_model_predict.py):
+From [scikit_predict.py](wine-quality/scikit_predict.py):
 ```
 model = mlflow.sklearn.load_model("model",run_id="7e674524514846799310c41f10d6b99d")
 with open("wine-quality.json", 'rb') as f:
@@ -123,11 +123,11 @@ print("predicted:",predicted)
 #### 3. Predict with mlflow.pyfunc.load_pyfunc()
 
 ```
-python pyfunc_model_predict.py 7e674524514846799310c41f10d6b99d
+python pyfunc_predict.py 7e674524514846799310c41f10d6b99d
 
 predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 ```
-From [pyfunc_model_predict.py](wine-quality/pyfunc_model_predict.py):
+From [pyfunc_predict.py](wine-quality/pyfunc_predict.py):
 ```
 model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
