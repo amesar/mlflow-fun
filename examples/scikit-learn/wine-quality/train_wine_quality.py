@@ -15,8 +15,9 @@ from sklearn.linear_model import ElasticNet, enet_path
 
 import mlflow
 import mlflow.sklearn
-import mlflow_utils
 import plot_utils
+from common import experiment_name
+print("experiment_name:",experiment_name)
 
 def eval_metrics(actual, pred):
     rmse = np.sqrt(mean_squared_error(actual, pred))
@@ -28,8 +29,7 @@ def train(data_path, alpha, l1_ratio, tag):
     print("tag:",tag)
     np.random.seed(40)
 
-    # Read the wine-quality csv file (make sure you're running this from the root of MLflow!)
-    #data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), data_path)
+    # Read the wine-quality csv file 
     print("data_path:",data_path)
     data = pd.read_csv(data_path)
 
@@ -42,24 +42,25 @@ def train(data_path, alpha, l1_ratio, tag):
     train_y = train[["quality"]]
     test_y = test[["quality"]]
 
-    current_file = os.path.basename(__file__)
-    experiment_name = "py/sk/ElasticNet/WineQuality"
-    experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
+    mlflow.set_experiment(experiment_name)
+    client = mlflow.tracking.MlflowClient()
+    print("experiment_id:",client.get_experiment_by_name(experiment_name).experiment_id)
 
-    with mlflow.start_run(experiment_id=experiment_id, source_name=current_file) as run:
+    current_file = os.path.basename(__file__)
+
+    with mlflow.start_run(source_name=current_file) as run:
         run_id = run.info.run_uuid
         print("run_id:",run_id)
         clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
         clf.fit(train_x, train_y)
 
         predicted_qualities = clf.predict(test_x)
-
         (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)
 
-        print("Elasticnet model (alpha=%f, l1_ratio=%f):" % (alpha, l1_ratio))
-        print("  RMSE: %s" % rmse)
-        print("  MAE: %s" % mae)
-        print("  R2: %s" % r2)
+        print("Elasticnet model (alpha={}, l1_ratio={}):".format(alpha, l1_ratio))
+        print("  RMSE:",rmse)
+        print("  MAE:",mae)
+        print("  R2:",r2)
 
         mlflow.log_param("input_data_path", data_path)
         mlflow.log_param("alpha", alpha)

@@ -4,7 +4,6 @@ Decision Tree Classification Example.
 from __future__ import print_function
 
 import sys,os
-sys.path.append("..")
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.feature import StringIndexer, VectorIndexer
@@ -13,7 +12,6 @@ from pyspark.sql import SparkSession
 import mlflow
 from mlflow import version
 from mlflow import spark as mlflow_spark
-import mlflow_utils
 
 experiment_name = "py/spark/DecisionTree"
 
@@ -76,6 +74,10 @@ if __name__ == "__main__":
     current_file = os.path.basename(__file__)
     print("MLflow Version:", version.VERSION)
     print("experiment_name:",experiment_name)
-    experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
-    with mlflow.start_run(experiment_id=experiment_id, source_name=current_file):
+
+    mlflow.set_experiment(experiment_name)
+    client = mlflow.tracking.MlflowClient()
+    print("experiment_id:",client.get_experiment_by_name(experiment_name).experiment_id)
+
+    with mlflow.start_run(source_name=current_file):
         run(max_depth,max_bins)

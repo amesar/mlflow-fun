@@ -5,15 +5,15 @@ import matplotlib
 matplotlib.use('Agg')
 
 import sys, os, platform
-sys.path.append("../..")
 from sklearn import datasets, metrics
 from sklearn.tree import DecisionTreeClassifier
 import matplotlib.pyplot as plt
 plt.rcdefaults()
 import mlflow
 import mlflow.sklearn
-import mlflow_utils
 from mlflow import version
+
+experiment_name = "py/sk/DecisionTree/Iris"
 
 def train(min_samples_leaf, max_depth, dataset_data, dataset_target):
     mlflow.log_param("min_samples_leaf", min_samples_leaf)
@@ -73,12 +73,15 @@ if __name__ == "__main__":
     print("MLflow Version:", version.VERSION)
     print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
-    experiment_name = "py/sk/DecisionTree/Iris"
-    experiment_id = mlflow_utils.get_or_create_experiment_id(experiment_name)
+    mlflow.set_experiment(experiment_name)
+    client = mlflow.tracking.MlflowClient()
+    experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
+    print("experiment_id:",experiment_id)
+
     source_name = os.path.basename(__file__)
 
     print("source_name:",source_name)
-    with mlflow.start_run(experiment_id=experiment_id, source_name=source_name) as run:
+    with mlflow.start_run(source_name=source_name) as run:
         run_id = run.info.run_uuid
         print("run_id:",run_id)
         train(min_samples_leaf, max_depth, dataset.data, dataset.target)
