@@ -18,7 +18,8 @@ if __name__ == "__main__":
     print("path:",path)
     print("run_id:",run_id)
 
-    model_uri = mlflow.start_run(run_id).info.artifact_uri +  "/model"
+    client = mlflow.tracking.MlflowClient()
+    model_uri = client.get_run(run_id).info.artifact_uri + "/model"
     print("model_uri=",model_uri)
     model = mlflow.pyfunc.load_pyfunc(model_uri)
     print("model:",model)
