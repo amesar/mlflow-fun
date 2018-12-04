@@ -4,7 +4,7 @@ import java.io.{File,PrintWriter}
 import org.mlflow.tracking.{MlflowClient,RunContext}
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 
-object QuickStartFluent {
+object HelloWorldFluent {
   def main(args: Array[String]) {
     val trackingUri = args(0)
     println(s"Tracking URI: $trackingUri")
@@ -16,7 +16,7 @@ object QuickStartFluent {
         new MlflowClient(trackingUri)
       }
 
-    val expName = "scala/QuickStart"
+    val expName = "scala/HelloWorld"
     val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
     println(s"Experiment name: $expName")
     println(s"Experiment ID: $expId")
