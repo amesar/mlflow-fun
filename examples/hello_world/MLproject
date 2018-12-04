@@ -1,0 +1,10 @@
+name: hello_world
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      alpha: {type: string, default: "0.01" }
+      tag: {type: string, default: "None" }
+    command: "python hello_world.py {alpha} {tag}"
