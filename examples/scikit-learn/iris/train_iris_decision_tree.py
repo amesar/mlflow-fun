@@ -73,6 +73,7 @@ if __name__ == "__main__":
     print("MLflow Version:", version.VERSION)
     print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
+    print("experiment_name:",experiment_name)
     mlflow.set_experiment(experiment_name)
     client = mlflow.tracking.MlflowClient()
     experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
