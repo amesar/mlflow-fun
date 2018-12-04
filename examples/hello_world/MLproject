@@ -6,6 +6,6 @@ entry_points:
   main:
     parameters:
       alpha: {type: string, default: "0.01" }
-      tag: {type: string, default: "None" }
+      run_origin: {type: string, default: "None" }
       log_artifact: {type: boolean, default: False }
-    command: "python hello_world.py {alpha} {tag} {log_artifact}"
+    command: "python hello_world.py {alpha} {run_origin} {log_artifact}"
