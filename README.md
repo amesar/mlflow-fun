@@ -8,6 +8,7 @@ MLflow examples for Python and Scala training models.
   * [PySpark ML examples](examples/pyspark/README.md)
   * [PyTorch ML examples](examples/pytorch/README.md)
   * [Hello World examples](examples/hello_world)
+  * [Hello World Nested Runs example](examples/hello_world_nested_runs)
 * Scala/Java:
   * [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
   * [mlflow-java](mlflow-java/README.md) - MLflow Java and Scala extras such as proposed RunContext
