@@ -30,15 +30,16 @@ object QuickStartFluent {
       logParam("param1","p1")
       logMetric("metric1",0.123987651)
       setTag("fluent","true")
+      setTag("mlflow.note.content","my **bold** note")
 
       val now = new java.util.Date()
-      new PrintWriter("/tmp/info.txt") { write("Info: $now") ; close }
+      new PrintWriter("/tmp/info.txt") { write(s"Info: $now") ; close }
       logArtifact(new File("/tmp/info.txt"),"info")
 
       val dir = new File("/tmp/run_artifacts")
       dir.mkdirs()
-      new PrintWriter(s"$dir/info1.txt") { write("Info1 at: $now") ; close }
-      new PrintWriter(s"$dir/info2.txt") { write("Info2 at: $now") ; close }
+      new PrintWriter(s"$dir/info1.txt") { write(s"Info1 at: $now") ; close }
+      new PrintWriter(s"$dir/info2.txt") { write(s"Info2 at: $now") ; close }
       logArtifacts(dir)
       logArtifacts(dir,"dir")
     }
