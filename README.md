@@ -7,9 +7,10 @@ MLflow examples for Python and Scala training models.
   * [Python Scikit-learn examples](examples/scikit-learn/README.md)
   * [PySpark ML examples](examples/pyspark/README.md)
   * [PyTorch ML examples](examples/pytorch/README.md)
-  * [Hello World examples](examples/hello_world)
+  * [Hello World example](examples/hello_world)
   * [Hello World Nested Runs example](examples/hello_world_nested_runs)
 * Scala/Java:
+  * Note: You need to install Python MLflow in order for Java artifacts to work: `pip install mlflow`
   * [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
   * [mlflow-java](mlflow-java/README.md) - MLflow Java and Scala extras such as proposed RunContext
 * Legacy:

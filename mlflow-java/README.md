@@ -3,7 +3,7 @@
 MLflow Java and Scala extras
 
 ## Setup
-You need to install Python MLflow Python in order for Java artifacts to work.
+You need to install Python MLflow in order for Java artifacts to work.
 ```
 mvn -DskipTests=true package
 pip install mlflow
