@@ -62,7 +62,7 @@ object DecisionTreeRegressionExample {
     println(s"dt.MaxBins: ${dt.getMaxBins}")
 
     // MLflow - create run
-    val sourceName = getClass().getSimpleName()+".scala"
+    val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
     val runInfo = mlflowClient.createRun(expId, sourceName);
     val runId = runInfo.getRunUuid()
 
