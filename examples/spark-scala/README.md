@@ -7,25 +7,25 @@ mvn clean package
 
 ## Samples
 
-### Quick Start Sample
+### Hello World 
 #### Run
 ```
 spark-submit \
-  --class org.andre.mlflow.examples.QuickStart \
+  --class org.andre.mlflow.examples.HelloWorld \
   --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   http://localhost:5000 \
 ```
 
 #### Source
-Source snippet from [QuickStart.scala](src/main/scala/org/andre/mlflow/examples/QuickStart.scala).
+Source snippet from [HelloWorld.scala](src/main/scala/org/andre/mlflow/examples/HelloWorld.scala).
 ```
 // Create client
 val trackingUri = args(0)
 val mlflowClient = new MlflowClient(trackingUri)
 
 // Create or get existing experiment
-val expName = "scala/QuickStart"
+val expName = "scala/HelloWorld"
 val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 println("Experiment name: "+expName)
 println("Experiment ID: "+expId)
