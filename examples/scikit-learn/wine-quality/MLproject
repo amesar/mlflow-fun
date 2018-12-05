@@ -8,5 +8,5 @@ entry_points:
       alpha: float
       l1_ratio: {type: float, default: 0.1}
       data_path: {type: string, default: "wine-quality.csv" }
-      tag: {type: string, default: "default" }
-    command: "python train_wine_quality.py {alpha} {l1_ratio} {data_path} {tag}"
+      run_origin: {type: string, default: "default" }
+    command: "python train_wine_quality.py {alpha} {l1_ratio} {data_path} {run_origin}"

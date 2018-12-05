@@ -40,12 +40,12 @@ http://localhost:5011/#/experiments/1
 
 To run locally with the [MLproject](iris/MLproject) file:
 ```
-mlflow run . -Palpha=0.01 -Pl1_ratio=0.75
+mlflow run . -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=LocalRun
 ```
 
 To run from git with the [MLproject](iris/MLproject) file:
 ```
-mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality -Palpha=0.01 -Pl1_ratio=0.75
+mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun
 ```
 
 ### Predictions

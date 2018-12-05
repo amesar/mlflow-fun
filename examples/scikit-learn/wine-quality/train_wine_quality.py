@@ -16,7 +16,8 @@ from sklearn.linear_model import ElasticNet, enet_path
 import mlflow
 import mlflow.sklearn
 import plot_utils
-from common import experiment_name
+
+experiment_name = "py/sk/ElasticNet/WineQuality"
 print("experiment_name:",experiment_name)
 
 def eval_metrics(actual, pred):
@@ -25,8 +26,8 @@ def eval_metrics(actual, pred):
     r2 = r2_score(actual, pred)
     return rmse, mae, r2
 
-def train(data_path, alpha, l1_ratio, tag):
-    print("tag:",tag)
+def train(data_path, alpha, l1_ratio, run_origin):
+    print("run_origin:",run_origin)
     np.random.seed(40)
 
     # Read the wine-quality csv file 
@@ -62,7 +63,7 @@ def train(data_path, alpha, l1_ratio, tag):
         print("  MAE:",mae)
         print("  R2:",r2)
 
-        mlflow.log_param("input_data_path", data_path)
+        mlflow.log_param("data_path", data_path)
         mlflow.log_param("alpha", alpha)
         mlflow.log_param("l1_ratio", l1_ratio)
 
@@ -71,7 +72,7 @@ def train(data_path, alpha, l1_ratio, tag):
         mlflow.log_metric("mae", mae)
 
         mlflow.set_tag("platform", platform.system())
-        mlflow.set_tag("tag", tag)
+        mlflow.set_tag("run_origin", run_origin)
 
         mlflow.sklearn.log_model(clf, "model")
 
@@ -90,5 +91,5 @@ if __name__ == "__main__":
         print("ERROR: Expecting alpha and l1_ratio values")
         sys.exit(1)
     data_path = sys.argv[3] if len(sys.argv) > 3 else "wine-quality.csv"
-    tag = sys.argv[4] if len(sys.argv) > 4 else ""
-    train(data_path, float(sys.argv[1]), float(sys.argv[2]), tag)
+    run_origin = sys.argv[4] if len(sys.argv) > 4 else ""
+    train(data_path, float(sys.argv[1]), float(sys.argv[2]), run_origin)
