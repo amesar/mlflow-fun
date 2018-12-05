@@ -6,9 +6,9 @@
 *  Saves models in pickle format
 *  Serves models with mlflow.load_model() or MLflow serving web server
 
-## Initialization
+## Setup
 
-Set the URI of your MLflow tracking server.
+Set the URI of your MLflow tracking server:
 ```
 export MLFLOW_TRACKING_URI=http://localhost:5000
 ```
@@ -36,16 +36,34 @@ Check results in UI:
 http://localhost:5011/#/experiments/1
 ```
 
-#### Managed Runs
+#### Project Runs
 
-To run locally with the [MLproject](iris/MLproject) file:
+These runs use this [MLproject](wine-quality/MLproject) file. For more details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
+
+**mlflow local**
 ```
 mlflow run . -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=LocalRun
 ```
 
-To run from git with the [MLproject](iris/MLproject) file:
+**mlflow github**
 ```
-mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun
+mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
+  -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun
+```
+
+**mlflow remote** - see [cluster.json](wine-quality/cluster.json)
+
+Setup:
+```
+export MLFLOW_TRACKING_URI=databricks
+export DATABRICKS_TOKEN=MY_TOKEN
+export DATABRICKS_HOST=https://myshard.cloud.databricks.com
+```
+Now run:
+```
+mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
+  -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun \
+  -m databricks --cluster-spec cluster.json
 ```
 
 ### Predictions

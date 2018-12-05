@@ -28,7 +28,7 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 ```
 export MLFLOW_TRACKING_URI=databricks
 export DATABRICKS_TOKEN=MY_TOKEN
-export DATABRICKS_HOST=https://demo.cloud.databricks.com
+export DATABRICKS_HOST=https://myshard.cloud.databricks.com
 ```
 
 ## Running
