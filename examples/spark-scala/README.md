@@ -39,13 +39,16 @@ val runId = runInfo.getRunUuid()
 mlflowClient.logParam(runId, "p1","hi")
 mlflowClient.logMetric(runId, "m1",0.123F)
 
+
 // Close run
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
 ### Spark ML DecisionTreeRegressionExample Sample
+Saves model as artifact in MLflow (using temporary directory 'tmp').
 #### Run
 ```
+rm -rf tmp
 spark-submit \
   --class org.andre.mlflow.examples.DecisionTreeRegressionExample \
   --master local[2] \
@@ -56,11 +59,6 @@ spark-submit \
 
 Experiment name: scala/DecisionTreeRegressionExample
 Experiment ID: 2
-
-```
-Then check results in UI:
-```
-http://localhost:5000/experiments/2
 ```
 
 #### Source
@@ -92,6 +90,11 @@ mlflowClient.logParameter(runId, "maxBins",""+dt.getMaxBins)
 
 // MLflow - Log metric
 mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
+
+// MLflow - save model as artifact
+//pipeline.save("tmp")
+clf.save("tmp")
+mlflowClient.logArtifacts(runId, new File("tmp"),"model")
 
 // MLflow - close run
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())

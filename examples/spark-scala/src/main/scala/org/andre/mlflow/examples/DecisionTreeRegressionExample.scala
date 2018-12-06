@@ -1,5 +1,6 @@
 package org.andre.mlflow.examples
 
+import java.io.File
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.VectorIndexer
@@ -52,14 +53,14 @@ object DecisionTreeRegressionExample {
     println("Experiment ID: "+expId)
 
     // Train a DecisionTree model.
-    val dt = new DecisionTreeRegressor()
+    val clf = new DecisionTreeRegressor()
       .setLabelCol("label")
       .setFeaturesCol("indexedFeatures")
 
-    if (maxDepth != -1) dt.setMaxDepth(maxDepth)
-    if (maxBins != -1) dt.setMaxBins(maxBins)
-    println(s"dt.MaxDepth: ${dt.getMaxDepth}")
-    println(s"dt.MaxBins: ${dt.getMaxBins}")
+    if (maxDepth != -1) clf.setMaxDepth(maxDepth)
+    if (maxBins != -1) clf.setMaxBins(maxBins)
+    println(s"clf.MaxDepth: ${clf.getMaxDepth}")
+    println(s"clf.MaxBins: ${clf.getMaxBins}")
 
     // MLflow - create run
     val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
@@ -67,11 +68,11 @@ object DecisionTreeRegressionExample {
     val runId = runInfo.getRunUuid()
 
     // MLflow - Log parameters
-    mlflowClient.logParam(runId, "maxDepth",""+dt.getMaxDepth)
-    mlflowClient.logParam(runId, "maxBins",""+dt.getMaxBins)
+    mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
+    mlflowClient.logParam(runId, "maxBins",""+clf.getMaxBins)
 
     // Chain indexer and tree in a Pipeline.
-    val pipeline = new Pipeline().setStages(Array(featureIndexer, dt))
+    val pipeline = new Pipeline().setStages(Array(featureIndexer, clf))
 
     // Train model. This also runs the indexer.
     val model = pipeline.fit(trainingData)
@@ -98,6 +99,11 @@ object DecisionTreeRegressionExample {
 
     // MLflow - Log metric
     mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
+
+    // MLflow - save model as artifact
+    //pipeline.save("tmp")
+    clf.save("tmp")
+    mlflowClient.logArtifacts(runId, new File("tmp"),"model")
 
     // MLflow - close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
