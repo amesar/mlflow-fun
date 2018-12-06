@@ -1,6 +1,6 @@
 package org.andre.mlflow.examples
 
-import java.io.File
+import java.io.{File,PrintWriter}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.VectorIndexer
@@ -99,6 +99,11 @@ object DecisionTreeRegressionExample {
 
     // MLflow - Log metric
     mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
+
+    // MLflow - Log simple artifact
+    val path="info.txt"
+    new PrintWriter(path) { write("Info: "+new java.util.Date()) ; close }
+    mlflowClient.logArtifact(runId,new File(path),"info")
 
     // MLflow - save model as artifact
     //pipeline.save("tmp")
