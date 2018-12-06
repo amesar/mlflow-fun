@@ -5,7 +5,6 @@
 import os
 import sys
 import platform
-sys.path.append("../..")
 
 import pandas as pd
 import numpy as np
