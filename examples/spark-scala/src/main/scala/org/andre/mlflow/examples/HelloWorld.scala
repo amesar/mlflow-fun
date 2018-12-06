@@ -35,9 +35,15 @@ object HelloWorld {
     mlflowClient.logParam(runId, "p1","hi")
     mlflowClient.logMetric(runId, "m1",0.123F)
 
-    // Log artifact
-    new PrintWriter("info.txt") { write("Run at: "+new java.util.Date()) ; close }
+    // Log file artifact
+    new PrintWriter("info.txt") { write("File artifact: "+new java.util.Date()) ; close }
     mlflowClient.logArtifact(runId, new File("info.txt"))
+
+    // Log directory artifact
+    val dir = new File("tmp")
+    dir.mkdir
+    new PrintWriter(new File(dir, "model.txt")) { write("Directory artifact: "+new java.util.Date()) ; close }
+    mlflowClient.logArtifacts(runId, dir, "model")
 
     // Close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
