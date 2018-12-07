@@ -1,5 +1,7 @@
 package org.andre.mlflow.examples
 
+// From: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/ml/DecisionTreeRegressionExample.scala
+
 import java.io.{File,PrintWriter}
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.RegressionEvaluator
@@ -107,7 +109,8 @@ object DecisionTreeRegressionExample {
 
     // MLflow - save model as artifact
     //pipeline.save("tmp")
-    clf.save("tmp")
+    //clf.save("tmp")
+    clf.write.overwrite().save("tmp") 
     mlflowClient.logArtifacts(runId, new File("tmp"),"model")
 
     // MLflow - close run
