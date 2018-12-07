@@ -14,8 +14,8 @@ import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
 import scala.collection.JavaConversions._
 
-object DecisionTreeRegressionExample {
-  val expName = "scala/SimpleDecisionTreeRegression"
+object TrainDecisionTree {
+  val expName = "scala/SimpleDecisionTree"
 
   def main(args: Array[String]) {
     new JCommander(opts, args.toArray: _*)
@@ -23,6 +23,7 @@ object DecisionTreeRegressionExample {
     println(s"  Tracking URI: ${opts.trackingUri}")
     println(s"  token: ${opts.token}")
     println(s"  dataPath: ${opts.dataPath}")
+    println(s"  modelPath: ${opts.modelPath}")
     println(s"  maxDepth: ${opts.maxDepth}")
     println(s"  maxBins: ${opts.maxBins}")
     val mlflowClient = 
@@ -32,10 +33,10 @@ object DecisionTreeRegressionExample {
         new MlflowClient(opts.trackingUri)
       }
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-    train(mlflowClient, spark,  opts.dataPath, opts.maxDepth, opts.maxBins)
+    train(mlflowClient, spark, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins)
   }
 
-  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, maxDepth: Int, maxBins: Int) {
+  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int) {
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -108,10 +109,9 @@ object DecisionTreeRegressionExample {
     mlflowClient.logArtifact(runId,new File(path),"info")
 
     // MLflow - save model as artifact
-    //pipeline.save("tmp")
-    //clf.save("tmp")
-    clf.write.overwrite().save("tmp") 
-    mlflowClient.logArtifacts(runId, new File("tmp"),"model")
+    //model.save(modelPath)
+    model.write.overwrite().save(modelPath)
+    mlflowClient.logArtifacts(runId, new File(modelPath),"model")
 
     // MLflow - close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
@@ -126,6 +126,9 @@ object DecisionTreeRegressionExample {
 
     @Parameter(names = Array("--dataPath" ), description = "Data path", required=true)
     var dataPath: String = null
+
+    @Parameter(names = Array("--modelPath" ), description = "Data path", required=true)
+    var modelPath: String = null
 
     @Parameter(names = Array("--maxDepth" ), description = "maxDepth", required=false)
     var maxDepth = -1

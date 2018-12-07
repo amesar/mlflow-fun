@@ -5,10 +5,8 @@
 mvn clean package
 ```
 
-## Samples
-
-### Hello World 
-#### Run
+## Hello World Sample
+### Run
 ```
 spark-submit \
   --class org.andre.mlflow.examples.HelloWorld \
@@ -17,7 +15,7 @@ spark-submit \
   http://localhost:5000 \
 ```
 
-#### Source
+### Source
 Source snippet from [HelloWorld.scala](src/main/scala/org/andre/mlflow/examples/HelloWorld.scala).
 ```
 // Create client
@@ -44,26 +42,35 @@ mlflowClient.logMetric(runId, "m1",0.123F)
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
-### Spark ML DecisionTreeRegressionExample Sample
-Saves model as artifact in MLflow (using temporary directory 'tmp').
+## Spark ML DecisionTree Sample
+
+Sample demonstrating:
+*  Training a model
+*  Saving the model
+*  Predicting from loading model
+
+### Train
+
+Saves model as artifact in MLflow.
+
 #### Run
 ```
-rm -rf tmp
 spark-submit \
-  --class org.andre.mlflow.examples.DecisionTreeRegressionExample \
+  --class org.andre.mlflow.examples.TrainDecisionTree \
   --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
+  --modelPath model_sample \
   --maxDepth 5 --maxBins 5
 
-Experiment name: scala/DecisionTreeRegressionExample
+Experiment name: scala/SimpleDecisionTree
 Experiment ID: 2
 ```
 
 #### Source
 
-Source snippet from [DecisionTreeRegressionExample.scala](src/main/scala/org/andre/mlflow/examples/DecisionTreeRegressionExample.scala).
+Source snippet from [TrainDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/TrainDecisionTree.scala).
 ```
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
@@ -72,7 +79,7 @@ import org.mlflow.api.proto.Service.RunStatus
 val mlflowClient = new MlflowClient("http://localhost:5000")
 
 // MLflow - create or get existing experiment
-val expName = "scala/SimpleDecisionTreeRegression"
+val expName = "scala/SimpleDecisionTree"
 val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 
 // MLflow - create run
@@ -98,4 +105,27 @@ mlflowClient.logArtifacts(runId, new File("tmp"),"model")
 
 // MLflow - close run
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+```
+
+### Predict
+
+#### Run
+```
+spark-submit \
+  --class org.andre.mlflow.examples.PredictDecisionTree \
+  --master local[2] \
+  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  --dataPath data/sample_libsvm_data.txt \
+  --modelPath model_sample
+```
+
+#### Source
+
+Source snippet from [PredictDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/PredictDecisionTree.scala).
+```
+val data = spark.read.format("libsvm").load(opts.dataPath)
+val model = PipelineModel.load(opts.modelPath)
+val predictions = model.transform(data)
+println("Prediction:")
+predictions.select("prediction", "label", "features").show(10,false)
 ```
