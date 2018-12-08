@@ -15,7 +15,6 @@ object PredictDecisionTree {
     println(s"  tracking URI: ${opts.trackingUri}")
     println(s"  token: ${opts.token}")
     println(s"  runId: ${opts.runId}")
-    println(s"  modelArtifactPath: ${opts.modelArtifactPath}")
 
     val mlflowClient =
       if (opts.token != null) {
@@ -28,11 +27,20 @@ object PredictDecisionTree {
 
     val runInfo = mlflowClient.getRun(opts.runId).getInfo
     val uri = runInfo.getArtifactUri
-    val modelPath = s"$uri/${opts.modelArtifactPath}"
+
+    println("========= Spark ML")
+    val modelPath = s"$uri/spark_model"
     val model = PipelineModel.load(modelPath)
     val predictions = model.transform(data)
     val df = predictions.select("prediction", "label", "features")
-    df.show(100,false)
+    df.show(10)
+
+    println("========= MLEAP")
+    val modelPath2 = s"file:${uri}/mleap_model"
+    val model2 = MLeapUtils.read(modelPath2)
+    val predictions2 = model2.transform(data)
+    val df2 = predictions2.select("prediction", "label", "features")
+    df2.show(10)
   }
 
   object opts {
@@ -47,8 +55,5 @@ object PredictDecisionTree {
 
     @Parameter(names = Array("--runId" ), description = "runId", required=true)
     var runId: String = null
-
-    @Parameter(names = Array("--modelArtifactPath" ), description = "modelArtifactPath", required=true)
-    var modelArtifactPath: String = null
   }
 }

@@ -37,7 +37,6 @@ val runId = runInfo.getRunUuid()
 mlflowClient.logParam(runId, "p1","hi")
 mlflowClient.logMetric(runId, "m1",0.123F)
 
-
 // Close run
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
@@ -45,13 +44,13 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 ## Spark ML DecisionTree Sample
 
 Sample demonstrating:
-*  Training a model
-*  Saving the model
-*  Predicting from loading model
+*  Trains a model
+*  Saves the model in Spark ML and MLeap formats
+*  Predicts from loading the above two model
 
 ### Train
 
-Saves model as artifact in MLflow.
+Saves model as Spark ML and MLeap artifact in MLflow.
 
 #### Run
 ```
@@ -87,13 +86,11 @@ val sourceName = getClass().getSimpleName()+".scala"
 val runInfo = mlflowClient.createRun(expId, sourceName);
 val runId = runInfo.getRunUuid()
 
-. . .
-
 // MLflow - Log parameters
 mlflowClient.logParameter(runId, "maxDepth",""+dt.getMaxDepth)
 mlflowClient.logParameter(runId, "maxBins",""+dt.getMaxBins)
 
-. . .
+. . . 
 
 // MLflow - Log metric
 mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
@@ -103,11 +100,24 @@ mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
 clf.save("tmp")
 mlflowClient.logArtifacts(runId, new File("tmp"),"model")
 
+// MLflow - save model as Spark ML artifact
+val sparkModelPath = "out/spark_model"
+model.write.overwrite().save(sparkModelPath)
+mlflowClient.logArtifacts(runId, new File(sparkModelPath), "spark_model")
+
+// MLflow - save model as MLeap artifact
+val mleapModelDir = new File("out/mleap_model")
+mleapModelDir.mkdir
+MLeapUtils.save(model, predictions, "file:"+mleapModelDir.getAbsolutePath)
+mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
+
 // MLflow - close run
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
 ### Predict
+
+Predicts from Spark ML and MLeap models.
 
 #### Run
 ```
@@ -116,7 +126,7 @@ spark-submit \
   --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --dataPath data/sample_libsvm_data.txt \
-  --modelPath model_sample
+  --runId 3e422c4736a34046a74795384741ac33
 ```
 
 #### Source

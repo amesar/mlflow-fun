@@ -24,7 +24,6 @@ object TrainDecisionTree {
     println(s"  token: ${opts.token}")
     println(s"  dataPath: ${opts.dataPath}")
     println(s"  modelPath: ${opts.modelPath}")
-    println(s"  modelArtifactPath: ${opts.modelArtifactPath}")
     println(s"  maxDepth: ${opts.maxDepth}")
     println(s"  maxBins: ${opts.maxBins}")
     val mlflowClient = 
@@ -34,10 +33,10 @@ object TrainDecisionTree {
         new MlflowClient(opts.trackingUri)
       }
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-    train(mlflowClient, spark, opts.dataPath, opts.modelPath, opts.modelArtifactPath, opts.maxDepth, opts.maxBins)
+    train(mlflowClient, spark, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins)
   }
 
-  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, modelPath: String, modelArtifactPath: String, maxDepth: Int, maxBins: Int) {
+  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int) {
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -109,10 +108,17 @@ object TrainDecisionTree {
     new PrintWriter(path) { write("Info: "+new java.util.Date()) ; close }
     mlflowClient.logArtifact(runId,new File(path),"info")
 
-    // MLflow - save model as artifact
-    //model.save(modelPath)
-    model.write.overwrite().save(modelPath)
-    mlflowClient.logArtifacts(runId, new File(modelPath),modelArtifactPath)
+    // MLflow - save model as Spark ML artifact
+    val sparkModelPath = s"$modelPath/spark_model"
+    //model.save(sparkModelPath)
+    model.write.overwrite().save(sparkModelPath)
+    mlflowClient.logArtifacts(runId, new File(sparkModelPath), "spark_model")
+
+    // MLflow - save model as MLeap artifact
+    val mleapModelDir = new File(s"$modelPath/mleap_model")
+    mleapModelDir.mkdir
+    MLeapUtils.save(model, predictions, "file:"+mleapModelDir.getAbsolutePath)
+    mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
 
     // MLflow - close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
@@ -130,9 +136,6 @@ object TrainDecisionTree {
 
     @Parameter(names = Array("--modelPath" ), description = "Data path", required=true)
     var modelPath: String = null
-
-    @Parameter(names = Array("--modelArtifactPath" ), description = "modelArtifactPath")
-    var modelArtifactPath: String = "model"
 
     @Parameter(names = Array("--maxDepth" ), description = "maxDepth", required=false)
     var maxDepth = -1
