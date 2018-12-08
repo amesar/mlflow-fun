@@ -69,6 +69,7 @@ object TrainDecisionTree {
     val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
     val runInfo = mlflowClient.createRun(expId, sourceName);
     val runId = runInfo.getRunUuid()
+    println(s"Run ID: $runId")
 
     // MLflow - Log parameters
     mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
