@@ -3,6 +3,7 @@ package org.andre.mlflow.examples
 // From: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/ml/DecisionTreeRegressionExample.scala
 
 import java.io.{File,PrintWriter}
+import scala.collection.JavaConversions._
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.VectorIndexer
@@ -12,7 +13,6 @@ import org.mlflow.tracking.MlflowClient
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
-import scala.collection.JavaConversions._
 
 object TrainDecisionTree {
   val expName = "scala/SimpleDecisionTree"
@@ -24,6 +24,7 @@ object TrainDecisionTree {
     println(s"  token: ${opts.token}")
     println(s"  dataPath: ${opts.dataPath}")
     println(s"  modelPath: ${opts.modelPath}")
+    println(s"  modelArtifactPath: ${opts.modelArtifactPath}")
     println(s"  maxDepth: ${opts.maxDepth}")
     println(s"  maxBins: ${opts.maxBins}")
     val mlflowClient = 
@@ -33,10 +34,10 @@ object TrainDecisionTree {
         new MlflowClient(opts.trackingUri)
       }
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-    train(mlflowClient, spark, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins)
+    train(mlflowClient, spark, opts.dataPath, opts.modelPath, opts.modelArtifactPath, opts.maxDepth, opts.maxBins)
   }
 
-  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int) {
+  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, modelPath: String, modelArtifactPath: String, maxDepth: Int, maxBins: Int) {
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -111,7 +112,7 @@ object TrainDecisionTree {
     // MLflow - save model as artifact
     //model.save(modelPath)
     model.write.overwrite().save(modelPath)
-    mlflowClient.logArtifacts(runId, new File(modelPath),"model")
+    mlflowClient.logArtifacts(runId, new File(modelPath),modelArtifactPath)
 
     // MLflow - close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
@@ -129,6 +130,9 @@ object TrainDecisionTree {
 
     @Parameter(names = Array("--modelPath" ), description = "Data path", required=true)
     var modelPath: String = null
+
+    @Parameter(names = Array("--modelArtifactPath" ), description = "modelArtifactPath")
+    var modelArtifactPath: String = "model"
 
     @Parameter(names = Array("--maxDepth" ), description = "maxDepth", required=false)
     var maxDepth = -1
