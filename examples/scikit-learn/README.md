@@ -133,8 +133,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 From [scikit_predict.py](wine-quality/scikit_predict.py):
 ```
 model = mlflow.sklearn.load_model("model",run_id="7e674524514846799310c41f10d6b99d")
-with open("wine-quality.json", 'rb') as f:
-    data = json.loads(f.read())
+df = pd.read_json("wine-quality.json")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -150,8 +149,7 @@ From [pyfunc_predict.py](wine-quality/pyfunc_predict.py):
 ```
 model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
-with open("wine-quality.json", 'rb') as f:
-    data = json.loads(f.read())
+df = pd.read_json("wine-quality.json")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -174,9 +172,8 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 ```
 From [spark_udf_predict.py](wine-quality/spark_udf_predict.py):
 ```
-path = "wine-quality.csv"
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv(path)
+df = spark.read.option("inferSchema",True).option("header", True).csv("wine-quality.csv")
 df = df.drop("quality")
 
 udf = mlflow.pyfunc.spark_udf(spark, "model", run_id="7e674524514846799310c41f10d6b99d")
@@ -184,6 +181,17 @@ df2 = df.withColumn("prediction", udf(*df.columns))
 df2.show(10)
 ```
 
+#### 5. Unpickle model artifact file without MLflow and predict
+You can directly read the model pickle file and then make predictions.
+From [pickle_predict.py](wine-quality/pickle_predict.py):
+```
+pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/model/model.pkl"
+with open(pickle_path, 'rb') as f:
+    model = pickle.load(f)
+df = pd.read_json("wine-quality.json")
+predicted = model.predict(df)
+print("predicted:",predicted)
+```
 
 ## Iris Decision Tree Example
 
