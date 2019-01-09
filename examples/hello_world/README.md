@@ -52,8 +52,8 @@ mlflow run . --experiment-id=1 -Palpha=.01 -Prun_origin=LocalRun -Plog_artifact=
 mlflow run  https://github.com/amesar/mlflow-fun.git#examples/hello_world \
   -Palpha=100 -Prun_origin=GitRun -Plog_artifact=True
 ```
-### mlflow remote
-See the job [cluster.json](cluster.json).
+### mlflow Databricks remote
+Run against Databricks. See [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks) and [cluster.json](wine-quality/cluster.json).
 ```
 mlflow run  https://github.com/amesar/mlflow-fun.git#examples/hello_world \
   -Palpha=100 -Prun_origin=RemoteRun -Plog_artifact=True \

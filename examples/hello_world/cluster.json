@@ -1,5 +1,5 @@
 {
-  "spark_version": "5.0.x-scala2.11",
+  "spark_version": "5.1.x-scala2.11",
   "driver_node_type_id": "i3.xlarge",
   "node_type_id": "i3.xlarge",
   "num_workers": 1,

@@ -51,7 +51,7 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-q
   -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun
 ```
 
-**mlflow remote** - see [cluster.json](wine-quality/cluster.json)
+**mlflow Databricks remote** - Run against Databricks. See [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks) and [cluster.json](wine-quality/cluster.json).
 
 Setup:
 ```
@@ -63,6 +63,7 @@ Now run:
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
   -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun \
+  -Pdata_path=/dbfs/tmp/data/wine-quality.csv \
   -m databricks --cluster-spec cluster.json
 ```
 
