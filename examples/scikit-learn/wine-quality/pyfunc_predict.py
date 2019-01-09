@@ -3,10 +3,10 @@
 
 from __future__ import print_function
 import sys
-import pandas as pd
 import mlflow
 import mlflow.pyfunc
 import mlflow.tracking
+import util
 
 if __name__ == "__main__":
     if len(sys.argv) < 1:
@@ -14,8 +14,8 @@ if __name__ == "__main__":
         sys.exit(1)
     print("MLflow Version:", mlflow.version.VERSION)
     run_id = sys.argv[1]
-    path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality.csv"
-    print("path:",path)
+    data_path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality.csv"
+    print("data_path:",data_path)
     print("run_id:",run_id)
 
     client = mlflow.tracking.MlflowClient()
@@ -24,11 +24,6 @@ if __name__ == "__main__":
     model = mlflow.pyfunc.load_pyfunc(model_uri)
     print("model:",model)
 
-    df = pd.read_csv(path) if path.endswith(".csv") else pd.read_json(path)
-    print("df.shape:",df.shape)
-    print("df.columns:",df.columns)
-    if 'quality' in df:
-         df = df.drop(['quality'], axis=1)
-
+    df = util.read_prediction_data(data_path)
     predictions = model.predict(df)
     print("predictions:",predictions)
