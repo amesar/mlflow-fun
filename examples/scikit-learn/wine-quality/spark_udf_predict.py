@@ -11,7 +11,7 @@ import mlflow.sklearn
 if __name__ == "__main__":
     path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality.csv"
     run_id = sys.argv[1]
-    print(">> path=",path)
+    print("path:",path)
     print("run_id=",run_id)
     print("MLflow Version:", mlflow.version.VERSION)
 
@@ -27,3 +27,7 @@ if __name__ == "__main__":
     udf = mlflow.pyfunc.spark_udf(spark, "model", run_id=run_id)
     df2 = df.withColumn("prediction", udf(*df.columns))
     df2.show(10)
+    df2.select("prediction").show(10)
+    pred = df2.select("prediction").first()[0]
+    print("predictions: {:,.8f}".format(pred))
+
