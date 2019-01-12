@@ -1,5 +1,5 @@
 {
-  "run_name": "MLflowRunSubmit_NewCluster",
+  "run_name": "MLflow_RunSubmit_NewCluster",
   "new_cluster": {
     "spark_version": "5.1.x-scala2.11",
     "node_type_id": "i3.xlarge",
@@ -12,7 +12,7 @@
   ],
   "spark_python_task": {
     "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
-    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_egg" ]
+    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_new_cluster_egg" ]
   },
   "timeout_seconds": 3600
 }

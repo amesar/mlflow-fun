@@ -1,0 +1,9 @@
+{
+  "run_name": "MLflow_RunSubmit_ExistingCluster",
+  "existing_cluster_id": "1222-015510-grams64",
+  "timeout_seconds": 3600,
+  "spark_python_task": {
+    "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
+    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_existing_cluster_egg" ]
+  }
+}

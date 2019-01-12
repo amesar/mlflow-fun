@@ -62,7 +62,7 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-q
 ### Databricks Cluster Runs
 
 You can also package your code as an egg and run it with the standard Databricks REST API run endpoints.
-See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask).
+See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). In this example we use runs_submit.
 
 Setup.
 ```
@@ -73,6 +73,7 @@ Build the egg.
 ```
 python setup.py bdist_egg
 ```
+
 Upload the data file, main file and egg to your Databricks cluster.
 ```
 databricks fs cp main_train_wine_quality.py dbfs:/tmp/jobs/wine_quality/main.py
@@ -82,14 +83,8 @@ databricks fs cp \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 ```
 
-Run the with runs submit.
-```
-curl -X POST -H "Authorization: Bearer MY_TOKEN" \
-  -d @run_submit_new_cluster.json  \
-  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
-```
-
-Key snippets from [run_submit_new_cluster.json](run_submit_new_cluster.json).
+#### Run with new cluster
+Create [run_submit_new_cluster.json](run_submit_new_cluster.json). Some extracts:
 ```
   "libraries": [
     { "pypi": { "package": "mlflow" } },
@@ -100,6 +95,39 @@ Key snippets from [run_submit_new_cluster.json](run_submit_new_cluster.json).
     "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
     "parameters": [ 0.5, 0.5, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_egg" ]
   },
+```
+
+Launch run.
+```
+curl -X POST -H "Authorization: Bearer MY_TOKEN" \
+  -d @run_submit_new_cluster.json  \
+  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
+```
+
+#### Run with existing cluster
+
+
+Attach the egg to the cluster and restart cluster.
+```
+databricks libraries install --cluster-id 1222-015510-grams64 --egg dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
+databricks clusters restart --cluster-id 1222-015510-grams64
+```
+
+Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json). 
+```
+  "run_name": "MLflow_RunSubmit_ExistingCluster",
+  "existing_cluster_id": "1222-015510-grams64",
+  "timeout_seconds": 3600,
+  "spark_python_task": {
+    "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
+    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_egg" ]
+  }
+```
+Launch run.
+```
+curl -X POST -H "Authorization: Bearer MY_TOKEN" \
+  -d @run_submit_existing_cluster.json  \
+  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
 
 ## Predictions
