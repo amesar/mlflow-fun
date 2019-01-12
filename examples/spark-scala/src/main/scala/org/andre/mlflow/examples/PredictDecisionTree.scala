@@ -28,16 +28,16 @@ object PredictDecisionTree {
     val runInfo = mlflowClient.getRun(opts.runId).getInfo
     val uri = runInfo.getArtifactUri
 
-    println("========= Spark ML")
-    val modelPath = s"$uri/spark_model"
+    println("==== Spark ML")
+    val modelPath = s"${uri}/spark_model"
     val model = PipelineModel.load(modelPath)
     val predictions = model.transform(data)
     val df = predictions.select("prediction", "label", "features")
     df.show(10)
 
-    println("========= MLEAP")
+    println("==== Mleap")
     val modelPath2 = s"file:${uri}/mleap_model"
-    val model2 = MLeapUtils.read(modelPath2)
+    val model2 = MLeapUtils.readModel(modelPath2)
     val predictions2 = model2.transform(data)
     val df2 = predictions2.select("prediction", "label", "features")
     df2.show(10)

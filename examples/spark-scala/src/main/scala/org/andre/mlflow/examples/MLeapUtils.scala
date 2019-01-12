@@ -14,19 +14,18 @@ import org.apache.spark.sql.DataFrame
 */
 object MLeapUtils {
 
-  def save(model: PipelineModel, df: DataFrame, bundlePath: String) {
+  def saveModel(model: PipelineModel, df: DataFrame, bundlePath: String) {
     val context = SparkBundleContext().withDataset(df)
     (for(modelFile <- managed(BundleFile(bundlePath))) yield {
       model.writeBundle.save(modelFile)(context)
     }).tried.get
   }
 
-  def read(bundlePath: String) = {
+  def readModel(bundlePath: String) = {
     val opt = (for(bundle <- managed(BundleFile(bundlePath))) yield {
       bundle.loadSparkBundle().get
     }).opt
     val bundle = opt.get
-    val model = bundle.root
-    model
+    bundle.root
   }
 }

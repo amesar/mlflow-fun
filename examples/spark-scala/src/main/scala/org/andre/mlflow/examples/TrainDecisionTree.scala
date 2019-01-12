@@ -118,7 +118,7 @@ object TrainDecisionTree {
     // MLflow - save model as MLeap artifact
     val mleapModelDir = new File(s"$modelPath/mleap_model")
     mleapModelDir.mkdir
-    MLeapUtils.save(model, predictions, "file:"+mleapModelDir.getAbsolutePath)
+    MLeapUtils.saveModel(model, predictions, "file:"+mleapModelDir.getAbsolutePath)
     mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
 
     // MLflow - close run
