@@ -75,8 +75,8 @@ python setup.py bdist_egg
 ```
 Upload the data file, main file and egg to your Databricks cluster.
 ```
-databricks fs cp main.py dbfs:/jobs/wine_quality/main.py
-databricks fs cp wine-quality.csv dbfs:/jobs/wine_quality/wine-quality.csv
+databricks fs cp main_train_wine_quality.py dbfs:/tmp/jobs/wine_quality/main.py
+databricks fs cp wine-quality.csv dbfs:/tmp/jobs/wine_quality/wine-quality.csv
 databricks fs cp \
   dist/mlflow_wine_quality-0.0.1-py3.6.egg \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
