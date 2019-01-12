@@ -2,6 +2,7 @@
 # P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
 # Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
 
+from __future__ import print_function
 import os
 import sys
 import platform
@@ -14,7 +15,9 @@ from sklearn.linear_model import ElasticNet, enet_path
 
 import mlflow
 import mlflow.sklearn
-import plot_utils
+from wine_quality import plot_utils
+
+print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
 experiment_name = "py/sk/ElasticNet/WineQuality"
 print("experiment_name:",experiment_name)
@@ -65,6 +68,7 @@ def train(data_path, alpha, l1_ratio, run_origin):
         mlflow.log_param("data_path", data_path)
         mlflow.log_param("alpha", alpha)
         mlflow.log_param("l1_ratio", l1_ratio)
+        mlflow.log_param("run_origin", run_origin)
 
         mlflow.log_metric("rmse", rmse)
         mlflow.log_metric("r2", r2)
