@@ -4,11 +4,11 @@ MLflow examples for Python and Scala training models.
 
 ## Examples
 * Python:
-  * [Python Scikit-learn examples](examples/scikit-learn/README.md)
+  * [Python Scikit-learn example](examples/scikit-learn/wine-quality/README.md)
   * [PySpark ML examples](examples/pyspark/README.md)
   * [PyTorch ML examples](examples/pytorch/README.md)
   * [Hello World example](examples/hello_world)
-  * [Hello World Nested Runs example](examples/hello_world_nested_runs)
+    * [Hello World Nested Runs example](examples/hello_world_nested_runs)
 * Scala/Java:
   * Note: You need to install Python MLflow in order for Java artifacts to work: `pip install mlflow`
   * [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
@@ -17,7 +17,7 @@ MLflow examples for Python and Scala training models.
   * [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)
 
 
-## Install and Run MLflow Server
+## Setup
 
 Before running the examples, you need to install the MLflow Python environment and launch a MLflow server.
 
@@ -42,5 +42,15 @@ Install either with PyPi or Miniconda ([conda.yaml](conda.yaml)).
 mlflow server --host 0.0.0.0 
 ```
 
-You are now ready to run the examples in the different languages.
+### Spark
 
+For those examples that use Spark, download the latest Spark version to your local machine. See [Download Apache Spark](https://spark.apache.org/downloads.html).
+
+### Databricks
+
+To run the examples against a Databricks cluster, see the 
+[Databricks REST API](https://docs.databricks.com/api/latest/index.html) and 
+[Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
+```
+pip install databricks-cli 
+```
