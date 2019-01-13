@@ -29,5 +29,5 @@ if __name__ == "__main__":
     df2.show(10)
     df2.select("prediction").show(10)
     pred = df2.select("prediction").first()[0]
-    print("predictions: {:,.8f}".format(pred))
+    print("predictions: {:,.7f}".format(pred))
 

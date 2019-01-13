@@ -18,10 +18,6 @@ def plot_enet_descent_path(X, y, l1_ratio, alphas_enet, coefs_enet, plot_file):
     plt.title(title)
     plt.axis('tight')
 
-    # Save figures
     fig.savefig(plot_file)
-
-    # Close plot
     plt.close(fig)
-
     return fig

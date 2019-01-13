@@ -47,7 +47,8 @@ def train(data_path, alpha, l1_ratio, run_origin):
 
     mlflow.set_experiment(experiment_name)
     client = mlflow.tracking.MlflowClient()
-    print("experiment_id:",client.get_experiment_by_name(experiment_name).experiment_id)
+    experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
+    print("experiment_id:",experiment_id)
 
     current_file = os.path.basename(__file__)
 
@@ -87,6 +88,7 @@ def train(data_path, alpha, l1_ratio, run_origin):
         plot_file = "wine_ElasticNet-paths_{}_{}.png".format(alpha,l1_ratio)
         plot_utils.plot_enet_descent_path(X, y, l1_ratio, alphas_enet, coefs_enet, plot_file)
         mlflow.log_artifact(plot_file)
+    return (experiment_id,run_id)
 
 
 if __name__ == "__main__":

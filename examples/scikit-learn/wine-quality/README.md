@@ -5,7 +5,7 @@
 * This example demonstrates all features of MLflow training and prediction.
 * Saves model in pickle format
 * Saves text and plot artifacts
-* Shows several ways to run the training - use _mlflow run_, run against Databricks cluster, etc.
+* Shows several ways to run the training - use _mlflow run_, run against Databricks cluster, call egg from notebook, etc.
 * Shows several ways to run the prediction  - web server,  mlflow.load_model(), UDF, etc.
 
 ## Setup
@@ -25,7 +25,7 @@ Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine
 
 To run with standard main function:
 ```
-python main_train_wine_quality.py  0.5 0.5 wine-quality.csv
+python main_train_wine_quality.py 0.5 0.5 wine-quality.csv
 ```
 
 ### Project Runs
@@ -62,9 +62,11 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-q
 ### Databricks Cluster Runs
 
 You can also package your code as an egg and run it with the standard Databricks REST API run endpoints.
-See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). In this example we use runs_submit.
+See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). In this example we showcase runs_submit.
 
-Setup.
+#### Setup
+
+Install Python packages.
 ```
 pip install databricks-cli
 ```
@@ -84,8 +86,9 @@ databricks fs cp \
 ```
 
 #### Run with new cluster
-Create [run_submit_new_cluster.json](run_submit_new_cluster.json). Some extracts:
+Create [run_submit_new_cluster.json](run_submit_new_cluster.json). 
 ```
+...
   "libraries": [
     { "pypi": { "package": "mlflow" } },
     { "pypi": { "package": "cloudpickle" }},
@@ -93,8 +96,9 @@ Create [run_submit_new_cluster.json](run_submit_new_cluster.json). Some extracts
   ],
   "spark_python_task": {
     "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
-    "parameters": [ 0.5, 0.5, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_egg" ]
+    "parameters": [ 0.5, 0.5, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_new_cluster_egg" ]
   },
+...
 ```
 
 Launch run.
@@ -106,8 +110,13 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
 
 #### Run with existing cluster
 
+Create a cluster and attach the following libraries.
+```
+databricks libraries install --cluster-id 1222-015510-grams64 ----pypi-package mlflow
+databricks libraries install --cluster-id 1222-015510-grams64 ----pypi-package cloudpickle
+```
 
-Attach the egg to the cluster and restart cluster.
+Attach the egg to the cluster and restart cluster (if not egg did not already exist).
 ```
 databricks libraries install --cluster-id 1222-015510-grams64 --egg dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 databricks clusters restart --cluster-id 1222-015510-grams64
@@ -120,7 +129,7 @@ Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json).
   "timeout_seconds": 3600,
   "spark_python_task": {
     "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
-    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_egg" ]
+    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_existing_cluster_egg" ]
   }
 ```
 Launch run.
@@ -128,6 +137,15 @@ Launch run.
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   -d @run_submit_existing_cluster.json  \
   https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
+```
+
+#### Run egg from Databricks notebook
+
+Create a notebook with the following cell. Attach it to the existing cluster described above.
+```
+from wine_quality import train_wine_quality
+data_path = "/dbfs/tmp/jobs/wine_quality/wine-quality.csv"
+train_wine_quality.train(data_path, 0.4, 0.4, "from_notebook_with_egg")
 ```
 
 ## Predictions
