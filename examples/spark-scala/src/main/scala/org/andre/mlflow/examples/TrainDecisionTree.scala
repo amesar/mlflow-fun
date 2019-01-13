@@ -18,6 +18,7 @@ object TrainDecisionTree {
   val expName = "scala/SimpleDecisionTree"
 
   def main(args: Array[String]) {
+    println("args: "+args.toList.mkString(" "))
     new JCommander(opts, args.toArray: _*)
     println("Options:")
     println(s"  Tracking URI: ${opts.trackingUri}")
@@ -26,17 +27,29 @@ object TrainDecisionTree {
     println(s"  modelPath: ${opts.modelPath}")
     println(s"  maxDepth: ${opts.maxDepth}")
     println(s"  maxBins: ${opts.maxBins}")
-    val mlflowClient = 
-      if (opts.token != null) {
-        new MlflowClient(new BasicMlflowHostCreds(opts.trackingUri,opts.token))
-      } else {
-        new MlflowClient(opts.trackingUri)
+    println(s"  runOrigin: ${opts.runOrigin}")
+    val mlflowClient =
+      if (opts.trackingUri == null) {
+          val env = System.getenv("MLFLOW_TRACKING_URI")
+          println(s"MLFLOW_TRACKING_URI: $env")
+          new MlflowClient()
+      } else { 
+        if (opts.token != null) {
+          new MlflowClient(new BasicMlflowHostCreds(opts.trackingUri, opts.token))
+        } else {
+          new MlflowClient(opts.trackingUri)
+        }
       }
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-    train(mlflowClient, spark, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins)
+    train(spark, mlflowClient, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin)
   }
 
-  def train(mlflowClient: MlflowClient, spark: SparkSession, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int) {
+  def train(spark: SparkSession, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String = "") {
+    val mlflowClient = new MlflowClient()
+    train(spark, mlflowClient, dataPath, modelPath, maxDepth, maxBins, runOrigin)
+  }
+
+  def train(spark: SparkSession, mlflowClient: MlflowClient, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String) {
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -70,10 +83,12 @@ object TrainDecisionTree {
     val runInfo = mlflowClient.createRun(expId, sourceName);
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
+    println(s"runOrigin: $runOrigin")
 
     // MLflow - Log parameters
     mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
     mlflowClient.logParam(runId, "maxBins",""+clf.getMaxBins)
+    mlflowClient.logParam(runId, "runOrigin",runOrigin)
 
     // Chain indexer and tree in a Pipeline.
     val pipeline = new Pipeline().setStages(Array(featureIndexer, clf))
@@ -126,7 +141,7 @@ object TrainDecisionTree {
   }
 
   object opts {
-    @Parameter(names = Array("--trackingUri" ), description = "Tracking Server URI", required=true)
+    @Parameter(names = Array("--trackingUri" ), description = "Tracking Server URI", required=false)
     var trackingUri: String = null
 
     @Parameter(names = Array("--token" ), description = "REST API token", required=false)
@@ -143,5 +158,8 @@ object TrainDecisionTree {
 
     @Parameter(names = Array("--maxBins" ), description = "maxBins", required=false)
     var maxBins = -1
+
+    @Parameter(names = Array("--runOrigin" ), description = "runOrigin", required=false)
+    var runOrigin = "None"
   }
 }

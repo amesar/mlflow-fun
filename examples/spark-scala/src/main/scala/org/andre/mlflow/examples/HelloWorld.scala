@@ -4,21 +4,29 @@ import java.io.{File,PrintWriter}
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.RunStatus
+import scala.collection.JavaConversions._
 
 object HelloWorld {
   def string2hex(str: String) = str.toList.map(_.toInt.toHexString+" ").mkString
 
   def main(args: Array[String]) {
-    val trackingUri = args(0)
-    println(s"Tracking URI: $trackingUri")
+    println("args: "+args.toList.mkString(" "))
 
     // Create client
     val mlflowClient = 
-      if (args.length > 1) {
-        new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(1)))
+      if (args.length == 0) {
+          val env = System.getenv("MLFLOW_TRACKING_URI")
+          println(s"MLFLOW_TRACKING_URI: $env")
+          new MlflowClient()
       } else {
-        new MlflowClient(trackingUri)
-      }
+        val trackingUri = args(0)
+        println(s"Tracking URI: $trackingUri")
+        if (args.length > 1) {
+          new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(1)))
+        } else {
+          new MlflowClient(trackingUri)
+        }
+    }
 
     // Create or get existing experiment
     val expName = "scala/HelloWorld"
@@ -30,6 +38,7 @@ object HelloWorld {
     val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
     val runInfo = mlflowClient.createRun(expId, sourceName)
     val runId = runInfo.getRunUuid()
+    println("Run ID: "+runId)
 
     // Log params and metrics
     mlflowClient.logParam(runId, "p1","hi")
