@@ -10,5 +10,5 @@ if __name__ == "__main__":
         print("ERROR: Expecting alpha and l1_ratio values")
         sys.exit(1)
     data_path = sys.argv[3] if len(sys.argv) > 3 else "wine-quality.csv"
-    run_origin = sys.argv[4] if len(sys.argv) > 4 else ""
+    run_origin = sys.argv[4] if len(sys.argv) > 4 else "none"
     run(data_path, float(sys.argv[1]), float(sys.argv[2]), run_origin)
