@@ -14,7 +14,7 @@ import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
 
 object TrainDecisionTree {
-  val expName = "scala/SimpleDecisionTree"
+  val seed = 2019
 
   def main(args: Array[String]) {
     println("args: "+args.toList.mkString(" "))
@@ -22,6 +22,7 @@ object TrainDecisionTree {
     println("Options:")
     println(s"  Tracking URI: ${opts.trackingUri}")
     println(s"  token: ${opts.token}")
+    println(s"  experimentName: ${opts.experimentName}")
     println(s"  dataPath: ${opts.dataPath}")
     println(s"  modelPath: ${opts.modelPath}")
     println(s"  maxDepth: ${opts.maxDepth}")
@@ -49,11 +50,11 @@ object TrainDecisionTree {
       .fit(data)
 
     // Split the data into training and test sets (30% held out for testing).
-    val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3))
+    val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3), seed)
 
     // MLflow - create or get existing experiment
-    val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
-    println("Experiment name: "+expName)
+    val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, opts.experimentName)
+    //println("Experiment name: "+expName)
     println("Experiment ID: "+expId)
 
     // Train a DecisionTree model.
@@ -149,5 +150,8 @@ object TrainDecisionTree {
 
     @Parameter(names = Array("--runOrigin" ), description = "runOrigin", required=false)
     var runOrigin = "None"
+
+    @Parameter(names = Array("--experimentName" ), description = "experimentName", required=false)
+    var experimentName = "scala/SimpleDecisionTree"
   }
 }
