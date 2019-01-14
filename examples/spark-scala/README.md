@@ -12,7 +12,7 @@ spark-submit \
   --class org.andre.mlflow.examples.HelloWorld \
   --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
-  http://localhost:5000 \
+  http://localhost:5000
 ```
 
 ### Source
@@ -46,26 +46,12 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 Sample demonstrating:
 *  Trains a model
 *  Saves the model in Spark ML and MLeap formats
-*  Predicts from loading the above two model
+*  Predicts by loading the above two model formats
 
 ### Train
 
 Saves model as Spark ML and MLeap artifact in MLflow.
 
-#### Run
-```
-spark-submit \
-  --class org.andre.mlflow.examples.TrainDecisionTree \
-  --master local[2] \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
-  --trackingUri http://localhost:5000 \
-  --dataPath data/sample_libsvm_data.txt \
-  --modelPath model_sample \
-  --maxDepth 5 --maxBins 5
-
-Experiment name: scala/SimpleDecisionTree
-Experiment ID: 2
-```
 
 #### Source
 
@@ -115,6 +101,97 @@ mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
+### Run against local Spark and local MLflow tracking server
+
+```
+spark-submit \
+  --class org.andre.mlflow.examples.TrainDecisionTree --master local[2] \
+  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  --trackingUri http://localhost:5000 \
+  --dataPath data/sample_libsvm_data.txt \
+  --modelPath model_sample --maxDepth 5 --maxBins 5
+```
+
+### Run against local Spark and Databricks hosted tracking server
+
+```
+spark-submit \
+  --class org.andre.mlflow.examples.TrainDecisionTree --master local[2] \
+  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  --trackingUri https://acme.cloud.databricks.com --token MY_TOKEN \
+  --dataPath data/sample_libsvm_data.txt \
+  --modelPath model_sample --maxDepth 5 --maxBins 5
+```
+
+### Run in Databricks Cluster
+
+You can also run your jar in a Databricks cluster with the standard Databricks REST API run endpoints.
+See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_jar_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkjartask).
+In this example we showcase runs_submit.
+
+#### Setup
+
+Upload the data file and jar to your Databricks cluster.
+```
+databricks fs cp data/sample_libsvm_data.txt \
+  dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt
+
+databricks fs cp target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  dbfs:/tmp/jobs/spark-scala-example/mlflow-spark-examples-1.0-SNAPSHOT.jar
+```
+
+Here is a snippet from
+[run_submit_new_cluster.json](run_submit_new_cluster.json) or
+[run_submit_existing_cluster.json](run_submit_existing_cluster.json).
+```
+  "libraries": [
+    { "pypi": { "package": "mlflow" } },
+    { "jar": "dbfs:/tmp/jobs/spark-scala-example/mlflow-spark-examples-1.0-SNAPSHOT.jar" }
+  ],
+  "spark_jar_task": {
+    "main_class_name": "org.andre.mlflow.examples.TrainDecisionTree",
+    "parameters": [ 
+      "--dataPath",  "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt",
+      "--modelPath", "/dbfs/tmp/jobs/spark-scala-example/models",
+      "--runOrigin", "run_submit_new_cluster.json"
+    ]
+  }
+```
+
+#### Run with new cluster
+
+Create [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the run.
+```
+curl -X POST -H "Authorization: Bearer MY_TOKEN" \
+  -d @run_submit_new_cluster.json  \
+  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
+```
+
+#### Run with existing cluster
+
+Every time you build a new jar, you need to upload (as described above) it to DBFS and restart the cluster.
+```
+databricks clusters restart --cluster-id 0113-005848-about166
+```
+
+Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json) and launch the run.
+```
+curl -X POST -H "Authorization: Bearer MY_TOKEN" \
+  -d @run_submit_existing_cluster.json  \
+  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
+```
+
+#### Run jar from Databricks notebook
+
+Create a notebook with the following cell. Attach it to the existing cluster described above.
+```
+import org.andre.mlflow.examples.TrainDecisionTree
+val dataPath = "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt"
+val modelPath = "/dbfs/tmp/jobs/spark-scala-example/models"
+val runOrigin = "run_from_jar_Notebook"
+TrainDecisionTree.train(spark, dataPath, modelPath, 5, 5, runOrigin)
+```
+
 ### Predict
 
 Predicts from Spark ML and MLeap models.
@@ -125,6 +202,7 @@ spark-submit \
   --class org.andre.mlflow.examples.PredictDecisionTree \
   --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
   --runId 3e422c4736a34046a74795384741ac33
 ```

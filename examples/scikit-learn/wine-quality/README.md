@@ -85,10 +85,10 @@ databricks fs cp \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 ```
 
-#### Run with new cluster
-Create [run_submit_new_cluster.json](run_submit_new_cluster.json). 
+Here is a snippet from 
+[run_submit_new_cluster.json](run_submit_new_cluster.json) or 
+[run_submit_existing_cluster.json](run_submit_existing_cluster.json).
 ```
-...
   "libraries": [
     { "pypi": { "package": "mlflow" } },
     { "pypi": { "package": "cloudpickle" }},
@@ -96,12 +96,14 @@ Create [run_submit_new_cluster.json](run_submit_new_cluster.json).
   ],
   "spark_python_task": {
     "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
-    "parameters": [ 0.5, 0.5, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_new_cluster_egg" ]
-  },
-...
+    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_existing_cluster_egg" ]
+  }
 ```
 
-Launch run.
+#### Run with new cluster
+
+Create [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the run.
+
 ```
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   -d @run_submit_new_cluster.json  \
@@ -110,29 +112,12 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
 
 #### Run with existing cluster
 
-Create a cluster and attach the following libraries.
+Every time you build a new egg, you need to upload (as described above) it to DBFS and restart the cluster.
 ```
-databricks libraries install --cluster-id 1222-015510-grams64 ----pypi-package mlflow
-databricks libraries install --cluster-id 1222-015510-grams64 ----pypi-package cloudpickle
-```
-
-Attach the egg to the cluster and restart cluster (if not egg did not already exist).
-```
-databricks libraries install --cluster-id 1222-015510-grams64 --egg dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 databricks clusters restart --cluster-id 1222-015510-grams64
 ```
 
-Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json). 
-```
-  "run_name": "MLflow_RunSubmit_ExistingCluster",
-  "existing_cluster_id": "1222-015510-grams64",
-  "timeout_seconds": 3600,
-  "spark_python_task": {
-    "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
-    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_existing_cluster_egg" ]
-  }
-```
-Launch run.
+Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json) and launch the run.
 ```
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   -d @run_submit_existing_cluster.json  \
@@ -151,7 +136,7 @@ train_wine_quality.train(data_path, 0.4, 0.4, "from_notebook_with_egg")
 ## Predictions
 
 You can make predictions in the following ways:
-1. Use MLflow's serving web server and submit predictions via HTTP
+1. Use MLflow's serving web server and submit predictions via HTTP calls
 2. Call mlflow.sklearn.load_model() from your own serving code and then make predictions
 4. Call mlflow.pyfunc.load_pyfunc() from your own serving code and then make predictions
 5. Batch prediction with Spark UDF (user-defined function)
