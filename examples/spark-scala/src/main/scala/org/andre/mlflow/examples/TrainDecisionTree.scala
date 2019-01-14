@@ -10,7 +10,6 @@ import org.apache.spark.ml.feature.VectorIndexer
 import org.apache.spark.ml.regression.{DecisionTreeRegressionModel,DecisionTreeRegressor}
 import org.apache.spark.sql.SparkSession
 import org.mlflow.tracking.MlflowClient
-import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
 
@@ -28,18 +27,7 @@ object TrainDecisionTree {
     println(s"  maxDepth: ${opts.maxDepth}")
     println(s"  maxBins: ${opts.maxBins}")
     println(s"  runOrigin: ${opts.runOrigin}")
-    val mlflowClient =
-      if (opts.trackingUri == null) {
-          val env = System.getenv("MLFLOW_TRACKING_URI")
-          println(s"MLFLOW_TRACKING_URI: $env")
-          new MlflowClient()
-      } else { 
-        if (opts.token != null) {
-          new MlflowClient(new BasicMlflowHostCreds(opts.trackingUri, opts.token))
-        } else {
-          new MlflowClient(opts.trackingUri)
-        }
-      }
+    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
     val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
     train(spark, mlflowClient, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin)
   }

@@ -16,12 +16,7 @@ object PredictDecisionTree {
     println(s"  token: ${opts.token}")
     println(s"  runId: ${opts.runId}")
 
-    val mlflowClient =
-      if (opts.token != null) {
-        new MlflowClient(new BasicMlflowHostCreds(opts.trackingUri,opts.token))
-      } else {
-        new MlflowClient(opts.trackingUri)
-      }
+    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
     val spark = SparkSession.builder.appName("Predict").getOrCreate()
     val data = spark.read.format("libsvm").load(opts.dataPath)
 

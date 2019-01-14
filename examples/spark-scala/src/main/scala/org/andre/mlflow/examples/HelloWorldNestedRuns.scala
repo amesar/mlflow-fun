@@ -10,12 +10,7 @@ object HelloWorldNestedRuns {
     println(s"Tracking URI: $trackingUri")
 
     // Create client
-    val mlflowClient = 
-      if (args.length > 1) {
-        new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(1)))
-      } else {
-        new MlflowClient(trackingUri)
-      }
+    val mlflowClient = MLflowUtils.createMlflowClient(args)
 
     // Create or get existing experiment
     val expName = "scala/QuickStart"

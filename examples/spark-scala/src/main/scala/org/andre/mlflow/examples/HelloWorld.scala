@@ -7,26 +7,10 @@ import org.mlflow.api.proto.Service.RunStatus
 import scala.collection.JavaConversions._
 
 object HelloWorld {
-  def string2hex(str: String) = str.toList.map(_.toInt.toHexString+" ").mkString
-
   def main(args: Array[String]) {
-    println("args: "+args.toList.mkString(" "))
 
-    // Create client
-    val mlflowClient = 
-      if (args.length == 0) {
-          val env = System.getenv("MLFLOW_TRACKING_URI")
-          println(s"MLFLOW_TRACKING_URI: $env")
-          new MlflowClient()
-      } else {
-        val trackingUri = args(0)
-        println(s"Tracking URI: $trackingUri")
-        if (args.length > 1) {
-          new MlflowClient(new BasicMlflowHostCreds(trackingUri,args(1)))
-        } else {
-          new MlflowClient(trackingUri)
-        }
-    }
+    // Create MLflow client
+    val mlflowClient = MLflowUtils.createMlflowClient(args)
 
     // Create or get existing experiment
     val expName = "scala/HelloWorld"
