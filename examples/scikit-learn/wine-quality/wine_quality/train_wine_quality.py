@@ -28,7 +28,7 @@ def eval_metrics(actual, pred):
     r2 = r2_score(actual, pred)
     return rmse, mae, r2
 
-def train(data_path, alpha, l1_ratio, run_origin):
+def train(data_path, alpha, l1_ratio, run_origin="none"):
     print("run_origin:",run_origin)
     np.random.seed(40)
 
@@ -51,7 +51,6 @@ def train(data_path, alpha, l1_ratio, run_origin):
     print("experiment_id:",experiment_id)
 
     current_file = os.path.basename(__file__)
-
     with mlflow.start_run(source_name=current_file) as run:
         run_id = run.info.run_uuid
         print("run_id:",run_id)
@@ -88,13 +87,5 @@ def train(data_path, alpha, l1_ratio, run_origin):
         plot_file = "wine_ElasticNet-paths_{}_{}.png".format(alpha,l1_ratio)
         plot_utils.plot_enet_descent_path(X, y, l1_ratio, alphas_enet, coefs_enet, plot_file)
         mlflow.log_artifact(plot_file)
+
     return (experiment_id,run_id)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 3: 
-        print("ERROR: Expecting alpha and l1_ratio values")
-        sys.exit(1)
-    data_path = sys.argv[3] if len(sys.argv) > 3 else "wine-quality.csv"
-    run_origin = sys.argv[4] if len(sys.argv) > 4 else ""
-    train(data_path, float(sys.argv[1]), float(sys.argv[2]), run_origin)
