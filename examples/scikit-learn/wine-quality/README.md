@@ -13,6 +13,7 @@
 ```
 pip install mlflow
 pip install cloudpickle
+pip install matplotlib
 pip install pyarrow # for Spark UDF example
 ```
 
@@ -82,7 +83,7 @@ databricks fs cp \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 ```
 
-A snippet from 
+Common snippet from 
 [run_submit_new_cluster.json](run_submit_new_cluster.json) or 
 [run_submit_existing_cluster.json](run_submit_existing_cluster.json).
 ```
