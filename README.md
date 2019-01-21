@@ -19,7 +19,7 @@ MLflow examples for Python and Scala training models.
 
 ## Setup
 
-Before running the examples, you need to install the MLflow Python environment and launch a MLflow server.
+Before running the examples, you need to install the MLflow Python environment and launch an MLflow server.
 
 ### Install 
 
@@ -27,7 +27,10 @@ Install either with PyPi or Miniconda ([conda.yaml](conda.yaml)).
 
 #### PyPi
 
-* Install MLflow from PyPi: ``pip install mlflow``
+```
+pip install mlflow
+pip install cloudpickle
+```
 
 #### Miniconda
 
@@ -48,9 +51,21 @@ For those examples that use Spark, download the latest Spark version to your loc
 
 ### Databricks
 
-To run the examples against a Databricks cluster, see the 
-[Databricks REST API](https://docs.databricks.com/api/latest/index.html) and 
+To run the examples against a Databricks cluster see the following documentation:
+* [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks)
+* [Databricks REST API](https://docs.databricks.com/api/latest/index.html) and 
 [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
+
+For examples see [Hello World](examples/hello_world) and [Scikit-learn Wine Quality](scikit-learn/wine-quality).
+
+Setup:
 ```
-pip install databricks-cli 
+export MLFLOW_TRACKING_URI=databricks
 ```
+The token and tracking server URL will be picked up from your Databricks CLI ~/.databrickscfg default profile.
+You can also override these values with the following environment variables:
+```
+export DATABRICKS_TOKEN=MY_TOKEN
+export DATABRICKS_HOST=https://myshard.cloud.databricks.com
+```
+

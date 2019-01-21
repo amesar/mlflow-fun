@@ -27,9 +27,8 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 **Databricks managed tracking server**
 ```
 export MLFLOW_TRACKING_URI=databricks
-export DATABRICKS_TOKEN=MY_TOKEN
-export DATABRICKS_HOST=https://myshard.cloud.databricks.com
 ```
+The token and tracking server URL will be picked up from your Databricks CLI ~/.databrickscfg default profile.
 
 ## Running
 

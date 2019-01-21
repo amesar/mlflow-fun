@@ -4,9 +4,9 @@
 * Wine Quality Elastic Net Example
 * This example demonstrates all features of MLflow training and prediction.
 * Saves model in pickle format
-* Saves text and plot artifacts
-* Shows several ways to run the training - use _mlflow run_, run against Databricks cluster, call egg from notebook, etc.
-* Shows several ways to run the prediction  - web server,  mlflow.load_model(), UDF, etc.
+* Saves plot artifacts
+* Shows several ways to run training - _mlflow run_, run against Databricks cluster, call egg from notebook, etc.
+* Shows several ways to run prediction  - web server,  mlflow.load_model(), UDF, etc.
 
 ## Setup
 
@@ -14,7 +14,6 @@
 pip install mlflow
 pip install cloudpickle
 pip install pyarrow # for Spark UDF example
-pip install databricks-cli  # for Databricks examples
 ```
 
 ## Training
@@ -34,29 +33,32 @@ These runs use the [MLproject](MLproject) file. For more details see [MLflow doc
 
 **mlflow local**
 ```
-mlflow run . -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=LocalRun
+mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun
 ```
 
 **mlflow github**
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
-  -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun
+  -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun
 ```
 
-**mlflow Databricks remote** - Run against Databricks. See [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks) and [mlflow_run_cluster.json](mlflow_run_cluster.json).
+**mlflow Databricks remote** - Run against Databricks. 
 
-Setup:
+See [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks) and [mlflow_run_cluster.json](mlflow_run_cluster.json).
+
+Setup.
 ```
 export MLFLOW_TRACKING_URI=databricks
-export DATABRICKS_TOKEN=MY_TOKEN
-export DATABRICKS_HOST=https://acme.cloud.databricks.com
 ```
-Now run:
+The token and tracking server URL will be picked up from your Databricks CLI ~/.databrickscfg default profile.
+
+Now run.
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
-  -Palpha=0.01 -Pl1_ratio=0.75 -Prun_origin=GitRun \
-  -Pdata_path=/dbfs/tmp/data/wine-quality.csv \
-  -m databricks --cluster-spec mlflow_run_cluster.json
+  -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
+  -P data_path=/dbfs/tmp/data/wine-quality.csv \
+  --experiment-id=2019 \
+  --mode databricks --cluster-spec mlflow_run_cluster.json
 ```
 
 ### Databricks Cluster Runs
@@ -65,11 +67,6 @@ You can also package your code as an egg and run it with the standard Databricks
 See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). In this example we showcase runs_submit.
 
 #### Setup
-
-Install Python packages.
-```
-pip install databricks-cli
-```
 
 Build the egg.
 ```
@@ -85,7 +82,7 @@ databricks fs cp \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 ```
 
-Here is a snippet from 
+A snippet from 
 [run_submit_new_cluster.json](run_submit_new_cluster.json) or 
 [run_submit_existing_cluster.json](run_submit_existing_cluster.json).
 ```
@@ -107,7 +104,7 @@ Create [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the
 ```
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   -d @run_submit_new_cluster.json  \
-  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
+  https://myshard.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
 
 #### Run with existing cluster
@@ -121,7 +118,7 @@ Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json) and 
 ```
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   -d @run_submit_existing_cluster.json  \
-  https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
+  https://myshard.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
 
 #### Run egg from Databricks notebook
