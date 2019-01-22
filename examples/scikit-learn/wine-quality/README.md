@@ -64,8 +64,10 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-q
 
 ### Databricks Cluster Runs
 
-You can also package your code as an egg and run it with the standard Databricks REST API run endpoints.
-See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). In this example we showcase runs_submit.
+You can also package your code as an egg and run it with the standard Databricks REST API endpoints
+[job/runs/submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit) 
+or [jobs/run-now](https://docs.databricks.com/api/latest/jobs.html#run-now) 
+using the [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). 
 
 #### Setup
 
@@ -83,24 +85,12 @@ databricks fs cp \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
 ```
 
-Common snippet from 
-[run_submit_new_cluster.json](run_submit_new_cluster.json) or 
-[run_submit_existing_cluster.json](run_submit_existing_cluster.json).
-```
-  "libraries": [
-    { "pypi": { "package": "mlflow" } },
-    { "pypi": { "package": "cloudpickle" }},
-    { "egg": "dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg" }
-  ],
-  "spark_python_task": {
-    "python_file": "dbfs:/tmp/jobs/wine_quality/main.py",
-    "parameters": [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv", "run_submit_existing_cluster_egg" ]
-  }
-```
 
-#### Run with new cluster
+#### Run Submit
 
-Create [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the run.
+##### Run with new cluster
+
+Define your run in [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the run.
 
 ```
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
@@ -108,19 +98,45 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   https://myshard.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
 
-#### Run with existing cluster
+##### Run with existing cluster
 
 Every time you build a new egg, you need to upload (as described above) it to DBFS and restart the cluster.
 ```
 databricks clusters restart --cluster-id 1222-015510-grams64
 ```
 
-Create [run_submit_existing_cluster.json](run_submit_existing_cluster.json) and launch the run.
+Define your run in [run_submit_existing_cluster.json](run_submit_existing_cluster.json) and launch the run.
 ```
 curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   -d @run_submit_existing_cluster.json  \
   https://myshard.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
+
+#### Job Run Now
+
+##### Run with new cluster
+
+First create a job with the spec file [create_job_new_cluster.json](create_job_new_cluster.json). 
+```
+databricks jobs create --json-file create_job_new_cluster.json
+```
+
+Then run the job with desired parameters.
+```
+databricks jobs run-now --job-id $JOB_ID --python-params ' [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
+```
+
+##### Run with existing cluster
+First create a job with the spec file [create_job_existing_cluster.json](create_job_existing_cluster.json).
+```
+databricks jobs create --json-file create_job_existing_cluster.json
+```
+
+Then run the job with desired parameters.
+```
+databricks jobs run-now --job-id $JOB_ID --python-params ' [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
+```
+
 
 #### Run egg from Databricks notebook
 
