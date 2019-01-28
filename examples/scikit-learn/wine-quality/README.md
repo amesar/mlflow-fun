@@ -21,29 +21,39 @@ pip install pyarrow # for Spark UDF example
 
 Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine_quality.py](wine_quality/train_wine_quality.py).
 
-### Standard Python Main Run
+### Unmanaged without mlflow run
+
+#### Command-line python
 
 To run with standard main function:
 ```
 python main_train_wine_quality.py 0.5 0.5 wine-quality.csv
 ```
 
-### Project Runs
+#### Jupyter notebook
+See [Train_Wine_Quality.ipynb](Train_Wine_Quality.ipynb).
+```
+export MLFLOW_TRACKING_URI=http://localhost:5000
+jupyter notebook
+```
+
+### Using mlflow run
+
 
 These runs use the [MLproject](MLproject) file. For more details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
 
-**mlflow local**
+**mlflow run local**
 ```
 mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun
 ```
 
-**mlflow github**
+**mlflow run github**
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
   -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun
 ```
 
-**mlflow Databricks remote** - Run against Databricks. 
+**mlflow run Databricks remote** - Run against Databricks. 
 
 See [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks) and [mlflow_run_cluster.json](mlflow_run_cluster.json).
 

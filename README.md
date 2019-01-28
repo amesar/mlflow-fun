@@ -56,7 +56,7 @@ To run the examples against a Databricks cluster see the following documentation
 * [Databricks REST API](https://docs.databricks.com/api/latest/index.html) and 
 [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
 
-For examples see [Hello World](examples/hello_world) and [Scikit-learn Wine Quality](scikit-learn/wine-quality).
+For examples see [Hello World](examples/hello_world) and [Scikit-learn Wine Quality](examples/scikit-learn/wine-quality).
 
 Setup:
 ```
