@@ -13,6 +13,9 @@ import mlflow
 from mlflow import version
 from mlflow import spark as mlflow_spark
 
+print("MLflow Version:", mlflow.version.VERSION)
+print("Tracking URI:", mlflow.tracking.get_tracking_uri())
+
 experiment_name = "py/spark/DecisionTree"
 
 def run(max_depth,max_bins):

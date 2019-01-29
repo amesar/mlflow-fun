@@ -17,6 +17,7 @@ import mlflow
 import mlflow.sklearn
 from wine_quality import plot_utils
 
+print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
 experiment_name = "py/sk/ElasticNet/WineQuality"

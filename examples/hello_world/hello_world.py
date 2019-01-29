@@ -2,6 +2,9 @@ from __future__ import print_function
 import sys
 import mlflow
 
+print("MLflow Version:", mlflow.version.VERSION)
+print("Tracking URI:", mlflow.tracking.get_tracking_uri())
+
 def run(alpha, run_origin, log_artifact):
     with mlflow.start_run(run_name=run_origin) as run:
         print("runId:",run.info.run_uuid)
