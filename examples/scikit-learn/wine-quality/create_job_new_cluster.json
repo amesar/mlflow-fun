@@ -16,7 +16,7 @@
     { "egg": "dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg" }
   ],
   "spark_python_task": {
-    "python_file": "dbfs:/tmp/jobs/wine_quality/main.py"
+    "python_file": "dbfs:/tmp/jobs/wine_quality/main_train_wine_quality.py"
   },
   "timeout_seconds": 3600
 }

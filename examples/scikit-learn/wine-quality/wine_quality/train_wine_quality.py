@@ -20,16 +20,14 @@ from wine_quality import plot_utils
 print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
-experiment_name = "py/sk/ElasticNet/WineQuality"
-print("experiment_name:",experiment_name)
-
 def eval_metrics(actual, pred):
     rmse = np.sqrt(mean_squared_error(actual, pred))
     mae = mean_absolute_error(actual, pred)
     r2 = r2_score(actual, pred)
     return rmse, mae, r2
 
-def train(data_path, alpha, l1_ratio, run_origin="none"):
+def train(experiment_name, data_path, alpha, l1_ratio, run_origin="none"):
+    print("experiment_name:",experiment_name)
     print("run_origin:",run_origin)
     np.random.seed(40)
 
@@ -46,15 +44,19 @@ def train(data_path, alpha, l1_ratio, run_origin="none"):
     train_y = train[["quality"]]
     test_y = test[["quality"]]
 
-    mlflow.set_experiment(experiment_name)
-    client = mlflow.tracking.MlflowClient()
-    experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
-    print("experiment_id:",experiment_id)
+    # If using 'mlflow run' set_experiment() does not work and must use --experiment-id.
+    if experiment_name != "none":
+        mlflow.set_experiment(experiment_name)
+        client = mlflow.tracking.MlflowClient()
+        experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
+        print("From client.get_experiment_by_name: experiment_id:",experiment_id)
 
     current_file = os.path.basename(__file__)
     with mlflow.start_run(source_name=current_file) as run:
         run_id = run.info.run_uuid
         print("run_id:",run_id)
+        experiment_id = run.info.experiment_id
+        print("experiment_id:",experiment_id)
         clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
         clf.fit(train_x, train_y)
 
@@ -70,13 +72,15 @@ def train(data_path, alpha, l1_ratio, run_origin="none"):
         mlflow.log_param("alpha", alpha)
         mlflow.log_param("l1_ratio", l1_ratio)
         mlflow.log_param("run_origin", run_origin)
+        mlflow.log_param("exp_id", experiment_id)
+        mlflow.log_param("exp_name", experiment_name)
+        mlflow.log_param("run_origin", run_origin)
 
         mlflow.log_metric("rmse", rmse)
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
 
         mlflow.set_tag("platform", platform.system())
-        mlflow.set_tag("run_origin", run_origin)
 
         mlflow.sklearn.log_model(clf, "model")
 

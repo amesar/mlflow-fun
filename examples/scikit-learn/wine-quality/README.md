@@ -12,7 +12,6 @@
 
 ```
 pip install mlflow
-pip install cloudpickle
 pip install matplotlib
 pip install pyarrow # for Spark UDF example
 ```
@@ -27,7 +26,7 @@ Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine
 
 To run with standard main function:
 ```
-python main_train_wine_quality.py 0.5 0.5 wine-quality.csv
+python main_train_wine_quality.py WineQualityExperiment 0.5 0.5 wine-quality.csv
 ```
 
 #### Jupyter notebook
@@ -42,15 +41,18 @@ jupyter notebook
 
 These runs use the [MLproject](MLproject) file. For more details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
 
+Note that mlflow run ignores the `set_experiment()` function so you must specify the experiment with the  `--experiment-id` argument.
+
 **mlflow run local**
 ```
-mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun
+mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun --experiment-id=2019
 ```
 
 **mlflow run github**
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
-  -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun
+  -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
+  --experiment-id=2019
 ```
 
 **mlflow run Databricks remote** - Run against Databricks. 
@@ -133,7 +135,7 @@ databricks jobs create --json-file create_job_new_cluster.json
 
 Then run the job with desired parameters.
 ```
-databricks jobs run-now --job-id $JOB_ID --python-params ' [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
+databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperiment", 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
 ```
 
 ##### Run with existing cluster
@@ -144,7 +146,7 @@ databricks jobs create --json-file create_job_existing_cluster.json
 
 Then run the job with desired parameters.
 ```
-databricks jobs run-now --job-id $JOB_ID --python-params ' [ 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
+databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperiment", 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
 ```
 
 
@@ -154,7 +156,7 @@ Create a notebook with the following cell. Attach it to the existing cluster des
 ```
 from wine_quality import train_wine_quality
 data_path = "/dbfs/tmp/jobs/wine_quality/wine-quality.csv"
-train_wine_quality.train(data_path, 0.4, 0.4, "from_notebook_with_egg")
+train_wine_quality.train("WineQualityExperiment",data_path, 0.4, 0.4, "from_notebook_with_egg")
 ```
 
 ## Predictions

@@ -7,7 +7,7 @@
     "on_failure": ["myname@mycompany.com"]
   },
   "spark_python_task": {
-    "python_file": "dbfs:/tmp/jobs/wine_quality/main.py"
+    "python_file": "dbfs:/tmp/jobs/wine_quality/main_train_wine_quality.py"
   },
   "timeout_seconds": 3600
 }

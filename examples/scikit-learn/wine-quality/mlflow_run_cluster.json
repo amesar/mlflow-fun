@@ -7,7 +7,6 @@
     "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
   },
   "libraries": [
-    { "pypi": { "package": "mlflow" }},
-    { "pypi": { "package": "cloudpickle" }}
+    { "pypi": { "package": "mlflow" }}
   ]
 }
