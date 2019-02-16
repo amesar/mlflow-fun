@@ -90,6 +90,7 @@ def train(experiment_name, data_path, alpha, l1_ratio, run_origin="none"):
 
         alphas_enet, coefs_enet, _ = enet_path(X, y, eps=eps, l1_ratio=l1_ratio, fit_intercept=False)
         plot_file = "wine_ElasticNet-paths_{}_{}.png".format(alpha,l1_ratio)
+        print("plot_file:",os.path.abspath(plot_file))
         plot_utils.plot_enet_descent_path(X, y, l1_ratio, alphas_enet, coefs_enet, plot_file)
         mlflow.log_artifact(plot_file)
 
