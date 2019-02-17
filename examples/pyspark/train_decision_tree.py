@@ -1,5 +1,5 @@
 """
-Decision Tree Classification Example.
+PySpark Decision Tree Classification Example.
 """
 from __future__ import print_function
 
@@ -15,8 +15,9 @@ from mlflow import spark as mlflow_spark
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
-
-experiment_name = "py/spark/DecisionTree"
+experiment_name = os.environ.get("MLFLOW_EXPERIMENT_NAME","py/spark/DecisionTree")
+print("experiment_name:",experiment_name)
+mlflow.set_experiment(experiment_name)
 
 def run(max_depth,max_bins):
     print("max_depth={} max_bins={}".format(max_depth,max_bins))
@@ -30,6 +31,7 @@ def run(max_depth,max_bins):
     # Index labels, adding metadata to the label column.
     # Fit on whole dataset to include all labels in index.
     labelIndexer = StringIndexer(inputCol="label", outputCol="indexedLabel").fit(data)
+
     # Automatically identify categorical features, and index them.
     # We specify maxCategories so features with > 4 distinct values are treated as continuous.
     featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(data)
@@ -42,21 +44,20 @@ def run(max_depth,max_bins):
     mlflow.log_param("max_bins",max_bins)
     dt = DecisionTreeClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures", maxDepth=max_depth, maxBins=max_bins)
 
-    # Chain indexers and tree in a Pipeline
+    # Chain indexers and tree in a Pipeline.
     pipeline = Pipeline(stages=[labelIndexer, featureIndexer, dt])
 
     # Train model.  This also runs the indexers.
     model = pipeline.fit(trainingData)
 
-    # Make predictions.
+    # Make predictions
     predictions = model.transform(testData)
 
     # Select example rows to display.
     predictions.select("prediction", "indexedLabel", "features").show(5)
 
-    # Select (prediction, true label) and compute test error
-    evaluator = MulticlassClassificationEvaluator(
-        labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
+    # Select (prediction, true label) and compute test error.
+    evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
     accuracy = evaluator.evaluate(predictions)
     test_error = 1.0 - accuracy
     print("Test Error = {} ".format(test_error))
@@ -76,9 +77,7 @@ if __name__ == "__main__":
     max_bins = int(sys.argv[2]) if len(sys.argv) > 2 else 32
     current_file = os.path.basename(__file__)
     print("MLflow Version:", version.VERSION)
-    print("experiment_name:",experiment_name)
 
-    mlflow.set_experiment(experiment_name)
     client = mlflow.tracking.MlflowClient()
     print("experiment_id:",client.get_experiment_by_name(experiment_name).experiment_id)
 

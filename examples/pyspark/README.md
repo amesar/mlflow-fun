@@ -1,9 +1,11 @@
-# mlflow-fun - PySpark Example
+# mlflow-fun - PySpark Decision Tree Example
 
-### PySpark ML sample
+Install and Run: 
 
-Run: `spark-submit --master local[2] train_decision_tree.py`
+* Install Spark on your machine.
+* `spark-submit --master local[2] train_decision_tree.py`.
 
 Source: [train_decision_tree.py](train_decision_tree.py).
 
-Experiment: py/spark/DecisionTree.
+Default experiment name: py/spark/DecisionTree.
+  * You can overwrite the name with the environment variable MLFLOW_EXPERIMENT_NAME.
