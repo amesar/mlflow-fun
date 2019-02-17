@@ -6,6 +6,7 @@ Simple Hello World experiment that demonstrates the different ways to run an MLf
 For details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
 
 Synopsis of [hello_world.py](hello_world.py):
+* Creates an experiment HelloWorld if it does not exist. You can optionally override with the standard MLFLOW_EXPERIMENT_NAME environment variable.
 * Logs parameters, metrics and tags
 * No ML training
 * Optionally writes an artifact

@@ -1,11 +1,15 @@
 from __future__ import print_function
-import sys
+import os,sys
 import mlflow
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
+experiment_name = os.environ.get("MLFLOW_EXPERIMENT_NAME",None)
+print("MLFLOW_EXPERIMENT_NAME:",experiment_name)
 
 def run(alpha, run_origin, log_artifact):
+    if experiment_name is None:
+      mlflow.set_experiment("HelloWorld")
     with mlflow.start_run(run_name=run_origin) as run:
         print("runId:",run.info.run_uuid)
         print("artifact_uri:",mlflow.get_artifact_uri())
