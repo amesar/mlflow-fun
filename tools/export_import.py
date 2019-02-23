@@ -1,7 +1,7 @@
 
 """ 
 Exports a run from one MLflow server and imports it into another server. 
-
+Note: only works for local destination tracking server.
 First create an experiment in the destination MLflow server: mlflow experiments create my_experiment
 """
 
@@ -36,7 +36,8 @@ def run(src_run_id, dst_exp_id, dst_url):
         for e in src_run.data.tags:
              mlflow.set_tag(e.key, e.value)
 
-    # NOTE: the correct (but slower) way would be to recursively traverse the results of mlflow.get_artifact_uri() 
+    # NOTE: the correct (but slower) way would be to recursively traverse the results of mlflow.get_artifact_uri().
+    # This code only works for local server.
     local_path = src_client.download_artifacts(src_run_id,"")
     print("local_path:",local_path)
     dst_dir = os.path.join(dst_exp.artifact_location,dst_run_id,"artifacts")

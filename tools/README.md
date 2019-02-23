@@ -5,6 +5,10 @@
 
 Exports a run from one MLflow server and imports it into another server.
 
+Note: 
+ * Only works for local destination tracking server since the downloaded source artifacts directory is copied to the destination using local shutil.move. 
+ * TODO: The correct way would to use mlflow.tracking.get_run() and log_artifacts().
+
 In this example we will use this experiment: [../examples/scikit-learn/wine-quality](../examples/scikit-learn/wine-quality). The source tracking server runs on port 5000 and the destination server on 5001.
 
 **Create new destination experiment**
