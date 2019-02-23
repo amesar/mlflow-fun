@@ -12,10 +12,12 @@ MLflow examples for Python and Scala training models.
 * Scala/Java:
   * Note: You need to install Python MLflow in order for Java artifacts to work: `pip install mlflow`
   * [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
-  * [mlflow-java](mlflow-java/README.md) - MLflow Java and Scala extras such as proposed RunContext
 * Legacy:
   * [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)
 
+## Other
+  * [tools](tools) - Useful MLflow tools
+  * [mlflow-java](mlflow-java/README.md) - MLflow Java and Scala extras such as proposed [RunContext](mlflow-java/src/main/java/org/mlflow/tracking/RunContext.java)
 
 ## Setup
 
