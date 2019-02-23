@@ -30,7 +30,7 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 python export_import.py \
   --src_run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --dst_experiment_id 2 \
-  --dst_url http://localhost:5001
+  --dst_uri http://localhost:5001
 ```
 
 **Check predictions from new run**

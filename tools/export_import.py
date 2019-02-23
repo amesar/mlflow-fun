@@ -13,19 +13,19 @@ from argparse import ArgumentParser
 import mlflow
 from mlflow import tracking
 
-def run(src_run_id, dst_exp_id, dst_url):
+def run(src_run_id, dst_exp_id, dst_uri):
     print("src_run_id:",src_run_id)
     print("dst_exp_id:",dst_exp_id)
-    print("dst_url:",dst_url)
+    print("dst_uri:",dst_uri)
 
     src_client = mlflow.tracking.MlflowClient()
     src_run = src_client.get_run(src_run_id)
 
-    dst_client = mlflow.tracking.MlflowClient(dst_url)
+    dst_client = mlflow.tracking.MlflowClient(dst_uri)
     dst_exp = dst_client.get_experiment(dst_exp_id)
     print("dst_exp:",dst_exp)
     
-    mlflow.tracking.set_tracking_uri(dst_url)
+    mlflow.tracking.set_tracking_uri(dst_uri)
     with mlflow.start_run(experiment_id=dst_exp.experiment_id, run_name=src_run.info.name) as run:
         dst_run_id = run.info.run_uuid
         print("dst_run_id:",dst_run_id)
@@ -48,8 +48,8 @@ def run(src_run_id, dst_exp_id, dst_url):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--src_run_id", dest="src_run_id", help="Source run_id", required=True)
-    parser.add_argument("--dst_url", dest="dst_url", help="Destination API URL", required=True)
+    parser.add_argument("--dst_uri", dest="dst_uri", help="Destination API URL", required=True)
     parser.add_argument("--dst_experiment_id", dest="dst_experiment_id", help="Destination experiment_id", required=True, type=int)
     args = parser.parse_args()
-    run(args.src_run_id, args.dst_experiment_id, args.dst_url)
+    run(args.src_run_id, args.dst_experiment_id, args.dst_uri)
 
