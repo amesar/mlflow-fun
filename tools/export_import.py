@@ -25,7 +25,15 @@ def run(src_run_id, dst_exp_id, dst_uri):
     print("dst_exp:",dst_exp)
     
     mlflow.tracking.set_tracking_uri(dst_uri)
-    with mlflow.start_run(experiment_id=dst_exp.experiment_id, run_name=src_run.info.name) as run:
+    with mlflow.start_run( \
+            experiment_id=dst_exp.experiment_id, \
+            run_name=src_run.info.name, \
+            source_name=src_run.info.source_name, \
+            source_version=src_run.info.source_version, \
+            source_type=src_run.info.source_type, \
+            entry_point_name=src_run.info.entry_point_name \
+            # nested=src_run.info.nested # NOTE: where is nested flag?
+            ) as run:
         dst_run_id = run.info.run_uuid
         print("dst_run_id:",dst_run_id)
         for e in src_run.data.params:
@@ -35,6 +43,7 @@ def run(src_run_id, dst_exp_id, dst_uri):
         for e in src_run.data.tags:
              mlflow.set_tag(e.key, e.value)
 
+        # copy artifacts
         local_path = src_client.download_artifacts(src_run_id,"")
         print("local_path:",local_path)
         mlflow.log_artifacts(local_path)
