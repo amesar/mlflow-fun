@@ -90,12 +90,11 @@ python export_import_run.py \
 The log_source_info creates metadata tags with import information. Sample tags from UI:
 ```
 Name                         Value
-_exim_DATABRICKS_HOST        https://myshard.cloud.databricks.com
 _exim_import_timestamp       1551037752
 _exim_import_timestamp_nice  2019-02-24 19:49:12
 _exim_src_experiment_id      2368826
 _exim_src_run_id             d9bbe1c8c94f434b8514301a0834063c
-_exim_src_uri                databricks
+_exim_src_uri                http://localhost:5000
 ```
 
 **Check predictions from new run**
