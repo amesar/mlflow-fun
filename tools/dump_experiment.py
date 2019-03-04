@@ -52,5 +52,4 @@ if __name__ == "__main__":
     parser.add_argument("--artifact_max_level", dest="artifact_max_level", help="Number of artifact levels to recurse", required=False, default=1, type=int)
     parser.add_argument("--show_runs", dest="show_runs", help="Show runs", required=False, default=False, action='store_true')
     args = parser.parse_args()
-    print(">> args:",args)
     dump(args.experiment_id, args.artifact_max_level,args.show_runs)
