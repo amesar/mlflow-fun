@@ -10,15 +10,16 @@ mlflow_client = mlflow.tracking.MlflowClient()
 spark = SparkSession.builder.appName("mlflow_analytics").enableHiveSupport().getOrCreate()
 
 class BuildTables(object):
-    def __init__(self, database, data_dir, experiment_id=None):
+    def __init__(self, database, data_dir, use_parquet, experiment_id=None):
         print("database:",database)
         print("data_dir:",data_dir)
+        print("use_parquet:",use_parquet)
         print("experiment_id:",experiment_id)
         self.database = database
         self.data_dir = data_dir
         self.experiment_id = experiment_id
         self.delimiter = "\t"
-        self.use_parquet = False
+        self.use_parquet = use_parquet
 
     # Strip the leading _
     def get_colum_names(self, obj):
@@ -43,7 +44,33 @@ class BuildTables(object):
         else:
             df.write.option("header","true").option("sep",self.delimiter).mode("overwrite").csv(self.mk_data_path(table))
 
-    def build_mlflow_data(self):
+    def build_exp_table_data(self, exps):
+        columns = self.get_colum_names(exps[0])
+        Experiment = Row(*columns)
+        rows = []
+        for j,exp in enumerate(exps):
+            values = self.get_values(exp)
+            rows.append(Experiment(*values))
+        df = spark.createDataFrame(rows)
+        self.write_df(df,"experiments")
+
+    def build_run_table_data(self, exps):
+        Run = None
+        rows = []
+        for j,exp in enumerate(exps):
+            runs = mlflow_client.list_run_infos(exp.experiment_id)
+            print("{}/{} Found {} runs for experiment {} - {}".format((1+j),len(exps),len(runs),exp.experiment_id,exp.name))
+            for run in runs:
+                if Run is None:
+                    columns = self.get_colum_names(run)
+                    Run = Row(*columns)
+                values = self.get_values(run)
+                rows.append(Run(*values))
+        df = spark.createDataFrame(rows)
+        self.write_df(df,"runs")
+        print("Total: Found {} experiments and {} runs".format(len(exps),len(rows)))
+
+    def build_table_data(self):
         if self.experiment_id is None:
             exps = mlflow_client.list_experiments() 
         else:
@@ -52,27 +79,8 @@ class BuildTables(object):
         if len(exps) == 0:
             print("WARNING: No experiments found")
             return
-        columns = self.get_colum_names(exps[0])
-        Experiment = Row(*columns)
-        Run = None
-        exp_rows = []
-        run_rows = []
-        for j,exp in enumerate(exps):
-            values = self.get_values(exp)
-            exp_rows.append(Experiment(*values))
-            runs = mlflow_client.list_run_infos(exp.experiment_id)
-            print("{}/{} Found {} runs for experiment {} - {}".format((1+j),len(exps),len(runs),exp.experiment_id,exp.name))
-            for run in runs:
-                if Run is None:
-                    columns = self.get_colum_names(run)
-                    Run = Row(*columns)
-                values = self.get_values(run)
-                run_rows.append(Run(*values))
-        print("Total: Found {} experiments and {} runs".format(len(exp_rows),len(run_rows)))
-        df = spark.createDataFrame(exp_rows)
-        self.write_df(df,"experiments")
-        df = spark.createDataFrame(run_rows)
-        self.write_df(df,"runs")
+        self.build_exp_table_data(exps)
+        self.build_run_table_data(exps)
 
     def build_status_table(self):
         rtime = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
@@ -82,8 +90,11 @@ class BuildTables(object):
         self.write_df(df,"mlflow_status")
 
     def build_data(self):
+        self.mk_dir("experiments")
+        self.mk_dir("runs")
+        self.mk_dir("mlflow_status")
         self.build_status_table()
-        self.build_mlflow_data()
+        self.build_table_data()
 
     def build_table_ddl(self, table):
         path = self.mk_data_path(table)
@@ -111,9 +122,6 @@ class BuildTables(object):
             os.makedirs(path)
 
     def build(self):
-        self.mk_dir("experiments")
-        self.mk_dir("runs")
-        self.mk_dir("mlflow_status")
         self.build_data()
         self.build_ddl()
 
@@ -124,6 +132,7 @@ if __name__ == "__main__":
     parser.add_argument("--database", dest="database", help="database", required=True)
     parser.add_argument("--data_dir", dest="data_dir", help="data_dir", required=True)
     parser.add_argument("--experiment_id", dest="experiment_id", help="experiment_id", type=int, required=False)
+    parser.add_argument("--use_parquet", dest="use_parquet", help="Write as parquet (default CSV)", required=False, default=False, action='store_true')
     args = parser.parse_args()
-    builder = BuildTables(args.database, args.data_dir, args.experiment_id)
+    builder = BuildTables(args.database, args.data_dir, args.use_parquet, args.experiment_id)
     builder.build()
