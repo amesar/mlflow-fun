@@ -39,6 +39,7 @@ class BuildTables(object):
     def write_df(self, df, table):
         #df.show()
         #df.printSchema()
+        df = df.coalesce(1)
         if self.use_parquet:
             df.write.mode("overwrite").parquet(self.mk_data_path(table))
         else:
