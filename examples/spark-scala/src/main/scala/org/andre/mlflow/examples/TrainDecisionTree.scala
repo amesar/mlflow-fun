@@ -111,7 +111,7 @@ object TrainDecisionTree {
     // MLflow - Log simple artifact
     val path="info.txt"
     new PrintWriter(path) { write("Info: "+new java.util.Date()) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"info")
+    mlflowClient.logArtifact(runId,new File(path),"extra")
 
     // MLflow - save model as Spark ML artifact
     val sparkModelPath = s"$modelPath/spark_model"
