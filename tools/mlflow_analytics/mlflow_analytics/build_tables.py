@@ -10,7 +10,7 @@ mlflow_client = mlflow.tracking.MlflowClient()
 spark = SparkSession.builder.appName("mlflow_analytics").enableHiveSupport().getOrCreate()
 
 class BuildTables(object):
-    def __init__(self, database, data_dir, use_parquet, experiment_id=None):
+    def __init__(self, database, data_dir, use_parquet=False, experiment_id=None):
         print("database:",database)
         print("data_dir:",data_dir)
         print("use_parquet:",use_parquet)
@@ -86,7 +86,11 @@ class BuildTables(object):
     def build_status_table(self):
         rtime = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
         print("Refreshed at:",rtime)
-        rows = [ Row(refreshed_at=rtime, tracking_uri=mlflow.tracking.get_tracking_uri()) ]
+        tracking_uri = mlflow.tracking.get_tracking_uri()
+        rows = [ Row(refreshed_at=rtime, \
+            tracking_uri = tracking_uri,\
+            tracking_host = mlflow_utils.get_host(tracking_uri), \
+            version = mlflow.version.VERSION) ]
         df = spark.createDataFrame(rows)
         self.write_df(df,"mlflow_status")
 
