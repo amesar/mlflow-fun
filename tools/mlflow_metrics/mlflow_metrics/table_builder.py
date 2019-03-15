@@ -22,8 +22,7 @@ class TableBuilder(object):
         self.file_api = file_api.get_file_api(data_dir)
         print("file_api:",type(self.file_api).__name__)
         self.delimiter = "\t"
-        self.logmod = 20
-        self.df_builder = DataframeBuilder(spark,mlflow_client,5)
+        self.df_builder = DataframeBuilder(spark,mlflow_client,20)
 
 
     def _create_database(self):
