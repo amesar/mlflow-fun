@@ -40,9 +40,8 @@ For the [Wine Quality experiment](../../examples/scikit-learn/wine-quality).
 
 ### Schema
 ```
-describe table experiments
+describe table exp_1
 
-spark.sql("describe table exp_1").show()
 +----------------+---------+-------+
 |        col_name|data_type|comment|
 +----------------+---------+-------+
