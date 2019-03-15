@@ -123,6 +123,7 @@ class BuildTables(object):
         return self._build_experiment(experiment_id, idx, num_exps)
 
     def build_experiments(self, exp_ids=[]):
-        self._create_database()
+        if len(exp_ids) == 0:
+            self._create_database()
         self._build_all_data(exp_ids)
         self._build_all_ddl()
