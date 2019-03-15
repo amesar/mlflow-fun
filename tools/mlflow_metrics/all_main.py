@@ -1,5 +1,5 @@
 import sys
-from mlflow_metrics.build_tables import BuildTables
+from mlflow_metrics.table_builder import TableBuilder
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -10,5 +10,5 @@ if __name__ == "__main__":
     parser.add_argument("--experiment_ids", dest="experiment_ids", help="Experiment IDs", required=False)
     args = parser.parse_args()
     exp_ids = [] if args.experiment_ids is None else [int(id) for id in args.experiment_ids.split(",")]
-    builder = BuildTables(args.database, args.data_dir, args.use_parquet)
+    builder = TableBuilder(args.database, args.data_dir, args.use_parquet)
     builder.build_experiments(exp_ids)

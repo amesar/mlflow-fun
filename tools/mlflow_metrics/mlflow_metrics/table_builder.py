@@ -5,12 +5,13 @@ import traceback
 import os, time
 import mlflow
 from mlflow_metrics import mlflow_utils, file_api
+from mlflow_metrics.dataframe_builder import DataframeBuilder
 mlflow_utils.dump_mlflow_info()
 
 mlflow_client = mlflow.tracking.MlflowClient()
 spark = SparkSession.builder.appName("mlflow_metrics").enableHiveSupport().getOrCreate()
 
-class BuildTables(object):
+class TableBuilder(object):
     def __init__(self, database, data_dir, use_parquet=False):
         print("database:",database)
         print("data_dir:",data_dir)
@@ -22,6 +23,8 @@ class BuildTables(object):
         print("file_api:",type(self.file_api).__name__)
         self.delimiter = "\t"
         self.logmod = 20
+        self.df_builder = DataframeBuilder(spark,mlflow_client,5)
+
 
     def _create_database(self):
         spark.sql("drop database if exists {} cascade".format(self.database))
@@ -47,29 +50,13 @@ class BuildTables(object):
 
     def _build_experiment(self, experiment_id, idx=None,num_exps=None):
         try:
-            infos = mlflow_client.list_run_infos(experiment_id)
-            if idx is None:
-                print("Experiment {} has {} runs".format(experiment_id,len(infos)))
-            else:
-                print("{}/{}: Experiment {} has {} runs".format((1+idx),num_exps,experiment_id,len(infos)))
-            rows = []
-            if len(infos) == 0:
-                print("WARNING: No runs for experiment {}".format(exp))
+            (df,n) = self.df_builder.build_dataframe_(experiment_id, idx, num_exps)
+            if df is None:
                 return 0
-            for j,info in enumerate(infos):
-                if j%self.logmod==0: print("  run {}/{} of experiment {}".format(j,len(infos),experiment_id))
-                run = mlflow_client.get_run(info.run_uuid)
-                dct = self._strip_underscores(info)
-                params = { "_p_"+x.key:x.value for x in run.data.params }
-                metrics = { "_m_"+x.key:x.value for x in run.data.metrics }
-                dct.update(params)
-                dct.update(metrics)
-                rows.append(dct)
-            df = spark.createDataFrame(rows)
             table = "exp_"+str(experiment_id)
             self._write_df(df,table)
             self._build_table_ddl(table)
-            return len(infos)
+            return n
         except Exception as e:
             print("WARNING: Cannot list runs for experiment {} {}".format(experiment_id,e))
             traceback.print_exc()

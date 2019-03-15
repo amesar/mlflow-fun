@@ -1,5 +1,5 @@
 import sys
-from mlflow_metrics.build_tables import BuildTables
+from mlflow_metrics.table_builder import TableBuilder
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -9,5 +9,5 @@ if __name__ == "__main__":
     parser.add_argument("--use_parquet", dest="use_parquet", help="Write as parquet (default CSV)", required=False, default=False, action='store_true')
     parser.add_argument("--experiment_id", dest="experiment_id", help="Experiment ID", type=int, required=True)
     args = parser.parse_args()
-    builder = BuildTables(args.database, args.data_dir, args.use_parquet)
+    builder = TableBuilder(args.database, args.data_dir, args.use_parquet)
     builder.build_experiment(args.experiment_id)
