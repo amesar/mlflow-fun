@@ -33,7 +33,7 @@ class DataframeBuilder(object):
         else:
             print("{}/{}: Experiment {} has {} runs".format((1+idx),num_exps,experiment_id,len(infos)))
         if len(infos) == 0:
-            print("WARNING: No runs for experiment {}".format(exp))
+            print("WARNING: No runs for experiment {}".format(experiment_id))
             return (None,0)
         rows = []
         for j,info in enumerate(infos):
@@ -47,8 +47,3 @@ class DataframeBuilder(object):
             rows.append(dct)
         df = self.spark.createDataFrame(rows)
         return (df,len(infos))
-
-        #except Exception as e:
-            #print("WARNING: Cannot list runs for experiment {} {}".format(experiment_id,e))
-            #traceback.print_exc()
-            #return 0
