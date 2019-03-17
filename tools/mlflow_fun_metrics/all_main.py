@@ -1,5 +1,5 @@
 import sys
-from mlflow_metrics.table_builder import TableBuilder
+from mlflow_fun.metrics.table_builder import TableBuilder
 from argparse import ArgumentParser
 
 if __name__ == "__main__":

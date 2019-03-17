@@ -89,7 +89,7 @@ select run_uuid, round(_m_rmse,2) as _m_rmse, _p_alpha, _p_l1_ratio from exp_1 o
 
 ## Dataframe Usage
 ```
-from mlflow_metrics.dataframe_build import DataframeBuilder
+from mlflow_fun.metrics.dataframe_build import DataframeBuilder
 from pyspark.sql.functions import round
 
 builder = DataframeBuilder()
