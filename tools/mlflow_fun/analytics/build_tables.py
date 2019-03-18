@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession, Row
 
 import sys, os, time
 import mlflow
-from mlflow_analytics import mlflow_utils
+from mlflow_fun.analytics import mlflow_utils
 mlflow_utils.dump_mlflow_info()
 
 mlflow_client = mlflow.tracking.MlflowClient()
