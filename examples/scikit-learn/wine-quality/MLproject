@@ -6,8 +6,8 @@ entry_points:
   main:
     parameters:
       experiment_name: {type: string, default: "none" }
+      data_path: {type: string}
       alpha: float
       l1_ratio: {type: float, default: 0.1}
-      data_path: {type: string, default: "wine-quality.csv" }
       run_origin: {type: string, default: "default" }
-    command: "python main_train_wine_quality.py {experiment_name} {alpha} {l1_ratio} {data_path} {run_origin}"
+    command: "python main_train_wine_quality.py {experiment_name} {data_path} {alpha} {l1_ratio} {run_origin}"

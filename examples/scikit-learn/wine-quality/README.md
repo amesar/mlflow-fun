@@ -26,7 +26,7 @@ Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine
 
 To run with standard main function:
 ```
-python main_train_wine_quality.py WineQualityExperiment 0.5 0.5 wine-quality.csv
+python main_train_wine_quality.py WineQualityExperiment wine-quality.csv 0.5 0.5
 ```
 
 #### Jupyter notebook
