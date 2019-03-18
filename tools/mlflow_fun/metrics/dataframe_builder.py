@@ -1,13 +1,23 @@
 from __future__ import print_function
 from pyspark.sql import SparkSession, Row
-
-import traceback
-import os, time
+from collections import OrderedDict
 import mlflow
-from mlflow_fun.metrics import mlflow_utils, file_api
+from mlflow_fun.metrics import mlflow_utils
 
-class DataframeBuilder(object):
-    def __init__(self, spark=None, mlflow_client=None, logmod=20):
+def get_data_frame_builder(which="slow"):
+    return SlowDataframeBuilder() if which == "slow" else FastDataframeBuilder()
+
+def convert_to_row(d: dict) -> Row:
+    return Row(**OrderedDict(sorted(d.items())))
+
+class BaseDataframeBuilder(object):
+    def build_dataframe(self, experiment_id, idx=None, num_exps=None):
+        (df,n) = self.build_dataframe_(experiment_id, idx, num_exps)
+        return df
+
+''' Calls MLflow client '''
+class SlowDataframeBuilder(BaseDataframeBuilder):
+    def __init__(self, mlflow_client=None, spark=None, logmod=20):
         self.logmod = logmod 
         self.mlflow_client = mlflow_client 
         self.spark = spark 
@@ -21,10 +31,6 @@ class DataframeBuilder(object):
 
     def _strip_underscores(self, obj):
         return { k[1:]:v for (k,v) in obj.__dict__.items() }
-
-    def build_dataframe(self, experiment_id, idx=None, num_exps=None):
-        (df,n) = self.build_dataframe_(experiment_id, idx, num_exps)
-        return df
 
     def build_dataframe_(self, experiment_id, idx=None, num_exps=None):
         infos = self.mlflow_client.list_run_infos(experiment_id)
@@ -44,6 +50,30 @@ class DataframeBuilder(object):
             metrics = { "_m_"+x.key:x.value for x in run.data.metrics }
             dct.update(params)
             dct.update(metrics)
+            #rows.append(convert_to_row(dct))
             rows.append(dct)
         df = self.spark.createDataFrame(rows)
         return (df,len(infos))
+
+''' Calls REST client '''
+class FastDataframeBuilder(BaseDataframeBuilder):
+    def __init__(self, mlflow_search_client=None, spark=None, logmod=20):
+        from mlflow_fun.common.mlflow_search_client import MlflowSearchClient
+        self.logmod = logmod 
+        if mlflow_search_client is None:
+            mlflow_search_client = MlflowSearchClient()
+        self.mlflow_search_client = mlflow_search_client 
+
+        self.spark = spark 
+        if spark is None:
+            self.spark = SparkSession.builder.appName("mlflow_metrics").enableHiveSupport().getOrCreate()
+        print("logmod:",logmod)
+
+    def build_dataframe_(self, experiment_id, idx=None, num_exps=None):
+        runs = self.mlflow_search_client.list_runs_flat(experiment_id)
+        if len(runs) == 0:
+            print("WARNING: No runs for experiment {}".format(experiment_id))
+            return (None,0)
+        #runs = [ convert_to_row(run) for run in runs ]
+        df = self.spark.createDataFrame(runs)
+        return (df,len(runs))
