@@ -2,7 +2,7 @@ from __future__ import print_function
 from pyspark.sql import SparkSession, Row
 from collections import OrderedDict
 import mlflow
-from mlflow_fun.metrics import mlflow_utils
+from mlflow_fun.common import mlflow_utils
 
 def get_data_frame_builder(which="slow"):
     return SlowDataframeBuilder() if which == "slow" else FastDataframeBuilder()

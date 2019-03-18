@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession, Row
 
 import sys, os, time
 import mlflow
-from mlflow_fun.analytics import mlflow_utils
+from mlflow_fun.common import mlflow_utils
 mlflow_utils.dump_mlflow_info()
 
 mlflow_client = mlflow.tracking.MlflowClient()
@@ -89,7 +89,7 @@ class BuildTables(object):
         tracking_uri = mlflow.tracking.get_tracking_uri()
         rows = [ Row(refreshed_at=rtime, \
             tracking_uri = tracking_uri,\
-            tracking_host = mlflow_utils.get_host(tracking_uri), \
+            tracking_host = mlflow_utils.get_mlflow_host(tracking_uri), \
             version = mlflow.version.VERSION) ]
         df = spark.createDataFrame(rows)
         self.write_df(df,"mlflow_status")

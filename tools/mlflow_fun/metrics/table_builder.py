@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession, Row
 import traceback
 import os, time
 import mlflow
-from mlflow_fun.metrics import mlflow_utils, file_api
+from mlflow_fun.common import mlflow_utils, file_api
 from mlflow_fun.metrics.dataframe_builder import DataframeBuilder
 mlflow_utils.dump_mlflow_info()
 

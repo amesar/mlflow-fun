@@ -6,11 +6,15 @@ def dump_mlflow_info():
     print("MLflow Info:")
     print("  MLflow Version:", mlflow.version.VERSION)
     print("  Tracking URI:", mlflow.tracking.get_tracking_uri())
+    mlflow_host = get_mlflow_host(mlflow.tracking.get_tracking_uri())
+    print("  Real MLflow host:", mlflow_host)
     print("  MLFLOW_TRACKING_URI:", os.environ.get("MLFLOW_TRACKING_URI",""))
     print("  DATABRICKS_HOST:", os.environ.get("DATABRICKS_HOST",""))
     print("  DATABRICKS_TOKEN:", os.environ.get("DATABRICKS_TOKEN",""))
-    #mlflow_host = get_mlflow_host_(mlflow.tracking.get_tracking_uri())
-    #print("  _MLFLOW_HOST:", mlflow_host)
+
+''' Returns the host (tracking URI) and token '''
+def get_mlflow_host(tracking_uri):
+    return get_mlflow_host_token(tracking_uri)[0]
 
 ''' Returns the host (tracking URI) and token '''
 def get_mlflow_host_token(tracking_uri):
