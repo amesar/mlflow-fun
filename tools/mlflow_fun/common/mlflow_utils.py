@@ -9,8 +9,8 @@ def dump_mlflow_info():
     print("  MLFLOW_TRACKING_URI:", os.environ.get("MLFLOW_TRACKING_URI",""))
     print("  DATABRICKS_HOST:", os.environ.get("DATABRICKS_HOST",""))
     print("  DATABRICKS_TOKEN:", os.environ.get("DATABRICKS_TOKEN",""))
-    mlflow_host = get_mlflow_host_(mlflow.tracking.get_tracking_uri())
-    print("  _MLFLOW_HOST:", mlflow_host)
+    #mlflow_host = get_mlflow_host_(mlflow.tracking.get_tracking_uri())
+    #print("  _MLFLOW_HOST:", mlflow_host)
 
 ''' Returns the host (tracking URI) and token '''
 def get_mlflow_host_token(tracking_uri):
