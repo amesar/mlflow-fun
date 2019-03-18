@@ -5,9 +5,9 @@
 Useful tools for MLflow.
 * Dumps experiment or run information recursively.
 * Exports a run from one MLflow server and imports it into another server.
-* [MLflow Analytics](mlflow_analytics) - Create Spark tables to query experiment and run data obtained from API
-* [MLflow Metrics](mlflow_metrics) - Create Spark tables to query for best metric
-* [Mlflow Fun Common](mlflow_fun_common) - Common MLflow Fun stuff
+* [MLflowFun Analytics](mlflow_fun/analytics) - Create Spark tables to query experiment and run data obtained from API
+* [MLflowFun Metrics](mlflow_fun/metrics) - Create Spark tables to query for best metric
+* [MlflowFun Common](mlflow_fun/common) - Common MLflow Fun stuff
 
 ## Dump experiment or run
 

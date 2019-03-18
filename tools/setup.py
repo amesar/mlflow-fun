@@ -6,5 +6,6 @@ setup(name='mlflow_fun',
       author='Andre',
       packages=['mlflow_fun',
                 'mlflow_fun.common',
-                'mlflow_fun.analytics'],
+                'mlflow_fun.analytics',
+                'mlflow_fun.metrics'],
       zip_safe=False)
