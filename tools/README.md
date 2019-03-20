@@ -24,7 +24,7 @@ python dump_run.py --run_id 2cbab69842e4412c99bfb5e15344bc42 --artifact_max_leve
 python dump_experiment.py --experiment_id 123 --showRuns --artifact_max_level 5
 ```
 
-Example for dump_experiment.py
+Example for [dump_experiment.py](core/dump_experiment.py)
 ```
 Experiment Details:
   experiment_id: 123
@@ -81,6 +81,7 @@ In this example use:
 
 First create an experiment in the destination MLflow tracking server.
 ```
+cd core
 export MLFLOW_TRACKING_URI=http://localhost:5001
 mlflow experiments create new_experiment
 
@@ -89,7 +90,7 @@ Created experiment 'local_runs' with id 1
 
 **Export and import the run**
 
-Then run [export_import_run.py](export_import_run.py). 
+Then run [export_import_run.py](core/export_import_run.py). 
 
 ```
 export MLFLOW_TRACKING_URI=http://localhost:5000
