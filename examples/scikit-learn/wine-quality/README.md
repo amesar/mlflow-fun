@@ -26,7 +26,7 @@ Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine
 
 To run with standard main function:
 ```
-python main_train_wine_quality.py WineQualityExperiment wine-quality.csv 0.5 0.5
+python main_train_wine_quality.py WineQualityExperiment wine-quality-white.csv 0.5 0.5
 ```
 
 #### Jupyter notebook
@@ -69,7 +69,7 @@ Now run.
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
   -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
-  -P data_path=/dbfs/tmp/data/wine-quality.csv \
+  -P data_path=/dbfs/tmp/data/wine-quality-white.csv \
   --experiment-id=2019 \
   --mode databricks --cluster-spec mlflow_run_cluster.json
 ```
@@ -91,7 +91,7 @@ python setup.py bdist_egg
 Upload the data file, main file and egg to your Databricks cluster.
 ```
 databricks fs cp main_train_wine_quality.py dbfs:/tmp/jobs/wine_quality/main.py
-databricks fs cp wine-quality.csv dbfs:/tmp/jobs/wine_quality/wine-quality.csv
+databricks fs cp wine-quality-white.csv dbfs:/tmp/jobs/wine_quality/wine-quality-white.csv
 databricks fs cp \
   dist/mlflow_wine_quality-0.0.1-py3.6.egg \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
@@ -135,7 +135,7 @@ databricks jobs create --json-file create_job_new_cluster.json
 
 Then run the job with desired parameters.
 ```
-databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperiment", 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
+databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperiment", 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality-white.csv" ] '
 ```
 
 ##### Run with existing cluster
@@ -146,7 +146,7 @@ databricks jobs create --json-file create_job_existing_cluster.json
 
 Then run the job with desired parameters.
 ```
-databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperiment", 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality.csv" ] '
+databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperiment", 0.3, 0.3, "/dbfs/tmp/jobs/wine_quality/wine-quality-white.csv" ] '
 ```
 
 
@@ -155,7 +155,7 @@ databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperim
 Create a notebook with the following cell. Attach it to the existing cluster described above.
 ```
 from wine_quality import train_wine_quality
-data_path = "/dbfs/tmp/jobs/wine_quality/wine-quality.csv"
+data_path = "/dbfs/tmp/jobs/wine_quality/wine-quality-white.csv"
 train_wine_quality.train("WineQualityExperiment",data_path, 0.4, 0.4, "from_notebook_with_egg")
 ```
 
@@ -175,7 +175,7 @@ See MLflow documentation:
 
 
 ### Data for predictions
-[wine-quality.json](wine-quality.json):
+[wine-quality-red.csv](wine-quality-red.csv):
 ```
 [
   {
@@ -204,7 +204,7 @@ mlflow pyfunc serve -p 5001 -r 7e674524514846799310c41f10d6b99d -m model
 
 In another window, submit a prediction.
 ```
-curl -X POST -H "Content-Type:application/json" -d @wine-quality.json http://localhost:5001/invocations
+curl -X POST -H "Content-Type:application/json" -d @wine-quality-red.csv http://localhost:5001/invocations
 
 [
     5.551096337521979,
@@ -225,7 +225,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 From [scikit_predict.py](scikit_predict.py):
 ```
 model = mlflow.sklearn.load_model("model",run_id="7e674524514846799310c41f10d6b99d")
-df = pd.read_json("wine-quality.json")
+df = pd.read_json("wine-quality-read.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -241,7 +241,7 @@ From [pyfunc_predict.py](pyfunc_predict.py):
 ```
 model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
-df = pd.read_json("wine-quality.json")
+df = pd.read_json("wine-qualitred.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -266,7 +266,7 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 From [spark_udf_predict.py](spark_udf_predict.py):
 ```
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv("wine-quality.csv")
+df = spark.read.option("inferSchema",True).option("header", True).csv("wine-quality-white.csv")
 df = df.drop("quality")
 
 udf = mlflow.pyfunc.spark_udf(spark, "model", run_id="7e674524514846799310c41f10d6b99d")
@@ -281,7 +281,7 @@ From [pickle_predict.py](pickle_predict.py):
 pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/model/model.pkl"
 with open(pickle_path, 'rb') as f:
     model = pickle.load(f)
-df = pd.read_json("wine-quality.json")
+df = pd.read_json("wine-qualitred.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```

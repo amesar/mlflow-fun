@@ -14,7 +14,7 @@ if __name__ == "__main__":
         sys.exit(1)
     print("MLflow Version:", mlflow.version.VERSION)
     run_id = sys.argv[1]
-    data_path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality.csv"
+    data_path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality-red.csv"
     print("data_path:",data_path)
     print("run_id:",run_id)
 
