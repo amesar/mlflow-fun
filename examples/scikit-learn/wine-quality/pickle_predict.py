@@ -11,7 +11,7 @@ if __name__ == "__main__":
         println("ERROR: Expecting PICKLE_FILE PREDICTION_FILE")
         sys.exit(1)
     pickle_path = sys.argv[1]
-    data_path = sys.argv[2] if len(sys.argv) > 2 else "wine-quality-red.csv"
+    data_path = sys.argv[2] if len(sys.argv) > 2 else "data/wine-quality-red.csv"
     print("pickle_path:",pickle_path)
     print("data_path:",data_path)
 

@@ -7,6 +7,7 @@
 * Saves plot artifacts
 * Shows several ways to run training - _mlflow run_, run against Databricks cluster, call egg from notebook, etc.
 * Shows several ways to run prediction  - web server,  mlflow.load_model(), UDF, etc.
+* Train with data/wine-quality-white.csv and data/predict wine-quality-red.csv.
 
 ## Setup
 
@@ -175,7 +176,7 @@ See MLflow documentation:
 
 
 ### Data for predictions
-[wine-quality-red.csv](wine-quality-red.csv):
+[data/wine-quality-red.csv](data/wine-quality-red.csv):
 ```
 [
   {
@@ -204,7 +205,7 @@ mlflow pyfunc serve -p 5001 -r 7e674524514846799310c41f10d6b99d -m model
 
 In another window, submit a prediction.
 ```
-curl -X POST -H "Content-Type:application/json" -d @wine-quality-red.csv http://localhost:5001/invocations
+curl -X POST -H "Content-Type:application/json" -d @data/wine-quality-red.csv http://localhost:5001/invocations
 
 [
     5.551096337521979,
@@ -225,7 +226,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 From [scikit_predict.py](scikit_predict.py):
 ```
 model = mlflow.sklearn.load_model("model",run_id="7e674524514846799310c41f10d6b99d")
-df = pd.read_json("wine-quality-read.csv")
+df = pd.read_csv("data/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -241,7 +242,7 @@ From [pyfunc_predict.py](pyfunc_predict.py):
 ```
 model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
-df = pd.read_json("wine-qualitred.csv")
+df = pd.read_csv("data/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -266,7 +267,7 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 From [spark_udf_predict.py](spark_udf_predict.py):
 ```
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv("wine-quality-white.csv")
+df = spark.read.option("inferSchema",True).option("header", True).csv("data/wine-quality-white.csv")
 df = df.drop("quality")
 
 udf = mlflow.pyfunc.spark_udf(spark, "model", run_id="7e674524514846799310c41f10d6b99d")
@@ -281,7 +282,7 @@ From [pickle_predict.py](pickle_predict.py):
 pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/model/model.pkl"
 with open(pickle_path, 'rb') as f:
     model = pickle.load(f)
-df = pd.read_json("wine-qualitred.csv")
+df = pd.read_csv("data/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
