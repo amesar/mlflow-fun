@@ -68,18 +68,18 @@ def train(experiment_name, data_path, alpha, l1_ratio, run_origin="none"):
         print("  MAE:",mae)
         print("  R2:",r2)
 
-        mlflow.log_param("data_path", data_path)
         mlflow.log_param("alpha", alpha)
         mlflow.log_param("l1_ratio", l1_ratio)
-        mlflow.log_param("run_origin", run_origin)
-        mlflow.log_param("exp_id", experiment_id)
-        mlflow.log_param("exp_name", experiment_name)
-        mlflow.log_param("run_origin", run_origin)
 
         mlflow.log_metric("rmse", rmse)
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
-
+        
+        mlflow.set_tag("data_path", data_path)
+        mlflow.set_tag("run_origin", run_origin)
+        mlflow.set_tag("exp_id", experiment_id)
+        mlflow.set_tag("exp_name", experiment_name)
+        mlflow.set_tag("run_origin", run_origin)
         mlflow.set_tag("platform", platform.system())
 
         mlflow.sklearn.log_model(clf, "model")
