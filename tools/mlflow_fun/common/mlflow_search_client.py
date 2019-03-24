@@ -35,6 +35,7 @@ class MlflowSearchClient(object):
                 data = run['data']
                 self._merge('params','_p_',dct,data)
                 self._merge('metrics','_m_',dct,data)
+                self._merge('tags','_t_',dct,data)
             rows.append(dct)
         return rows
 

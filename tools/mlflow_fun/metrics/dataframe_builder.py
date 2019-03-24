@@ -48,8 +48,10 @@ class SlowDataframeBuilder(BaseDataframeBuilder):
             dct = self._strip_underscores(info)
             params = { "_p_"+x.key:x.value for x in run.data.params }
             metrics = { "_m_"+x.key:x.value for x in run.data.metrics }
+            tags = { "_t_"+x.key:x.value for x in run.data.tags }
             dct.update(params)
             dct.update(metrics)
+            dct.update(tags)
             #rows.append(convert_to_row(dct))
             rows.append(dct)
         df = self.spark.createDataFrame(rows)
