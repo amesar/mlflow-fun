@@ -4,8 +4,9 @@ from pyspark.sql import SparkSession, Row
 import traceback
 import os, time
 import mlflow
-from mlflow_fun.common import mlflow_utils, file_api
-from mlflow_fun.metrics.dataframe_builder import DataframeBuilder
+from mlflow_fun.common import mlflow_utils
+from mlflow_fun.metrics.dataframe_builder import FastDataframeBuilder
+from mlflow_fun.metrics import file_api
 mlflow_utils.dump_mlflow_info()
 
 mlflow_client = mlflow.tracking.MlflowClient()
@@ -22,7 +23,7 @@ class TableBuilder(object):
         self.file_api = file_api.get_file_api(data_dir)
         print("file_api:",type(self.file_api).__name__)
         self.delimiter = "\t"
-        self.df_builder = DataframeBuilder(spark,mlflow_client,20)
+        self.df_builder = FastDataframeBuilder(None,spark,20)
 
 
     def _create_database(self):
@@ -67,7 +68,7 @@ class TableBuilder(object):
         tracking_uri = mlflow.tracking.get_tracking_uri()
         rows = [ Row(refreshed_at=rtime, \
             tracking_uri = tracking_uri,\
-            tracking_host = mlflow_utils.get_host(tracking_uri), \
+            tracking_host = mlflow_utils.get_mlflow_host(tracking_uri), \
             version = mlflow.version.VERSION) ]
         df = spark.createDataFrame(rows)
         self._write_df(df,"mlflow_status")
@@ -94,6 +95,7 @@ class TableBuilder(object):
         self._build_status_table()
         exps = mlflow_client.list_experiments() 
         if len(exp_ids) > 0:
+            print("Experiment IDs:",exp_ids)
             exps = [ exp for exp in exps if exp.experiment_id in set(exp_ids) ]
         print("Found {} experiments".format(len(exps)))
         if len(exps) == 0:
@@ -105,6 +107,7 @@ class TableBuilder(object):
         print("Total: Found {} experiments with {} runs".format(len(exps),num_runs))
 
     def build_experiment(self, experiment_id, idx=None, num_exps=None):
+        print("experiment_id:",experiment_id)
         spark.sql("create database if not exists "+self.database)
         return self._build_experiment(experiment_id, idx, num_exps)
 

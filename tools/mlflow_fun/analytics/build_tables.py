@@ -2,6 +2,7 @@ from __future__ import print_function
 from pyspark.sql import SparkSession, Row
 
 import sys, os, time
+from argparse import ArgumentParser
 import mlflow
 from mlflow_fun.common import mlflow_utils
 mlflow_utils.dump_mlflow_info()
@@ -36,6 +37,12 @@ class BuildTables(object):
     def mk_fuse_path(self,path):
         return path.replace("dbfs:/","/dbfs/")
 
+    def mk_dir(self, table):
+        path = self.mk_data_path(table)
+        path = self.mk_fuse_path(path)
+        if not os.path.exists(path):
+            os.makedirs(path)
+
     def write_df(self, df, table):
         #df.show()
         #df.printSchema()
@@ -45,7 +52,7 @@ class BuildTables(object):
         else:
             df.write.option("header","true").option("sep",self.delimiter).mode("overwrite").csv(self.mk_data_path(table))
 
-    def build_exp_table_data(self, exps):
+    def build_exp_table(self, exps):
         columns = self.get_colum_names(exps[0])
         Experiment = Row(*columns)
         rows = []
@@ -54,24 +61,30 @@ class BuildTables(object):
             rows.append(Experiment(*values))
         df = spark.createDataFrame(rows)
         self.write_df(df,"experiments")
+        self.build_table_ddl("experiments")
 
-    def build_run_table_data(self, exps):
+    def build_run_table(self, exps):
         Run = None
         rows = []
         for j,exp in enumerate(exps):
-            runs = mlflow_client.list_run_infos(exp.experiment_id)
-            print("{}/{} Found {} runs for experiment {} - {}".format((1+j),len(exps),len(runs),exp.experiment_id,exp.name))
-            for run in runs:
-                if Run is None:
-                    columns = self.get_colum_names(run)
-                    Run = Row(*columns)
-                values = self.get_values(run)
-                rows.append(Run(*values))
+            try:
+                runs = mlflow_client.list_run_infos(exp.experiment_id)
+                #print("{}/{} Found {} runs for experiment {} - {}".format((1+j),len(exps),len(runs),exp.experiment_id,exp.name))
+                print("{}/{} Experiment {} has {} runs - {}".format((1+j),len(exps),exp.experiment_id,len(runs),exp.name))
+                for run in runs:
+                    if Run is None:
+                        columns = self.get_colum_names(run)
+                        Run = Row(*columns)
+                    values = self.get_values(run)
+                    rows.append(Run(*values))
+            except Exception as e:
+                print("WARNING: exp_id:",exp.experiment_id,"ex:",e)
         df = spark.createDataFrame(rows)
         self.write_df(df,"runs")
+        self.build_table_ddl("runs")
         print("Total: Found {} experiments and {} runs".format(len(exps),len(rows)))
 
-    def build_table_data(self):
+    def build_exp_run_tables(self):
         if self.experiment_id is None:
             exps = mlflow_client.list_experiments() 
         else:
@@ -80,8 +93,8 @@ class BuildTables(object):
         if len(exps) == 0:
             print("WARNING: No experiments found")
             return
-        self.build_exp_table_data(exps)
-        self.build_run_table_data(exps)
+        self.build_exp_table(exps)
+        self.build_run_table(exps)
 
     def build_status_table(self):
         rtime = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time()))
@@ -93,13 +106,7 @@ class BuildTables(object):
             version = mlflow.version.VERSION) ]
         df = spark.createDataFrame(rows)
         self.write_df(df,"mlflow_status")
-
-    def build_data(self):
-        self.mk_dir("experiments")
-        self.mk_dir("runs")
-        self.mk_dir("mlflow_status")
-        self.build_status_table()
-        self.build_table_data()
+        self.build_table_ddl("mlflow_status")
 
     def build_table_ddl(self, table):
         path = self.mk_data_path(table)
@@ -114,23 +121,13 @@ class BuildTables(object):
                 OPTIONS (path = "{}", header "true", inferSchema "true", delimiter "{}") \
                 '.format(table,path,self.delimiter))
 
-    def build_ddl(self):
-        spark.sql("create database if not exists "+self.database)
-        self.build_table_ddl("experiments")
-        self.build_table_ddl("runs")
-        self.build_table_ddl("mlflow_status")
-
-    def mk_dir(self, table):
-        path = self.mk_data_path(table)
-        path = self.mk_fuse_path(path)
-        if not os.path.exists(path):
-            os.makedirs(path)
-
     def build(self):
-        self.build_data()
-        self.build_ddl()
-
-from argparse import ArgumentParser
+        self.mk_dir("experiments")
+        self.mk_dir("runs")
+        self.mk_dir("mlflow_status")
+        spark.sql("create database if not exists "+self.database)
+        self.build_status_table()
+        self.build_exp_run_tables()
 
 if __name__ == "__main__":
     parser = ArgumentParser()
