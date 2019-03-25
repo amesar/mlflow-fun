@@ -57,7 +57,7 @@ class SlowDataframeBuilder(BaseDataframeBuilder):
         df = self.spark.createDataFrame(rows)
         return (df,len(infos))
 
-''' Calls REST client '''
+''' Calls REST client runs/search endpoint '''
 class FastDataframeBuilder(BaseDataframeBuilder):
     def __init__(self, mlflow_search_client=None, spark=None, logmod=20):
         from mlflow_fun.common.mlflow_search_client import MlflowSearchClient

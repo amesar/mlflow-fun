@@ -14,8 +14,8 @@ Sample is based on the [Wine Quality](../../examples/scikit-learn/wine-quality) 
 Files:
   * [exp_main.py](exp_main.py) - Builds a table for one experiment.
   * [all_main.py](all_main.py) - Builds tables for multiple experiments.
-  * [table_builder.py](mlflow_metrics/table_builder.py) - Builds tables core.
-  * [dataframe_builder.py](mlflow_metrics/dataframe_builder.py) - Builds a dataframe.
+  * [table_builder.py](table_builder.py) - Builds tables core.
+  * [dataframe_builder.py](dataframe_builder.py) - Builds a dataframe.
 
 ## SQL Table Usage
 
