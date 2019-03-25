@@ -5,7 +5,7 @@ import traceback
 import os, time
 import mlflow
 from mlflow_fun.common import mlflow_utils
-from mlflow_fun.metrics.dataframe_builder import FastDataframeBuilder
+from mlflow_fun.metrics.dataframe_builder import get_data_frame_builder
 from mlflow_fun.metrics import file_api
 mlflow_utils.dump_mlflow_info()
 
@@ -13,17 +13,19 @@ mlflow_client = mlflow.tracking.MlflowClient()
 spark = SparkSession.builder.appName("mlflow_metrics").enableHiveSupport().getOrCreate()
 
 class TableBuilder(object):
-    def __init__(self, database, data_dir, use_parquet=False):
+    def __init__(self, database, data_dir, data_frame="slow", use_parquet=False):
         print("database:",database)
         print("data_dir:",data_dir)
         print("use_parquet:",use_parquet)
+        print("data_frame:",data_frame)
         self.database = database
         self.data_dir = data_dir
         self.use_parquet = use_parquet
         self.file_api = file_api.get_file_api(data_dir)
         print("file_api:",type(self.file_api).__name__)
+        self.df_builder = get_data_frame_builder(data_frame)
+        print("df_builder:",type(self.df_builder).__name__)
         self.delimiter = "\t"
-        self.df_builder = FastDataframeBuilder(None,spark,20) # TODO: make configurable
 
     def _create_database(self):
         spark.sql("drop database if exists {} cascade".format(self.database))
