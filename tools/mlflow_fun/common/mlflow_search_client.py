@@ -23,8 +23,8 @@ class MlflowSearchClient(object):
         return response['runs'] if 'runs' in response else []
 
     ''' 
-    List all run data as flattened dict. Parameters are prefixed with _p_ and metrics with _m_
-    Example: { "_p_alpha": "0.1", "_m_rmse": 0.82, "run_uuid: "123" }
+    List all run data as flattened dict. Parameters are prefixed with _p_, metrics with _m_ and tags with _t_.
+    Example: { "_p_alpha": "0.1", "_m_rmse": 0.82, "_t_data_path": "/dbfs/tmp/data.csv", "run_uuid: "123" }
     '''
     def list_runs_flat(self, experiment_id):
         runs = self.list_runs(experiment_id)

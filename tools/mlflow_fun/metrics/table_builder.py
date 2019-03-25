@@ -23,8 +23,7 @@ class TableBuilder(object):
         self.file_api = file_api.get_file_api(data_dir)
         print("file_api:",type(self.file_api).__name__)
         self.delimiter = "\t"
-        self.df_builder = FastDataframeBuilder(None,spark,20)
-
+        self.df_builder = FastDataframeBuilder(None,spark,20) # TODO: make configurable
 
     def _create_database(self):
         spark.sql("drop database if exists {} cascade".format(self.database))
