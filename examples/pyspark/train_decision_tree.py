@@ -21,7 +21,7 @@ print("experiment_name:",experiment_name)
 mlflow.set_experiment(experiment_name)
 
 def train(max_depth, max_bins):
-    print("max_depth={} max_bins={}".format(max_depth,max_bins))
+    print("Parameters: max_depth: {}  max_bins: {}".format(max_depth,max_bins))
     spark = SparkSession.builder.appName("DecisionTreeClassificationExample").getOrCreate()
 
     # Load the data stored in LIBSVM format as a DataFrame.
@@ -85,9 +85,7 @@ if __name__ == "__main__":
     print("experiment_id:",client.get_experiment_by_name(experiment_name).experiment_id)
 
     with mlflow.start_run(source_name=current_file) as run:
-        run_id = run.info.run_uuid
-        print("run_id:",run_id)
-        experiment_id = run.info.experiment_id
-        print("experiment_id:",experiment_id)
+        print("run_id:",run.info.run_uuid)
+        print("experiment_id:",run.info.experiment_id)
         train(args.max_depth,args.max_bins)
 

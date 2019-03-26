@@ -1,11 +1,41 @@
-# mlflow-fun - PySpark Decision Tree Example
+# mlflow-fun - PySpark example
 
-Install and Run: 
+## Overview
+
+* Source: [train_decision_tree.py](train_decision_tree.py).
+* Default experiment name: `py/spark/DecisionTree`
+  * You can overwrite the experiment name with the environment variable MLFLOW_EXPERIMENT_NAME.
+
+## Setup
 
 * Install Spark on your machine.
-* `spark-submit --master local[2] train_decision_tree.py`.
+* pip install mlflow
 
-Source: [train_decision_tree.py](train_decision_tree.py).
+## Run
 
-Default experiment name: py/spark/DecisionTree.
-  * You can overwrite the name with the environment variable MLFLOW_EXPERIMENT_NAME.
+### Unmanaged without mlflow run
+
+To run with standard main function
+```
+spark-submit --master local[2] train_decision_tree.py --max_depth 16 --max_bins 32
+```
+
+### Using mlflow run
+
+These runs use the [MLproject](MLproject) file. For more details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
+
+Note that mlflow run ignores the `set_experiment()` function so you must specify the experiment with the  `--experiment-id` argument.
+
+**mlflow run local**
+```
+mlflow run . -P max_depth=3 -P max_bins=24 --experiment-id=2019
+```
+
+**mlflow run github**
+```
+mlflow run https://github.com/amesar/mlflow-fun.git#examples/pyspark \
+   -P max_depth=3 -P max_bins=24 \
+  --experiment-id=2019
+```
+
+

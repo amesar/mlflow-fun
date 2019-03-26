@@ -27,7 +27,9 @@ Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine
 
 To run with standard main function:
 ```
-python main_train_wine_quality.py WineQualityExperiment wine-quality-white.csv 0.5 0.5
+python main_train_wine_quality.py --experiment_name WineQualityExperiment \
+  --data_path wine-quality-white.csv \
+  --alpha 0.5 --l1_ratio 0.5
 ```
 
 #### Jupyter notebook
