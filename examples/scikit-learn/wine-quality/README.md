@@ -7,7 +7,7 @@
 * Saves plot artifacts
 * Shows several ways to run training - _mlflow run_, run against Databricks cluster, call egg from notebook, etc.
 * Shows several ways to run prediction  - web server,  mlflow.load_model(), UDF, etc.
-* Train with data/wine-quality-white.csv and data/predict wine-quality-red.csv.
+* Data: data/wine-quality-white.csv and data/predict wine-quality-red.csv.
 
 ## Setup
 
@@ -19,7 +19,7 @@ pip install pyarrow # for Spark UDF example
 
 ## Training
 
-Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine_quality.py](wine_quality/train_wine_quality.py).
+Source: [main.py](main.py) and [train.py](wine_quality/train.py).
 
 ### Unmanaged without mlflow run
 
@@ -27,8 +27,8 @@ Source: [main_train_wine_quality.py](main_train_wine_quality.py) and [train_wine
 
 To run with standard main function:
 ```
-python main_train_wine_quality.py --experiment_name WineQualityExperiment \
-  --data_path wine-quality-white.csv \
+python main.py --experiment_name WineQualityExperiment \
+  --data_path data/wine-quality-white.csv \
   --alpha 0.5 --l1_ratio 0.5
 ```
 
@@ -93,8 +93,8 @@ python setup.py bdist_egg
 
 Upload the data file, main file and egg to your Databricks cluster.
 ```
-databricks fs cp main_train_wine_quality.py dbfs:/tmp/jobs/wine_quality/main.py
-databricks fs cp wine-quality-white.csv dbfs:/tmp/jobs/wine_quality/wine-quality-white.csv
+databricks fs cp main.py dbfs:/tmp/jobs/wine_quality/main.py
+databricks fs cp data/wine-quality-white.csv dbfs:/tmp/jobs/wine_quality/wine-quality-white.csv
 databricks fs cp \
   dist/mlflow_wine_quality-0.0.1-py3.6.egg \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
@@ -157,9 +157,10 @@ databricks jobs run-now --job-id $JOB_ID --python-params ' [ "WineQualityExperim
 
 Create a notebook with the following cell. Attach it to the existing cluster described above.
 ```
-from wine_quality import train_wine_quality
+from wine_quality import Trainer
 data_path = "/dbfs/tmp/jobs/wine_quality/wine-quality-white.csv"
-train_wine_quality.train("WineQualityExperiment",data_path, 0.4, 0.4, "from_notebook_with_egg")
+trainer = Trainer("WineQualityExperiment", data_path, "from_notebook_with_egg")
+trainer.train(0.4, 0.4)
 ```
 
 ## Predictions
@@ -269,7 +270,7 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 From [spark_udf_predict.py](spark_udf_predict.py):
 ```
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv("data/wine-quality-white.csv")
+df = spark.read.option("inferSchema",True).option("header", True).csv("data/wine-quality-red.csv")
 df = df.drop("quality")
 
 udf = mlflow.pyfunc.spark_udf(spark, "model", run_id="7e674524514846799310c41f10d6b99d")

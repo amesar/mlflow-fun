@@ -1,6 +1,5 @@
 from __future__ import print_function
-import sys
-from wine_quality import train_wine_quality
+from wine_quality.train import Trainer
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -11,4 +10,5 @@ if __name__ == "__main__":
     parser.add_argument("--l1_ratio", dest="l1_ratio", help="l1_ratio", default=0.1, type=float )
     parser.add_argument("--run_origin", dest="run_origin", help="run_origin", default="none")
     args = parser.parse_args()
-    train_wine_quality.train(args.experiment_name, args.data_path, args.alpha, args.l1_ratio, args.run_origin)
+    trainer = Trainer(args.experiment_name, args.data_path,args.run_origin)
+    trainer.train(args.alpha, args.l1_ratio)
