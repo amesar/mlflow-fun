@@ -2,7 +2,7 @@
 
 ## Overview
 
-* Source: [train_decision_tree.py](train_decision_tree.py).
+* Source: [train_decision_tree.py](train_decision_tree.py) and [predict.py](predict.py).
 * Default experiment name: `py/spark/DecisionTree`
   * You can overwrite the experiment name with the environment variable MLFLOW_EXPERIMENT_NAME.
 
@@ -11,7 +11,8 @@
 * Install Spark on your machine.
 * pip install mlflow
 
-## Run
+
+## Train
 
 ### Unmanaged without mlflow run
 
@@ -38,4 +39,29 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/pyspark \
   --experiment-id=2019
 ```
 
+## Predict
+```
+run_id=7b951173284249f7a3b27746450ac7b0
+spark-submit --master local[2] predict.py $run_id
+```
+
+```
+Predictions
+root
+ |-- label: double (nullable = true)
+ |-- features: vector (nullable = true)
+ |-- indexedLabel: double (nullable = false)
+ |-- indexedFeatures: vector (nullable = true)
+ |-- rawPrediction: vector (nullable = true)
+ |-- probability: vector (nullable = true)
+ |-- prediction: double (nullable = false)
+
++----------+------------+-----------+
+|prediction|indexedLabel|probability|
++----------+------------+-----------+
+|0.0       |1.0         |[1.0,0.0]  |
+|1.0       |0.0         |[0.0,1.0]  |
+|1.0       |0.0         |[0.0,1.0]  |
++----------+------------+-----------+
+```
 
