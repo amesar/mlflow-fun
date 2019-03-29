@@ -1,7 +1,7 @@
 {
   "run_name": "MLflow_RunSubmit_NewCluster",
   "new_cluster": {
-    "spark_version": "5.1.x-scala2.11",
+    "spark_version": "5.2.x-scala2.11",
     "node_type_id": "i3.xlarge",
     "num_workers": 1
   },
@@ -13,6 +13,7 @@
   "spark_jar_task": {
     "main_class_name": "org.andre.mlflow.examples.TrainDecisionTree",
     "parameters": [ 
+      "--experimentName", "/Shared/experiments/demo/scala_DecisionTree",
       "--dataPath",  "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt",
       "--modelPath", "/dbfs/tmp/jobs/spark-scala-example/models",
       "--runOrigin", "run_submit_new_cluster.json"

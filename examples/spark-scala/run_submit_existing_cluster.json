@@ -5,6 +5,7 @@
   "spark_jar_task": {
     "main_class_name": "org.andre.mlflow.examples.TrainDecisionTree",
     "parameters": [ 
+      "--experimentName", "/Shared/experiments/demo/scala_DecisionTree",
       "--dataPath",  "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt",
       "--modelPath", "/dbfs/tmp/jobs/spark-scala-example/models",
       "--runOrigin", "run_submit_existing_cluster.json"
