@@ -2,7 +2,7 @@
 
 ## Overview
 
-* Source: [train_decision_tree.py](train_decision_tree.py) and [predict.py](predict.py).
+* Source: [train.py](train.py) and [predict.py](predict.py).
 * Default experiment name: `py/spark/DecisionTree`
   * You can overwrite the experiment name with the environment variable MLFLOW_EXPERIMENT_NAME.
 
@@ -18,14 +18,14 @@
 
 To run with standard main function
 ```
-spark-submit --master local[2] train_decision_tree.py --max_depth 16 --max_bins 32
+spark-submit --master local[2] train.py --max_depth 16 --max_bins 32
 ```
 
 ### Using mlflow run
 
 These runs use the [MLproject](MLproject) file. For more details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
 
-Note that mlflow run ignores the `set_experiment()` function so you must specify the experiment with the  `--experiment-id` argument.
+Note that `mlflow run` ignores the `set_experiment()` function so you must specify the experiment with the  `--experiment-id` argument.
 
 **mlflow run local**
 ```
