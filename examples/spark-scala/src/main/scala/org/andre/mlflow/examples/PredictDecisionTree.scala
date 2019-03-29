@@ -42,7 +42,7 @@ object PredictDecisionTree {
     @Parameter(names = Array("--dataPath" ), description = "Data path", required=true)
     var dataPath: String = null
 
-    @Parameter(names = Array("--trackingUri" ), description = "Tracking Server URI", required=true)
+    @Parameter(names = Array("--trackingUri" ), description = "Tracking Server URI", required=false)
     var trackingUri: String = null
 
     @Parameter(names = Array("--token" ), description = "REST API token", required=false)
