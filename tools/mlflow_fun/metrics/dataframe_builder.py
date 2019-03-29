@@ -7,7 +7,7 @@ from mlflow_fun.common import mlflow_utils
 def get_data_frame_builder(which="slow"):
     return SlowDataframeBuilder() if which == "slow" else FastDataframeBuilder()
 
-def convert_to_row(d: dict) -> Row:
+def convert_to_row(d):
     return Row(**OrderedDict(sorted(d.items())))
 
 class BaseDataframeBuilder(object):
