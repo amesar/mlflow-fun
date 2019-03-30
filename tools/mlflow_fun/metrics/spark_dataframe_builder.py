@@ -4,11 +4,16 @@ from collections import OrderedDict
 import mlflow
 from mlflow_fun.common import mlflow_utils
 
+def get_best_run(experiment_id, metric, ascending=True, which="fast"):
+    if not metric.startswith("_m_"): 
+        metric = "_m_" + metric
+    builder = get_data_frame_builder(which)
+    df = builder.build_dataframe(experiment_id)
+    df = df.select("run_uuid", metric).filter("{} is not NULL".format(metric)).sort(metric,ascending=ascending)
+    return df.head()
+
 def get_data_frame_builder(which="slow"):
     return SlowDataframeBuilder() if which == "slow" else FastDataframeBuilder()
-
-def convert_to_row(d):
-    return Row(**OrderedDict(sorted(d.items())))
 
 class BaseDataframeBuilder(object):
     def build_dataframe(self, experiment_id, idx=None, num_exps=None):
@@ -52,7 +57,6 @@ class SlowDataframeBuilder(BaseDataframeBuilder):
             dct.update(params)
             dct.update(metrics)
             dct.update(tags)
-            #rows.append(convert_to_row(dct))
             rows.append(dct)
         df = self.spark.createDataFrame(rows)
         return (df,len(infos))
@@ -76,6 +80,5 @@ class FastDataframeBuilder(BaseDataframeBuilder):
         if len(runs) == 0:
             print("WARNING: No runs for experiment {}".format(experiment_id))
             return (None,0)
-        #runs = [ convert_to_row(run) for run in runs ]
         df = self.spark.createDataFrame(runs)
         return (df,len(runs))

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Get the best run for an experiment by querying the run metrics.
+Get the best run for an experiment by querying its run metrics.
 
 Creates a dataframe or table of runs for an experiment with each row containing the run metadata, parameters and metrics.
 Data is obtained by calling the MLflow API.
@@ -12,28 +12,19 @@ Parameter columns are prefixed with `_p_` and metrics start with `_m_`.
 Sample is based on the [Wine Quality](../../examples/scikit-learn/wine-quality) experiment.
 
 Files:
-  * [exp_main.py](exp_main.py) - Builds a table for one experiment.
-  * [all_main.py](all_main.py) - Builds tables for multiple experiments.
-  * [table_builder.py](table_builder.py) - Builds tables core.
-  * [dataframe_builder.py](dataframe_builder.py) - Builds a dataframe.
+  * [build_tables_main.py](build_tables_main.py) - Builds tables for experiments.
+  * [spark_table_builder.py](spark_table_builder.py) - Builds tables core.
+  * [spark_dataframe_builder.py](spark_dataframe_builder.py) - Builds a dataframe.
 
 ## SQL Table Usage
 
 ### Build tables
 
-#### Build table for one experiment
-```
-spark-submit --master local[2] exp_main.py \
-   --database mlflow_metrics \
-   --data_dir /opt/mlflow/databases/mlflow_metrics
-   --experiment_id 1
-```
-
-#### Build tables for multiple experiments
+#### Build tables for experiments
 
 If `--experiment_ids` is not specified, then all experiments will be processed.
 ```
-spark-submit --master local[2] all_main.py \
+spark-submit --master local[2] build_tables_main.py \
    --database mlflow_metrics \
    --data_dir /opt/mlflow/databases/mlflow_metrics \
    --experiment_ids 1,2,9
@@ -89,7 +80,7 @@ select run_uuid, round(_m_rmse,2) as _m_rmse, _p_alpha, _p_l1_ratio from exp_1 o
 
 ## Dataframe Usage
 ```
-from mlflow_fun.metrics.dataframe_builder import FastDataframeBuilder
+from mlflow_fun.metrics.spark_dataframe_builder import FastDataframeBuilder
 from pyspark.sql.functions import round
 
 builder = FastDataframeBuilder()
