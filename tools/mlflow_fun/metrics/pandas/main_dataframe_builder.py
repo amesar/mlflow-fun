@@ -17,7 +17,7 @@ if __name__ == "__main__":
     print("\n======== build_dataframe")
     df = builder.build_dataframe(args.experiment_id)
     print("Columns:")
-    for c in df.columns: print("  ",c)
+    print(df.dtypes,"\n")
     df = df[['run_uuid',metric]]
     df = df.sort_values(metric,ascending=args.ascending)
     best = df.iloc[0]
