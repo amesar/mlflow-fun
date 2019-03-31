@@ -10,7 +10,8 @@ def get_best_run(experiment_id, metric, ascending=True, which="fast"):
     builder = get_data_frame_builder(which)
     df = builder.build_dataframe(experiment_id)
     df = df.select("run_uuid", metric).filter("{} is not NULL".format(metric)).sort(metric,ascending=ascending)
-    return df.head()
+    row = df.first()
+    return (row[0],row[1])
 
 def get_data_frame_builder(which="slow"):
     return SlowDataframeBuilder() if which == "slow" else FastDataframeBuilder()
