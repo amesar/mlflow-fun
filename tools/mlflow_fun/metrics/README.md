@@ -4,15 +4,57 @@
 
 Get the best run for an experiment by querying its run metrics.
 
-Several ways to query an experiment's run metric data:
-* Directly call API and manipulate response
-* Use Pandas Dataframe API
-* Use Spark Dataframe API or SQL
+There are several ways to query an experiment's run metric data:
+* Directly call the API and manipulate the response with custom code.
+* Create a flat table containing all run data (info, metrics, parameters and tags). Then use higher-level APIs to query the table.
+  * Use Pandas Dataframe API.
+  * Use Spark Dataframe API or SQL.
 
 Notes:
 * Sample is based on the [Wine Quality](../../examples/scikit-learn/wine-quality) experiment.
 * Parameter columns are prefixed with `_p_` and metrics start with `_m_`.
 * Data is obtained by calling the MLflow API - either Python or REST API.
+
+## Direct API Manipulation
+
+Files:
+  * [api_best.py](api/api_best.py) - Code for direct API calls.
+  * [main_api.py](api/main_api.py) - Sample main program.
+
+Call the standard MLflow Python API to find the best run. Note this can be slow if you have many runs since a REST call is needed for each run.
+```
+def get_best_run(experiment_id, metric):
+    client = mlflow.tracking.MlflowClient()
+    infos = client.list_run_infos(experiment_id)
+    best = None
+    for info in infos:
+        run = client.get_run(info.run_uuid)
+        for m in run.data.metrics:
+            if m.key == metric:
+               if best is None or m.value < best[1]):
+                   best = (info.run_uuid,m.value)
+    return best
+```
+It is more efficient to use the REST API [runs/search](https://mlflow.org/docs/latest/rest-api.html#search-runs) endpoint which makes one call to get all the run details for an experiment.
+```
+def get_best_run_fast(host, token, experiment_id, metric):
+    api_path = "api/2.0/preview/mlflow"
+    uri = os.path.join(host,api_path,"runs/search")
+    req = '{ "experiment_ids": ['+str(experiment_id)+'] }'
+    headers = {} if token is None else {'Authorization': 'Bearer '+token}
+    rsp = requests.get(uri, data=req, headers=headers)
+    runs = json.loads(rsp.text)['runs']
+    best = None
+    for run in runs:
+        if 'data' in run and 'metrics' in run['data']:
+            mlist = run['data']['metrics']
+            mdct = { x['key'] : x['value'] for x in mlist }
+            if metric in mdct:
+               mval = mdct[metric]
+               if best is None or (isinstance(mval,float) and mval < best[1]):
+                  best = (run['info']['run_uuid'],mval)
+    return best
+```
 
 ## Pandas Best Run
 
@@ -46,6 +88,31 @@ print("best:",best)
 ```
 ```
 best: ('0e66276c6fa4489aa55dc5bc80c58711', 0.7497487101907394)
+```
+
+Show Dataframe columns.
+```
+print(df.types)
+
+_m_mae                         float64
+_m_r2                          float64
+_m_rmse                        float64
+_p_alpha                        object
+_p_l1_ratio                     object
+_t_mlflow.source.git.commit     object
+_t_mlflow.source.name           object
+_t_mlflow.source.type           object
+artifact_uri                    object
+end_time                        object
+experiment_id                   object
+lifecycle_stage                 object
+name                            object
+run_uuid                        object
+source_name                     object
+source_type                     object
+source_version                  object
+start_time                      object
+status                          object
 ```
 
 ## Spark Best Run

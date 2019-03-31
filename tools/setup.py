@@ -8,6 +8,7 @@ setup(name='mlflow_fun',
                 'mlflow_fun.common',
                 'mlflow_fun.analytics',
                 'mlflow_fun.metrics',
+                'mlflow_fun.metrics.api',
                 'mlflow_fun.metrics.spark',
                 'mlflow_fun.metrics.pandas'],
       zip_safe=False)
