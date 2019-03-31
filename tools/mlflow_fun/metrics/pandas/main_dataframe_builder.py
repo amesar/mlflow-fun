@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from mlflow_fun.metrics.pandas_dataframe_builder import PandasDataframeBuilder
+from mlflow_fun.metrics.pandas.dataframe_builder import PandasDataframeBuilder
 
 if __name__ == "__main__":
     parser = ArgumentParser()

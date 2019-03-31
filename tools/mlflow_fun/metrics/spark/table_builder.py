@@ -5,10 +5,10 @@ import traceback
 import os, time
 import mlflow
 from mlflow_fun.common import mlflow_utils
-from mlflow_fun.metrics.spark_dataframe_builder import get_data_frame_builder
-from mlflow_fun.metrics import file_api
-mlflow_utils.dump_mlflow_info()
+from mlflow_fun.metrics.spark.dataframe_builder import get_data_frame_builder
+from mlflow_fun.metrics.spark import file_api
 
+mlflow_utils.dump_mlflow_info()
 mlflow_client = mlflow.tracking.MlflowClient()
 spark = SparkSession.builder.appName("mlflow_metrics").enableHiveSupport().getOrCreate()
 

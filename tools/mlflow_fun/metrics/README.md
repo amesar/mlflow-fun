@@ -5,6 +5,7 @@
 Get the best run for an experiment by querying its run metrics.
 
 Several ways to query an experiment's run metric data:
+* Directly call API and manipulate response
 * Use Pandas Dataframe API
 * Use Spark Dataframe API or SQL
 
@@ -18,12 +19,12 @@ Notes:
 Creates a dataframe for an experiment with each row containing the run metadata, parameters and metrics.
 
 Files:
-  * [main_pandas_dataframe_builder.py](main_pandas_dataframe_builder.py) - Sample for PandasDataframeBuilder
-  * [pandas_dataframe_builder.py](pandas_dataframe_builder.py) - PandasDataframeBuilder code
+  * [main_dataframe_builder.py](pandas/main_dataframe_builder.py) - Sample for PandasDataframeBuilder
+  * [dataframe_builder.py](pandas/dataframe_builder.py) - PandasDataframeBuilder code
 
 Find best run for a metric.
 ```
-from mlflow_fun.metrics.pandas_dataframe_builder import PandasDataframeBuilder
+from mlflow_fun.metrics.pandas.dataframe_builder import PandasDataframeBuilder
 builder = PandasDataframeBuilder()
 best = builder.get_best_run(experiment_id,"_m_rmse",ascending)
 print("best:",best)
@@ -52,13 +53,13 @@ best: ('0e66276c6fa4489aa55dc5bc80c58711', 0.7497487101907394)
 Creates a dataframe or table of runs for an experiment with each row containing the run metadata, parameters and metrics.
 
 Files:
-  * [main_build_tables.py](main_build_tables.py) - Builds tables for experiments.
-  * [spark_table_builder.py](spark_table_builder.py) - Builds tables core.
-  * [spark_dataframe_builder.py](spark_dataframe_builder.py) - Builds a dataframe.
+  * [main_build_tables.py](spark/main_build_tables.py) - Builds tables for experiments.
+  * [table_builder.py](spark/table_builder.py) - Builds tables core.
+  * [dataframe_builder.py](spark/dataframe_builder.py) - Builds a dataframe.
 
 ### Dataframe Usage
 ```
-from mlflow_fun.metrics.spark_dataframe_builder import FastDataframeBuilder
+from mlflow_fun.metrics.spark.dataframe_builder import FastDataframeBuilder
 from pyspark.sql.functions import round
 
 builder = FastDataframeBuilder()

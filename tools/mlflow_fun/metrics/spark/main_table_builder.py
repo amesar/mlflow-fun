@@ -1,5 +1,5 @@
 import sys
-from mlflow_fun.metrics.spark_table_builder import TableBuilder
+from mlflow_fun.metrics.spark.table_builder import TableBuilder
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
