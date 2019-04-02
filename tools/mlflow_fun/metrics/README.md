@@ -1,17 +1,29 @@
 # mlflow-fun/tools - MLflow Metrics
 
-## Overview
-
 Get the best run for an experiment by querying its run metrics.
 
-There are several ways to query an experiment's run metric data:
+## Overview 
+
+Many people ask how can they get the "best run" for an experiment.
+This can be as easy as getting the best (minimum or maximum) value for one metric, or a more complex query involving several metrics.
+
+In this project we explore several approaches to obtaining the "best run".
+
 * Directly call the API and manipulate the response with custom code.
 * Create a flat table containing all run data (info, metrics, parameters and tags). Then use higher-level APIs to query the table.
   * Use Pandas Dataframe API.
   * Use Spark Dataframe API or SQL.
 
+The API approach is the most obvious solution. The MLflow user calls existing Python API methods to list run details, and then with custom Python logic determines the best run. In the example below we find the run with lowest RMSE value.
+
+The most obvious way is to call existing Python API methods to list run details, and then with custom Python logic determine the best run. In the example below we find the run with lowest RMSE value.
+
+There are several problems with this approach. First of all it involves custom code. It would be preferable to have a higher-level abstraction (Pandas or SQL/Spark) to allow you to determine the best run. For each experiment we build a flattend table `exp_{EXPERIMENT_ID}` containing all of the run data.
+
+
+
 Notes:
-* Sample is based on the [Wine Quality](../../examples/scikit-learn/wine-quality) experiment.
+* Sample is based on the [Wine Quality](../../../examples/scikit-learn/wine-quality) experiment.
 * Parameter columns are prefixed with `_p_` and metrics start with `_m_`.
 * Data is obtained by calling the MLflow API - either Python or REST API.
 
@@ -25,9 +37,8 @@ Call the standard MLflow Python API to find the best run. Note this can be slow 
 ```
 def get_best_run(experiment_id, metric):
     client = mlflow.tracking.MlflowClient()
-    infos = client.list_run_infos(experiment_id)
     best = None
-    for info in infos:
+    for info in client.list_run_infos(experiment_id):
         run = client.get_run(info.run_uuid)
         for m in run.data.metrics:
             if m.key == metric:
@@ -43,16 +54,15 @@ def get_best_run_fast(host, token, experiment_id, metric):
     req = '{ "experiment_ids": ['+str(experiment_id)+'] }'
     headers = {} if token is None else {'Authorization': 'Bearer '+token}
     rsp = requests.get(uri, data=req, headers=headers)
-    runs = json.loads(rsp.text)['runs']
     best = None
-    for run in runs:
+    for run in json.loads(rsp.text)['runs']:
         if 'data' in run and 'metrics' in run['data']:
             mlist = run['data']['metrics']
-            mdct = { x['key'] : x['value'] for x in mlist }
+            mdct = { m['key'] : m['value'] for m in mlist }
             if metric in mdct:
-               mval = mdct[metric]
-               if best is None or (isinstance(mval,float) and mval < best[1]):
-                  best = (run['info']['run_uuid'],mval)
+                mval = mdct[metric]
+                if best is None or (isinstance(mval,float) and mval < best[1]):
+                    best = (run['info']['run_uuid'],mval)
     return best
 ```
 
@@ -129,22 +139,26 @@ Files:
 from mlflow_fun.metrics.spark.dataframe_builder import FastDataframeBuilder
 from pyspark.sql.functions import round
 
+experiment_id = 1 # for WineQuality experiment
 builder = FastDataframeBuilder()
 df = builder.build_dataframe(experiment_id)
-df = df.select("run_uuid", round("_m_rmse",2).alias("_m_rmse"), "_p_alpha", "_p_l1_ratio").sort("_m_rmse")
+df = df.select("run_uuid", round("_m_rmse",4).alias("_m_rmse"), "_p_alpha", "_p_l1_ratio").sort("_m_rmse")
 ```
 
 ```
 +--------------------------------+-------+--------+-----------+
 |run_uuid                        |_m_rmse|_p_alpha|_p_l1_ratio|
 +--------------------------------+-------+--------+-----------+
-|61fb99c76031475e8c7ca11f147672f0|0.82   |0.5     |0.5        |
-|2c535a4484fe4852af85292d637838de|0.82   |0.5     |0.5        |
-|fae7c2dedb74489fbceb95f228346c35|0.82   |0.5     |0.5        |
-|6ebeca3a2e8b42419b6b4c701834c096|0.86   |2.0     |0.5        |
-|c38211cc0e624767b5885ece179689fe|0.87   |9.0     |0.5        |
-|ff8c4758bb3f4be1af45eb22bd615791|0.87   |9.0     |0.5        |
-|ceb6226354234d568b4d8d5a52130962|0.87   |3.0     |0.5        |
+|0e66276c6fa4489aa55dc5bc80c58711|0.7497 |0.0001  |0.001      |
+|3edde31d5d6c4994bb6f55a385ecbe0b|0.7504 |0.001   |0.001      |
+|ff9243617b2a423faa53b04bb48b0f89|0.7585 |0.01    |0.001      |
+|c9aba721e4324bc68980e66260fd6fe6|0.7758 |0.1     |0.001      |
+|1d88d9c3f7754cfc9c80b4fe14ffb059|0.7874 |0.5     |0.0001     |
+|6a8ed4640640451d82265ce45e3b45b7|0.7875 |0.5     |0.001      |
+|0041a8f619434408b2fb8d424292eddc|0.7883 |0.5     |0.01       |
+|c5ab9b9e8401491b9acf5a092de29dec|0.7948 |0.5     |0.1        |
+|d82c0e7b8c214db3affdc48519a4defd|0.799  |1.0     |0.001      |
+|9f101be55ec44116b03ebbcd1abecf47|0.8222 |0.5     |0.5        |
 +--------------------------------+-------+--------+-----------+
 ```
 
@@ -156,7 +170,8 @@ df = df.select("run_uuid", round("_m_rmse",2).alias("_m_rmse"), "_p_alpha", "_p_
 
 If `--experiment_ids` is not specified, then all experiments will be processed.
 ```
-spark-submit --master local[2] main_build_tables.py \
+spark-submit --master local[2] \
+   mlflow_fun/metrics/spark/main_build_tables.py \
    --database mlflow_metrics \
    --data_dir /opt/mlflow/databases/mlflow_metrics \
    --experiment_ids 1,2,9
@@ -195,18 +210,20 @@ describe table exp_1
 
 Find the best `rmse`.
 ```
-select run_uuid, round(_m_rmse,2) as _m_rmse, _p_alpha, _p_l1_ratio from exp_1 order by _m_rmse
-
+select run_uuid, round(_m_rmse,4) as _m_rmse, _p_alpha, _p_l1_ratio from exp_1 order by _m_rmse
 +--------------------------------+-------+--------+-----------+
 |run_uuid                        |_m_rmse|_p_alpha|_p_l1_ratio|
 +--------------------------------+-------+--------+-----------+
-|61fb99c76031475e8c7ca11f147672f0|0.82   |0.5     |0.5        |
-|2c535a4484fe4852af85292d637838de|0.82   |0.5     |0.5        |
-|fae7c2dedb74489fbceb95f228346c35|0.82   |0.5     |0.5        |
-|6ebeca3a2e8b42419b6b4c701834c096|0.86   |2.0     |0.5        |
-|c38211cc0e624767b5885ece179689fe|0.87   |9.0     |0.5        |
-|ceb6226354234d568b4d8d5a52130962|0.87   |3.0     |0.5        |
-|ff8c4758bb3f4be1af45eb22bd615791|0.87   |9.0     |0.5        |
+|0e66276c6fa4489aa55dc5bc80c58711|0.7497 |1.0E-4  |0.001      |
+|3edde31d5d6c4994bb6f55a385ecbe0b|0.7504 |0.001   |0.001      |
+|ff9243617b2a423faa53b04bb48b0f89|0.7585 |0.01    |0.001      |
+|c9aba721e4324bc68980e66260fd6fe6|0.7758 |0.1     |0.001      |
+|1d88d9c3f7754cfc9c80b4fe14ffb059|0.7874 |0.5     |1.0E-4     |
+|6a8ed4640640451d82265ce45e3b45b7|0.7875 |0.5     |0.001      |
+|0041a8f619434408b2fb8d424292eddc|0.7883 |0.5     |0.01       |
+|c5ab9b9e8401491b9acf5a092de29dec|0.7948 |0.5     |0.1        |
+|d82c0e7b8c214db3affdc48519a4defd|0.799  |1.0     |0.001      |
+|9f101be55ec44116b03ebbcd1abecf47|0.8222 |0.5     |0.5        |
 +--------------------------------+-------+--------+-----------+
 ```
 
