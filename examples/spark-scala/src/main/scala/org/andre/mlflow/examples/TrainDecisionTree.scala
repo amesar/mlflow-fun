@@ -106,7 +106,7 @@ object TrainDecisionTree {
     println(s"Learned regression tree model:\n ${treeModel.toDebugString}")
 
     // MLflow - Log metric
-    mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
+    mlflowClient.logMetric(runId, "rmse",rmse)
 
     // MLflow - Log simple artifact
     val path="info.txt"

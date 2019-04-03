@@ -26,7 +26,7 @@ object HelloWorld {
 
     // Log params and metrics
     mlflowClient.logParam(runId, "p1","hi")
-    mlflowClient.logMetric(runId, "m1",0.123F)
+    mlflowClient.logMetric(runId, "m1",0.123)
 
     // Log file artifact
     new PrintWriter("info.txt") { write("File artifact: "+new java.util.Date()) ; close }
