@@ -20,12 +20,31 @@ The most obvious way is to call existing Python API methods to list run details,
 
 There are several problems with this approach. First of all it involves custom code. It would be preferable to have a higher-level abstraction (Pandas or SQL/Spark) to allow you to determine the best run. For each experiment we build a flattend table `exp_{EXPERIMENT_ID}` containing all of the run data.
 
-
-
 Notes:
 * Sample is based on the [Wine Quality](../../../examples/scikit-learn/wine-quality) experiment.
 * Parameter columns are prefixed with `_p_` and metrics start with `_m_`.
 * Data is obtained by calling the MLflow API - either Python or REST API.
+
+## SQL Back-end Database Query
+
+Here is the query to find the best run.
+
+```
+select r.run_uuid, m.value from runs r 
+join experiments e on r.experiment_id = e.experiment_id 
+join metrics m on r.run_uuid = m.run_uuid 
+where e.experiment_id=1 and m.key='rmse'
+order by m.value
+limit 1
+```
+
+```
++----------------------------------+----------+
+| run_uuid                         | value    |
++----------------------------------+----------+
+| 9a59c7712f914889932d7c8ccc72b775 | 0.749749 |
++----------------------------------+----------+
+```
 
 ## Direct API Manipulation
 
