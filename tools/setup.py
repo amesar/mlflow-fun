@@ -11,5 +11,6 @@ setup(name='mlflow_fun',
                 'mlflow_fun.metrics.api',
                 'mlflow_fun.metrics.spark',
                 'mlflow_fun.metrics.pandas',
+                'mlflow_fun.metrics.sql',
                 'mlflow_fun.make_exps_page'],
       zip_safe=False)

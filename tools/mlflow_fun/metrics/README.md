@@ -10,6 +10,7 @@ This can be as easy as getting the best (minimum or maximum) value for one metri
 In this project we explore several approaches to obtaining the "best run".
 
 * Directly call the API and manipulate the response with custom code.
+* SQL Database. If you are using a database as your backend store, you can directly query the tables.
 * Create a flat table containing all run data (info, metrics, parameters and tags). Then use higher-level APIs to query the table.
   * Use Pandas Dataframe API.
   * Use Spark Dataframe API or SQL.
@@ -27,7 +28,7 @@ Notes:
 
 ## SQL Back-end Database Query
 
-Here is the query to find the best run.
+If you are using a database as your backend store, you can issue this query to find the best run.
 
 ```
 select r.run_uuid, m.value from runs r 
@@ -44,6 +45,20 @@ limit 1
 +----------------------------------+----------+
 | 9a59c7712f914889932d7c8ccc72b775 | 0.749749 |
 +----------------------------------+----------+
+```
+
+Files:
+  * [sql_best.py](sql/sql_best.py) - Code for direct SQL call.
+  * [main_sql.py](sql/main_sql.py) - Sample main program.
+
+Run:
+```
+python main_sql.py
+  --connection mysql://my_user:my_password@localhost:3306/mlflow
+  --experiment_id=1 --metric=rmse 
+```
+```
+('9a59c7712f914889932d7c8ccc72b775', 0.749749)
 ```
 
 ## Direct API Manipulation
