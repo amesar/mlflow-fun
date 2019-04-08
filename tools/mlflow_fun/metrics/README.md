@@ -29,6 +29,7 @@ Notes:
 ## SQL Back-end Database Query
 
 If you are using a database as your backend store, you can issue this query to find the best run.
+See the [create table DDL](sql/docs/mysql_schema.txt).
 
 ```
 select r.run_uuid, m.value from runs r 
