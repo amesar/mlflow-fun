@@ -28,8 +28,8 @@ Source: [main.py](main.py) and [train.py](wine_quality/train.py).
 To run with standard main function:
 ```
 python main.py --experiment_name WineQualityExperiment \
-  --data_path data/wine-quality-white.csv \
-  --alpha 0.5 --l1_ratio 0.5
+  --alpha 0.5 --l1_ratio 0.5 \
+  --data_path data/wine-quality-white.csv 
 ```
 
 #### Jupyter notebook
@@ -48,13 +48,15 @@ Note that mlflow run ignores the `set_experiment()` function so you must specify
 
 **mlflow run local**
 ```
-mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun --experiment-id=2019
+mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun \
+  -P data_path=data/wine-quality-white.csv --experiment-id=2019
 ```
 
 **mlflow run github**
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
   -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
+  -P data_path=https://raw.githubusercontent.com/amesar/mlflow-fun/master/examples/scikit-learn/wine-quality/data/wine-quality-white.csv \
   --experiment-id=2019
 ```
 
