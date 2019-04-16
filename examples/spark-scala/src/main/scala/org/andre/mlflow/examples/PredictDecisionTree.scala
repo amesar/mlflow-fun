@@ -2,7 +2,9 @@ package org.andre.mlflow.examples
 
 import com.beust.jcommander.{JCommander, Parameter}
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.ml.PipelineModel
+import org.apache.spark.ml.Transformer
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 
@@ -22,20 +24,28 @@ object PredictDecisionTree {
 
     val runInfo = mlflowClient.getRun(opts.runId).getInfo
     val uri = runInfo.getArtifactUri
+    predictSparkML(uri, data)
+    predictMLeap(uri, data)
+  }
 
+  def predictSparkML(uri: String, data: DataFrame) {
     println("==== Spark ML")
     val modelPath = s"${uri}/spark_model"
     val model = PipelineModel.load(modelPath)
+    showPredictions(model, data)
+  }
+
+  def predictMLeap(uri: String, data: DataFrame) {
+    println("==== MLeap")
+    val modelPath = s"file:${uri}/mleap_model"
+    val model = MLeapUtils.readModel(modelPath)
+    showPredictions(model, data)
+  } 
+
+  def showPredictions(model: Transformer, data: DataFrame) {
     val predictions = model.transform(data)
     val df = predictions.select("prediction", "label", "features")
     df.show(10)
-
-    println("==== Mleap")
-    val modelPath2 = s"file:${uri}/mleap_model"
-    val model2 = MLeapUtils.readModel(modelPath2)
-    val predictions2 = model2.transform(data)
-    val df2 = predictions2.select("prediction", "label", "features")
-    df2.show(10)
   }
 
   object opts {

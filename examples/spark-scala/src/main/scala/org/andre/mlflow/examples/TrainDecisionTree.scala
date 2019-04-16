@@ -3,7 +3,6 @@ package org.andre.mlflow.examples
 // From: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/ml/DecisionTreeRegressionExample.scala
 
 import java.io.{File,PrintWriter}
-import scala.collection.JavaConversions._
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.VectorIndexer
@@ -12,6 +11,8 @@ import org.apache.spark.sql.SparkSession
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
+import org.apache.spark.ml.PipelineModel
+import org.apache.spark.sql.DataFrame
 
 object TrainDecisionTree {
   val seed = 2019
@@ -39,6 +40,7 @@ object TrainDecisionTree {
   }
 
   def train(spark: SparkSession, mlflowClient: MlflowClient, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String) {
+    // Read data
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -111,22 +113,27 @@ object TrainDecisionTree {
     // MLflow - Log simple artifact
     val path="info.txt"
     new PrintWriter(path) { write("Info: "+new java.util.Date()) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"extra")
+    mlflowClient.logArtifact(runId,new File(path),"custom")
 
-    // MLflow - save model as Spark ML artifact
-    val sparkModelPath = s"$modelPath/spark_model"
-    //model.save(sparkModelPath)
-    model.write.overwrite().save(sparkModelPath)
-    mlflowClient.logArtifacts(runId, new File(sparkModelPath), "spark_model")
-
-    // MLflow - save model as MLeap artifact
-    val mleapModelDir = new File(s"$modelPath/mleap_model")
-    mleapModelDir.mkdir
-    MLeapUtils.saveModel(model, predictions, "file:"+mleapModelDir.getAbsolutePath)
-    mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
+    // MLflow - Save model in Spark ML and MLeap formats
+    saveModelAsSparkML(mlflowClient, runId, modelPath, model)
+    saveModelAsMLeap(mlflowClient, runId, modelPath, model, predictions)
 
     // MLflow - close run
     mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+  }
+
+  def saveModelAsSparkML(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
+    val modelPath = s"$baseModelDir/spark_model"
+    model.write.overwrite().save(modelPath)
+    mlflowClient.logArtifacts(runId, new File(modelPath), "spark_model")
+  }
+
+  def saveModelAsMLeap(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
+    val modelPath = new File(s"$baseModelDir/mleap_model")
+    modelPath.mkdir
+    MLeapUtils.saveModel(model, predictions, "file:"+modelPath.getAbsolutePath)
+    mlflowClient.logArtifacts(runId, modelPath, "mleap_model")
   }
 
   object opts {

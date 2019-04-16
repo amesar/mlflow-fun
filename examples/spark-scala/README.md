@@ -1,5 +1,9 @@
 # mlflow-fun - Spark Scala Example
 
+Scala examples using the MLflow Java client:
+* Hello World - Simple
+* Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats
+
 ## Build
 ```
 mvn clean package
@@ -46,7 +50,7 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 Sample demonstrating:
 *  Trains a model
 *  Saves the model in Spark ML and MLeap formats
-*  Predicts by loading the above two model formats
+*  Predicts from Spark ML and MLeap formats
 
 ### Train
 
@@ -205,6 +209,17 @@ spark-submit \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
   --runId 3e422c4736a34046a74795384741ac33
+```
+
+```
++----------+-----+--------------------+
+|prediction|label|            features|
++----------+-----+--------------------+
+|       0.0|  0.0|(692,[127,128,129...|
+|       1.0|  1.0|(692,[158,159,160...|
+|       1.0|  1.0|(692,[124,125,126...|
+|       1.0|  1.0|(692,[152,153,154...|
++----------+-----+--------------------+
 ```
 
 #### Source
