@@ -3,18 +3,18 @@ package org.andre.mlflow.examples
 // From: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/ml/DecisionTreeRegressionExample.scala
 
 import java.io.{File,PrintWriter}
-import org.apache.spark.ml.Pipeline
+import org.apache.spark.sql.{SparkSession,DataFrame}
+import org.apache.spark.ml.{Pipeline,PipelineModel}
 import org.apache.spark.ml.evaluation.RegressionEvaluator
-import org.apache.spark.ml.feature.VectorIndexer
+import org.apache.spark.ml.feature.{VectorIndexer,VectorIndexerModel}
 import org.apache.spark.ml.regression.{DecisionTreeRegressionModel,DecisionTreeRegressor}
-import org.apache.spark.sql.SparkSession
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
-import org.apache.spark.ml.PipelineModel
-import org.apache.spark.sql.DataFrame
 
 object TrainDecisionTree {
+  case class DataHolder(trainingData: DataFrame, testData: DataFrame, featureIndexer: VectorIndexerModel)
+  val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
   val seed = 2019
 
   def main(args: Array[String]) {
@@ -29,18 +29,21 @@ object TrainDecisionTree {
     println(s"  maxDepth: ${opts.maxDepth}")
     println(s"  maxBins: ${opts.maxBins}")
     println(s"  runOrigin: ${opts.runOrigin}")
+
+    // MLflow - create or get existing experiment
     val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-    train(spark, mlflowClient, opts.dataPath, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin)
-  }
 
-  def train(spark: SparkSession, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String = "") {
-    val mlflowClient = new MlflowClient()
-    train(spark, mlflowClient, dataPath, modelPath, maxDepth, maxBins, runOrigin)
-  }
+    val experimentId = MLflowUtils.getOrCreateExperimentId(mlflowClient, opts.experimentName)
+    println("Experiment ID: "+experimentId)
 
-  def train(spark: SparkSession, mlflowClient: MlflowClient, dataPath: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String) {
     // Read data
+    val dataHolder = readData(opts.dataPath)
+
+    // Train model
+    train(mlflowClient, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
+  }
+
+  def readData(dataPath: String) : DataHolder = {
     val data = spark.read.format("libsvm").load(dataPath)
 
     // Automatically identify categorical features, and index them.
@@ -53,25 +56,21 @@ object TrainDecisionTree {
 
     // Split the data into training and test sets (30% held out for testing).
     val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3), seed)
+    
+    DataHolder(trainingData, testData, featureIndexer)
+  }
 
-    // MLflow - create or get existing experiment
-    val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, opts.experimentName)
-    //println("Experiment name: "+expName)
-    println("Experiment ID: "+expId)
-
-    // Train a DecisionTree model.
+  def train(mlflowClient: MlflowClient, experimentId: Long, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: DataHolder) {
+    // Create a DecisionTree model
     val clf = new DecisionTreeRegressor()
       .setLabelCol("label")
       .setFeaturesCol("indexedFeatures")
-
     if (maxDepth != -1) clf.setMaxDepth(maxDepth)
     if (maxBins != -1) clf.setMaxBins(maxBins)
-    println(s"clf.MaxDepth: ${clf.getMaxDepth}")
-    println(s"clf.MaxBins: ${clf.getMaxBins}")
 
     // MLflow - create run
     val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
-    val runInfo = mlflowClient.createRun(expId, sourceName);
+    val runInfo = mlflowClient.createRun(experimentId, sourceName);
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
@@ -80,40 +79,44 @@ object TrainDecisionTree {
     mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
     mlflowClient.logParam(runId, "maxBins",""+clf.getMaxBins)
     mlflowClient.logParam(runId, "runOrigin",runOrigin)
+    println(s"Params:")
+    println(s"  maxDepth: ${clf.getMaxDepth}")
+    println(s"  maxBins: ${clf.getMaxBins}")
 
     // Chain indexer and tree in a Pipeline.
-    val pipeline = new Pipeline().setStages(Array(featureIndexer, clf))
+    val pipeline = new Pipeline().setStages(Array(dataHolder.featureIndexer, clf))
 
     // Train model. This also runs the indexer.
-    val model = pipeline.fit(trainingData)
+    val model = pipeline.fit(dataHolder.trainingData)
 
     // Make predictions.
-    val predictions = model.transform(testData)
+    val predictions = model.transform(dataHolder.testData)
 
-    // Select example rows to display.
-    println("Prediction:")
-    predictions.select("prediction", "label", "features").show(5)
-
-    // Select (prediction, true label) and compute test error.
+    // Create metrics: select (prediction, true label) and compute test error.
     val evaluator = new RegressionEvaluator()
       .setLabelCol("label")
       .setPredictionCol("prediction")
       .setMetricName("rmse")
     val rmse = evaluator.evaluate(predictions)
-
-    println(s"Root Mean Squared Error (RMSE) on test data = $rmse")
-    println(s"isLargerBetter: ${evaluator.isLargerBetter}")
-
-    val treeModel = model.stages(1).asInstanceOf[DecisionTreeRegressionModel]
-    println(s"Learned regression tree model:\n ${treeModel.toDebugString}")
+    println(s"Metrics:")
+    println(s"  RMSE: $rmse")
+    println(s"  isLargerBetter: ${evaluator.isLargerBetter}")
 
     // MLflow - Log metric
     mlflowClient.logMetric(runId, "rmse",rmse)
 
+    // Select example rows to display.
+    println("Prediction:")
+    predictions.select("prediction", "label", "features").show(5)
+
+    // Print decision tree
+    val treeModel = model.stages(1).asInstanceOf[DecisionTreeRegressionModel]
+    println(s"Learned regression tree model:\n ${treeModel.toDebugString}")
+
     // MLflow - Log simple artifact
-    val path="info.txt"
+    val path="details.txt"
     new PrintWriter(path) { write("Info: "+new java.util.Date()) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"custom")
+    mlflowClient.logArtifact(runId,new File(path),"info")
 
     // MLflow - Save model in Spark ML and MLeap formats
     saveModelAsSparkML(mlflowClient, runId, modelPath, model)
@@ -159,6 +162,6 @@ object TrainDecisionTree {
     var runOrigin = "None"
 
     @Parameter(names = Array("--experimentName" ), description = "experimentName", required=false)
-    var experimentName = "scala/SimpleDecisionTree"
+    var experimentName = "scala_SimpleDecisionTree"
   }
 }

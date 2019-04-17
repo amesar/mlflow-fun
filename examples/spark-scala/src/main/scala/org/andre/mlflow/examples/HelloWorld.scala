@@ -13,7 +13,7 @@ object HelloWorld {
     val mlflowClient = MLflowUtils.createMlflowClient(args)
 
     // Create or get existing experiment
-    val expName = "scala/HelloWorld"
+    val expName = "scala_HelloWorld"
     val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
     println("Experiment name: "+expName)
     println("Experiment ID: "+expId)

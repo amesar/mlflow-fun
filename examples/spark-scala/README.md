@@ -1,8 +1,8 @@
 # mlflow-fun - Spark Scala Example
 
 Scala examples using the MLflow Java client:
-* Hello World - Simple
-* Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats
+* Hello World - Simple MLflow example.
+* Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats.
 
 ## Build
 ```
@@ -12,11 +12,15 @@ mvn clean package
 ## Hello World Sample
 ### Run
 ```
-spark-submit \
+spark-submit --master local[2] \
   --class org.andre.mlflow.examples.HelloWorld \
-  --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   http://localhost:5000
+```
+```
+Experiment name: scala_HelloWorld
+Experiment ID: 3
+Run ID: 81cc7941adae4860899ad5449df52802
 ```
 
 ### Source
@@ -108,10 +112,11 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 ### Run against local Spark and local MLflow tracking server
 
 ```
-spark-submit \
-  --class org.andre.mlflow.examples.TrainDecisionTree --master local[2] \
+spark-submit --master local[2] \
+  --class org.andre.mlflow.examples.TrainDecisionTree \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
+  --experimentName scala_DecisionTree \
   --dataPath data/sample_libsvm_data.txt \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
@@ -119,10 +124,11 @@ spark-submit \
 ### Run against local Spark and Databricks hosted tracking server
 
 ```
-spark-submit \
-  --class org.andre.mlflow.examples.TrainDecisionTree --master local[2] \
+spark-submit --master local[2] \
+  --class org.andre.mlflow.examples.TrainDecisionTree \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri https://acme.cloud.databricks.com --token MY_TOKEN \
+  --experimentName spark_DecisionTree \
   --dataPath data/sample_libsvm_data.txt \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
@@ -202,9 +208,8 @@ Predicts from Spark ML and MLeap models.
 
 #### Run
 ```
-spark-submit \
+spark-submit --master local[2] \
   --class org.andre.mlflow.examples.PredictDecisionTree \
-  --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
