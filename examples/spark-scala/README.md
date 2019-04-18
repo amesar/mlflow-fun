@@ -117,7 +117,7 @@ spark-submit --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --experimentName scala_DecisionTree \
-  --dataPath data/sample_libsvm_data.txt \
+  --dataPath ../data/sample_libsvm_data.txt \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
 
@@ -129,7 +129,7 @@ spark-submit --master local[2] \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri https://acme.cloud.databricks.com --token MY_TOKEN \
   --experimentName spark_DecisionTree \
-  --dataPath data/sample_libsvm_data.txt \
+  --dataPath ../data/sample_libsvm_data.txt \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
 
