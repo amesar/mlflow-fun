@@ -1,10 +1,11 @@
 import sys
 import mlflow
+from argparse import ArgumentParser
 
 sys.stdout.write("MLflow Version: {}".format(mlflow.version.VERSION))
 sys.stdout.write("MLflow Tracking URI: {}\n".format(mlflow.get_tracking_uri()))
 
-def process(base_name, max_level, level, max_children, idx):
+def process(base_name, max_level, max_children, level=0, idx=0):
     if level >= max_level: 
         return
     name = "{}_{}_{}".format(base_name,level,idx)
@@ -19,13 +20,17 @@ def process(base_name, max_level, level, max_children, idx):
             f.write(name)
         mlflow.log_artifact("info.txt")
         for j in range(0, max_children):
-            process(base_name, max_level, level+1, max_children, j)
+            process(base_name, max_level, max_children, level+1, j)
 
 if __name__ == "__main__":
     experiment_name = 'HelloWorld_NestedRuns'
     mlflow.set_experiment(experiment_name)
-    max_children = 1 # if your increase this beware of exponential growth per max_level
-    max_level = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-    max_children = int(sys.argv[2]) if len(sys.argv) > 2 else max_children
-    sys.stdout.write("max_level: {} max_children: {}\n".format(max_level,max_children))
-    process('nst',max_level,0, max_children, 0)
+
+    parser = ArgumentParser()
+    parser.add_argument("--max_level", dest="max_level", help="Number of levels to recurse", default=1, type=int)
+    parser.add_argument("--max_children", dest="max_children", help="Number of nodes at each level", default=1, type=int)
+    # max_children: if your increase this beware of exponential growth per max_level
+    args = parser.parse_args()
+
+    sys.stdout.write("max_level: {} max_children: {}\n".format(args.max_level,args.max_children))
+    process('nst',args.max_level,args.max_children)
