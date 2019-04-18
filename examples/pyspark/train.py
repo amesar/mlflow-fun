@@ -70,6 +70,7 @@ def train(max_depth, max_bins):
     print(treeModel)
 
     mlflow_spark.log_model(model, "spark-model")
+    #mlflow.mleap.log_model(model, testData, "mleap-model") # TODO: Bombs :(
 
     spark.stop()
 

@@ -40,6 +40,9 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/pyspark \
 ```
 
 ## Predict
+
+See [predict.py](predict.py).
+
 ```
 run_id=7b951173284249f7a3b27746450ac7b0
 spark-submit --master local[2] predict.py $run_id
