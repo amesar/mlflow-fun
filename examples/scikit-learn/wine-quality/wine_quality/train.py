@@ -47,39 +47,36 @@ class Trainer(object):
         self.X = data.drop(["quality"], axis=1).values
         self.y = data[["quality"]].values.ravel()
 
-        # If using 'mlflow run' must use --experiment-id to set experiment since set_experiment() does not work
+        # If using 'mlflow run' must use --experiment-id to set experiment since set_experiment() does not take effect
         if self.experiment_name != "none":
             mlflow.set_experiment(experiment_name)
             client = mlflow.tracking.MlflowClient()
             experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
             print("experiment_id:",experiment_id)
 
-    def eval_metrics(self, actual, pred):
-        rmse = np.sqrt(mean_squared_error(actual, pred))
-        mae = mean_absolute_error(actual, pred)
-        r2 = r2_score(actual, pred)
-        return rmse, mae, r2
-    
+
     def train(self, alpha, l1_ratio):
         with mlflow.start_run(source_name=self.current_file) as run:
             run_id = run.info.run_uuid
-            print("run_id:",run_id)
+            print("  run_id:",run_id)
             experiment_id = run.info.experiment_id
             print("  experiment_id:",experiment_id)
+
             clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
             clf.fit(self.train_x, self.train_y)
-    
             predicted_qualities = clf.predict(self.test_x)
-            (rmse, mae, r2) = self.eval_metrics(self.test_y, predicted_qualities)
+
+            rmse = np.sqrt(mean_squared_error(self.test_y, predicted_qualities))
+            mae = mean_absolute_error(self.test_y, predicted_qualities)
+            r2 = r2_score(self.test_y, predicted_qualities)
     
-            #print("Parameters:(alpha={}, l1_ratio={}):".format(alpha, l1_ratio))
             print("  Parameters:")
             print("    alpha:",alpha)
             print("    l1_ratio:",l1_ratio)
             print("  Metrics:")
-            print("    RMSE:",rmse)
-            print("    MAE:",mae)
-            print("    R2:",r2)
+            print("    rmse:",rmse)
+            print("    mae:",mae)
+            print("    r2:",r2)
     
             mlflow.log_param("alpha", alpha)
             mlflow.log_param("l1_ratio", l1_ratio)
@@ -96,6 +93,7 @@ class Trainer(object):
     
             mlflow.sklearn.log_model(clf, "model")
     
+            # Create plot file
             eps = 5e-3  # the smaller it is the longer is the path
             alphas_enet, coefs_enet, _ = enet_path(self.X, self.y, eps=eps, l1_ratio=l1_ratio, fit_intercept=False)
             plot_file = "wine_ElasticNet-paths.png"
