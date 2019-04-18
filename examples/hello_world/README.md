@@ -38,7 +38,7 @@ The token and tracking server URL will be picked up from your Databricks CLI ~/.
 ### Unmanaged without mlflow run
 #### Command-line python
 ```
-python hello_world.py .01 without_mlflow True
+python hello_world.py
 ```
 
 #### Jupyter notebook
@@ -56,18 +56,20 @@ mlflow run . -Palpha=.01 -Prun_origin=LocalRun -Plog_artifact=True
 ```
 You can also specify an experiment ID:
 ```
-mlflow run . --experiment-id=1 -Palpha=.01 -Prun_origin=LocalRun -Plog_artifact=True
+mlflow run . --experiment-id=2019 -Palpha=.01 -Prun_origin=LocalRun -Plog_artifact=True
 ```
 
 #### mlflow run git
 ```
 mlflow run  https://github.com/amesar/mlflow-fun.git#examples/hello_world \
+  --experiment-id=2019 \
   -Palpha=100 -Prun_origin=GitRun -Plog_artifact=True
 ```
 #### mlflow run Databricks remote
 Run against Databricks. See [Remote Execution on Databricks](https://mlflow.org/docs/latest/projects.html#remote-execution-on-databricks) and [cluster.json](cluster.json).
 ```
 mlflow run  https://github.com/amesar/mlflow-fun.git#examples/hello_world \
+  --experiment-id=2019 \
   -Palpha=100 -Prun_origin=RemoteRun -Plog_artifact=True \
   -m databricks --cluster-spec cluster.json
 ```
