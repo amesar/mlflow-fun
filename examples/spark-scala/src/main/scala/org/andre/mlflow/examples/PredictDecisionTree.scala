@@ -30,14 +30,14 @@ object PredictDecisionTree {
 
   def predictSparkML(uri: String, data: DataFrame) {
     println("==== Spark ML")
-    val modelPath = s"${uri}/spark_model"
+    val modelPath = s"${uri}/spark-model"
     val model = PipelineModel.load(modelPath)
     showPredictions(model, data)
   }
 
   def predictMLeap(uri: String, data: DataFrame) {
     println("==== MLeap")
-    val modelPath = s"file:${uri}/mleap_model"
+    val modelPath = s"file:${uri}/mleap-model"
     val model = MLeapUtils.readModel(modelPath)
     showPredictions(model, data)
   } 

@@ -127,16 +127,16 @@ object TrainDecisionTree {
   }
 
   def saveModelAsSparkML(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
-    val modelPath = s"$baseModelDir/spark_model"
+    val modelPath = s"$baseModelDir/spark-model"
     model.write.overwrite().save(modelPath)
-    mlflowClient.logArtifacts(runId, new File(modelPath), "spark_model")
+    mlflowClient.logArtifacts(runId, new File(modelPath), "spark-model")
   }
 
   def saveModelAsMLeap(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
-    val modelPath = new File(s"$baseModelDir/mleap_model")
+    val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
     MLeapUtils.saveModel(model, predictions, "file:"+modelPath.getAbsolutePath)
-    mlflowClient.logArtifacts(runId, modelPath, "mleap_model")
+    mlflowClient.logArtifacts(runId, modelPath, "mleap-model")
   }
 
   object opts {
@@ -162,6 +162,6 @@ object TrainDecisionTree {
     var runOrigin = "None"
 
     @Parameter(names = Array("--experimentName" ), description = "experimentName", required=false)
-    var experimentName = "scala_SimpleDecisionTree"
+    var experimentName = "scala_DecisionTree"
   }
 }
