@@ -18,8 +18,6 @@ object TrainDecisionTree {
   val seed = 2019
 
   def main(args: Array[String]) {
-    //println("args: "+args.toList.mkString(" "))
-    //new JCommander(opts, args.toArray: _*)
     new JCommander(opts, args: _*)
     println("Options:")
     println(s"  Tracking URI: ${opts.trackingUri}")
