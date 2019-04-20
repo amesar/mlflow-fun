@@ -22,10 +22,12 @@ object MLeapUtils {
   }
 
   def readModel(bundlePath: String) = {
-    val opt = (for(bundle <- managed(BundleFile(bundlePath))) yield {
+    val obundle = (for(bundle <- managed(BundleFile(bundlePath))) yield {
       bundle.loadSparkBundle().get
     }).opt
-    val bundle = opt.get
-    bundle.root
+    obundle match {
+      case Some(b) => b.root
+      case None => throw new Exception(s"Cannot find bundle: $bundlePath")
+    }
   }
 }
