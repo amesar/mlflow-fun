@@ -18,8 +18,9 @@ object TrainDecisionTree {
   val seed = 2019
 
   def main(args: Array[String]) {
-    println("args: "+args.toList.mkString(" "))
-    new JCommander(opts, args.toArray: _*)
+    //println("args: "+args.toList.mkString(" "))
+    //new JCommander(opts, args.toArray: _*)
+    new JCommander(opts, args: _*)
     println("Options:")
     println(s"  Tracking URI: ${opts.trackingUri}")
     println(s"  token: ${opts.token}")
@@ -136,7 +137,7 @@ object TrainDecisionTree {
     val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
     MLeapUtils.saveModel(model, predictions, "file:"+modelPath.getAbsolutePath)
-    mlflowClient.logArtifacts(runId, modelPath, "mleap-model")
+    mlflowClient.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 
   object opts {
