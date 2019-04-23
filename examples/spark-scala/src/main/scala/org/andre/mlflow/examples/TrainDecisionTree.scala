@@ -59,7 +59,7 @@ object TrainDecisionTree {
     DataHolder(trainingData, testData, featureIndexer)
   }
 
-  def train(mlflowClient: MlflowClient, experimentId: Long, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: DataHolder) {
+  def train(mlflowClient: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: DataHolder) {
     // Create a DecisionTree model
     val clf = new DecisionTreeRegressor()
       .setLabelCol("label")
