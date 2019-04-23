@@ -6,7 +6,7 @@ import org.mlflow.tracking.creds.BasicMlflowHostCreds
 
 object MLflowUtils {
 
-  def getOrCreateExperimentId(client: MlflowClient, experimentName: String) : Long = {
+  def getOrCreateExperimentId(client: MlflowClient, experimentName: String) : String = {
     val expOpt = client.listExperiments() find (_.getName == experimentName)
     expOpt match {
       case Some(exp) => exp.getExperimentId
