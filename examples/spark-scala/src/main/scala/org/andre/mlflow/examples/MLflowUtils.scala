@@ -15,7 +15,7 @@ object MLflowUtils {
   }
 
   def createMlflowClient(args: Array[String]) = {
-    println("args: "+args.toList.mkString(" "))
+    println("args: "+args)
     if (args.length == 0) {
         val env = System.getenv("MLFLOW_TRACKING_URI")
         println(s"MLFLOW_TRACKING_URI: $env")
