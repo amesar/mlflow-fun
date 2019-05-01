@@ -14,12 +14,13 @@ if __name__ == "__main__":
     best = builder.get_best_run(args.experiment_id,metric,args.ascending)
     print("best:",best)
 
-    print("\n======== build_dataframe")
-    df = builder.build_dataframe(args.experiment_id)
-    print("Columns:")
-    print(df.dtypes,"\n")
-    df = df[['run_uuid',metric]]
-    df = df.sort_values(metric,ascending=args.ascending)
-    best = df.iloc[0]
-    best = (best[0],best[1])
-    print("best:",best)
+    if best is not None:
+        print("\n======== build_dataframe")
+        df = builder.build_dataframe(args.experiment_id)
+        print("Columns:")
+        print(df.dtypes,"\n")
+        df = df[['run_uuid',metric]]
+        df = df.sort_values(metric,ascending=args.ascending)
+        best = df.iloc[0]
+        best = (best[0],best[1])
+        print("best:",best)

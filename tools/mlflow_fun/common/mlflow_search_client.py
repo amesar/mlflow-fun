@@ -1,46 +1,36 @@
 from __future__ import print_function
-from mlflow_fun.common.http_client import HttpClient
-from collections import OrderedDict
+import mlflow
 
-resource = "runs/search"
-
-''' Client with extra functionality based on REST endpoint runs/search '''
+''' Client with extra opitmized functionality based on search_runs '''
 class MlflowSearchClient(object):
-    def __init__(self, http_client=None):
-        if http_client == None:
-            http_client = HttpClient()
-        self.http_client = http_client
-
-    ''' Pass JSON search request to REST API '''
-    def search(self, request):
-        return self.http_client.post(resource,request)
+    def __init__(self, mlflow_client=None):
+        if mlflow_client == None:
+            mlflow_client = mlflow.tracking.MlflowClient()
+        self.mlflow_client = mlflow_client
 
     ''' List all run data: info, data.params, data.metrics and data.tags '''
     def list_runs(self, experiment_id):
-        request_template = """ { "experiment_ids": [ {experiment_id} ] } """
-        request = request_template.replace("{experiment_id}",str(experiment_id))
-        response = self.http_client.post(resource,request)
-        return response['runs'] if 'runs' in response else []
+        return self.mlflow_client.search_runs([experiment_id], "")
 
     ''' 
-    List all run data as flattened dict. Parameters are prefixed with _p_, metrics with _m_ and tags with _t_.
-    Example: { "_p_alpha": "0.1", "_m_rmse": 0.82, "_t_data_path": "/dbfs/tmp/data.csv", "run_uuid: "123" }
+    List all run data as flattened dict. 
+    All attributes of info, data.params, data.metrics and data.tags are flattened into one dict.
+    Parameters are prefixed with _p_, metrics with _m_ and tags with _t_.
+    Example: { "_p_alpha": "0.1", "_m_rmse": 0.82, "_t_data_path": "data.csv", "run_uuid: "123" }
     '''
     def list_runs_flat(self, experiment_id):
-        runs = self.list_runs(experiment_id)
         rows = []
-        for run in runs:
-            dct = run['info']
-            if 'data' in run:
-                data = run['data']
-                self._merge('params','_p_',dct,data)
-                self._merge('metrics','_m_',dct,data)
-                self._merge('tags','_t_',dct,data)
+        for run in self.list_runs(experiment_id):
+            dct = self._strip_underscores(run.info)
+            self._merge(dct, run.data.params, '_p_')
+            self._merge(dct, run.data.metrics, '_m_')
+            self._merge(dct, run.data.tags, '_t_')
             rows.append(dct)
         return rows
 
-    def _merge(self, name, prefix, dct, data):
-        if name not in data: return
-        lst = data[name]
-        dct2 = { prefix+x['key'] : x['value'] for x in lst }
+    def _merge(self, dct, lst, prefix):
+        dct2 = { prefix + x.__dict__['_key'] : x.__dict__['_value'] for x in lst }
         dct.update(dct2)
+
+    def _strip_underscores(self, obj):
+        return { k[1:]:v for (k,v) in obj.__dict__.items() }
