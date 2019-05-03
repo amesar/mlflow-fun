@@ -2,7 +2,7 @@ from __future__ import print_function
 import mlflow
 
 ''' Client with extra opitmized functionality based on search_runs '''
-class MlflowSearchClient(object):
+class MlflowSmartClient(object):
     def __init__(self, mlflow_client=None):
         if mlflow_client == None:
             mlflow_client = mlflow.tracking.MlflowClient()
