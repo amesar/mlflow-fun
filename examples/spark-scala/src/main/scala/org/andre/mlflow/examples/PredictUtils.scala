@@ -3,6 +3,7 @@ package org.andre.mlflow.examples
 import org.apache.spark.sql.{SparkSession,DataFrame}
 import org.apache.spark.ml.{PipelineModel,Transformer}
 import org.mlflow.api.proto.Service.RunInfo
+import org.andre.mlflow.util.MLeapUtils
 
 object PredictionUtils {
 

@@ -1,6 +1,7 @@
 package org.andre.mlflow.examples
 
 import com.beust.jcommander.{JCommander, Parameter}
+import org.andre.mlflow.util.{MLflowUtils,BestRunUtils}
 
 object PredictByBestRun {
   def main(args: Array[String]) {

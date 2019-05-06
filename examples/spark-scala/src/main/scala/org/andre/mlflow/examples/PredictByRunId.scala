@@ -1,6 +1,7 @@
 package org.andre.mlflow.examples
 
 import com.beust.jcommander.{JCommander, Parameter}
+import org.andre.mlflow.util.MLflowUtils
 
 object PredictByRunId {
   def main(args: Array[String]) {

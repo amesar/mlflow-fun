@@ -1,4 +1,4 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.util
 
 import scala.collection.JavaConversions._
 import org.mlflow.tracking.MlflowClient

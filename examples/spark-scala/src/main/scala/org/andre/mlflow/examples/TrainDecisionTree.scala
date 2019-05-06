@@ -11,6 +11,7 @@ import org.apache.spark.ml.regression.{DecisionTreeRegressionModel,DecisionTreeR
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
+import org.andre.mlflow.util.{MLflowUtils,MLeapUtils}
 
 object TrainDecisionTree {
   case class DataHolder(trainingData: DataFrame, testData: DataFrame, featureIndexer: VectorIndexerModel)

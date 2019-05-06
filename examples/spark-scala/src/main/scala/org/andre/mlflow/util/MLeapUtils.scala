@@ -1,4 +1,4 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.util
 
 import ml.combust.bundle.BundleFile
 import ml.combust.mleap.spark.SparkSupport._

@@ -4,6 +4,7 @@ import java.io.{File,PrintWriter}
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
 import scala.collection.JavaConversions._
+import org.andre.mlflow.util.MLflowUtils
 
 object HelloWorld {
   def main(args: Array[String]) {
