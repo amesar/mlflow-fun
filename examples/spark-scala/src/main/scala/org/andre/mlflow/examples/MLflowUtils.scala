@@ -3,6 +3,8 @@ package org.andre.mlflow.examples
 import scala.collection.JavaConversions._
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
+import org.mlflow.tracking.creds.BasicMlflowHostCreds
+import org.mlflow.api.proto.Service.Run
 
 object MLflowUtils {
 
@@ -43,5 +45,15 @@ object MLflowUtils {
         new MlflowClient(trackingUri)
       }
     }
+  }
+
+  def getLastRunInfo(client: MlflowClient, experimentId: String) = {
+    val infos = client.listRunInfos(experimentId) 
+    infos.sortWith(_.getStartTime > _.getStartTime)(0)
+  }
+
+  def getLastRun(client: MlflowClient, experimentId: String) = {
+    val info = getLastRunInfo(client, experimentId)
+    client.getRun(info.getRunUuid) 
   }
 }
