@@ -32,7 +32,7 @@ val mlflowClient = new MlflowClient(trackingUri)
 
 // Create or get existing experiment
 val expName = "scala/HelloWorld"
-val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
+val expId = MLflowUtils.setExperiment(mlflowClient, expName)
 println("Experiment name: "+expName)
 println("Experiment ID: "+expId)
 
@@ -73,7 +73,7 @@ val mlflowClient = new MlflowClient("http://localhost:5000")
 
 // MLflow - create or get existing experiment
 val expName = "scala/SimpleDecisionTree"
-val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
+val expId = MLflowUtils.setExperiment(mlflowClient, expName)
 
 // MLflow - create run
 val sourceName = getClass().getSimpleName()+".scala"
