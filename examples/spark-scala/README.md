@@ -204,12 +204,18 @@ TrainDecisionTree.train(spark, dataPath, modelPath, 5, 5, runOrigin)
 
 ### Predict
 
-Predicts from Spark ML and MLeap models.
+Predicts from Spark ML and MLeap models. 
+
+There are several ways to obtain the run:
+* [PredictByRunId.scala](src/main/scala/org/andre/mlflow/examples/PredictByRunId.scala) - Specify run ID.
+* [PredictByLastRun.scala](src/main/scala/org/andre/mlflow/examples/PredictByLastRun.scala) - Use the latest run.
+* [PredictByBestRun.scala](src/main/scala/org/andre/mlflow/examples/PredictByBestRun.scala) - Use the best run for given metric.
 
 #### Run
+#### Run By RunID
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.PredictDecisionTree \
+  --class org.andre.mlflow.examples.PredictByRunId \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
@@ -227,9 +233,31 @@ spark-submit --master local[2] \
 +----------+-----+--------------------+
 ```
 
+#### Run By LastRun
+```
+spark-submit --master local[2] \
+  --class org.andre.mlflow.examples.PredictByLastRun \
+  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  --trackingUri http://localhost:5000 \
+  --dataPath data/sample_libsvm_data.txt \
+  --experimentId 2
+```
+
+#### Run By BestRun
+```
+spark-submit --master local[2] \
+  --class org.andre.mlflow.examples.PredictByBestRun \
+  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  --trackingUri http://localhost:5000 \
+  --dataPath data/sample_libsvm_data.txt \
+  --experimentId 2
+  --metric rmse --ascending
+```
+
+
 #### Source
 
-Source snippet from [PredictDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/PredictDecisionTree.scala).
+Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/PredictUtils.scala).
 ```
 val data = spark.read.format("libsvm").load(opts.dataPath)
 val model = PipelineModel.load(opts.modelPath)

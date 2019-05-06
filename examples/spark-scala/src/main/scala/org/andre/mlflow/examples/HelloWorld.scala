@@ -2,7 +2,6 @@ package org.andre.mlflow.examples
 
 import java.io.{File,PrintWriter}
 import org.mlflow.tracking.MlflowClient
-import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.RunStatus
 import scala.collection.JavaConversions._
 
