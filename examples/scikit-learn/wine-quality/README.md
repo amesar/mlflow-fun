@@ -5,8 +5,15 @@
 * This example demonstrates all features of MLflow training and prediction.
 * Saves model in pickle format
 * Saves plot artifacts
-* Shows several ways to run training - _mlflow run_, run against Databricks cluster, call egg from notebook, etc.
-* Shows several ways to run prediction  - web server,  mlflow.load_model(), UDF, etc.
+* Shows several ways to run training - 
+  * _mlflow run_ CLI 
+  * run against Databricks cluster
+  * call egg from notebook
+* Shows several ways to run prediction  
+  * web server
+  * mlflow.sklearn.load_model()
+  * mlflow.pyfunc.load_pyfunc()
+  * mlflow.pyfunc.spark_udf 
 * Data: data/wine-quality-white.csv and data/predict wine-quality-red.csv.
 
 ## Setup
@@ -252,7 +259,9 @@ predicted = model.predict(df)
 print("predicted:",predicted)
 ```
 
-### 4. Batch prediction with Spark UDF (user-defined function)
+### 4. UDF Predict with  mlflow.pyfunc.spark_udf()
+
+From [spark_udf_predict.py](spark_udf_predict.py).
 
 Scroll right to see prediction column.
 
