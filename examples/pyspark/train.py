@@ -16,9 +16,6 @@ from mlflow import spark as mlflow_spark
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
-experiment_name = "pyspark"
-print("experiment_name:",experiment_name)
-mlflow.set_experiment(experiment_name)
 
 def train(max_depth, max_bins, random):
     print("Parameters: max_depth: {}  max_bins: {}".format(max_depth,max_bins))
@@ -78,6 +75,7 @@ def train(max_depth, max_bins, random):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument("--experiment_name", dest="experiment_name", help="experiment_name", default="pyspark", required=False)
     parser.add_argument("--max_depth", dest="max_depth", help="max_depth", default=2, type=int)
     parser.add_argument("--max_bins", dest="max_bins", help="max_bins", default=32, type=int)
     parser.add_argument("--random", dest="random", help="Random", required=False, default=False, action='store_true')
@@ -87,7 +85,9 @@ if __name__ == "__main__":
     print("MLflow Version:", version.VERSION)
 
     client = mlflow.tracking.MlflowClient()
-    print("experiment_id:",client.get_experiment_by_name(experiment_name).experiment_id)
+    print("experiment_name:",args.experiment_name)
+    mlflow.set_experiment(args.experiment_name)
+    print("experiment_id:",client.get_experiment_by_name(args.experiment_name).experiment_id)
 
     with mlflow.start_run(source_name=current_file) as run:
         print("run_id:",run.info.run_uuid)
