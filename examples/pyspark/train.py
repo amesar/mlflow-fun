@@ -16,11 +16,11 @@ from mlflow import spark as mlflow_spark
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
-experiment_name = os.environ.get("MLFLOW_EXPERIMENT_NAME","py/spark/DecisionTree")
+experiment_name = "pyspark"
 print("experiment_name:",experiment_name)
 mlflow.set_experiment(experiment_name)
 
-def train(max_depth, max_bins):
+def train(max_depth, max_bins, random):
     print("Parameters: max_depth: {}  max_bins: {}".format(max_depth,max_bins))
     spark = SparkSession.builder.appName("DecisionTreeClassificationExample").getOrCreate()
 
@@ -37,7 +37,10 @@ def train(max_depth, max_bins):
     featureIndexer = VectorIndexer(inputCol="features", outputCol="indexedFeatures", maxCategories=4).fit(data)
 
     # Split the data into training and test sets
-    (trainingData, testData) = data.randomSplit([0.7, 0.3])
+    if random:
+        (trainingData, testData) = data.randomSplit([0.7, 0.3])
+    else:
+        (trainingData, testData) = data.randomSplit([0.7, 0.3],2019)
 
     # Train a DecisionTree model.
     mlflow.log_param("max_depth",max_depth)
@@ -77,6 +80,8 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--max_depth", dest="max_depth", help="max_depth", default=2, type=int)
     parser.add_argument("--max_bins", dest="max_bins", help="max_bins", default=32, type=int)
+    parser.add_argument("--random", dest="random", help="Random", required=False, default=False, action='store_true')
+
     args = parser.parse_args()
     current_file = os.path.basename(__file__)
     print("MLflow Version:", version.VERSION)
@@ -87,5 +92,4 @@ if __name__ == "__main__":
     with mlflow.start_run(source_name=current_file) as run:
         print("run_id:",run.info.run_uuid)
         print("experiment_id:",run.info.experiment_id)
-        train(args.max_depth,args.max_bins)
-
+        train(args.max_depth,args.max_bins,args.random)
