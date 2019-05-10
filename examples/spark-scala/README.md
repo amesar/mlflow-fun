@@ -4,6 +4,10 @@ Scala examples using the MLflow Java client:
 * Hello World - Simple MLflow example.
 * Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats.
 
+## Setup
+
+Note: built using Scala 2.11 so doesn't work for Spark 2.4.2 and higher.
+
 ## Build
 ```
 mvn clean package

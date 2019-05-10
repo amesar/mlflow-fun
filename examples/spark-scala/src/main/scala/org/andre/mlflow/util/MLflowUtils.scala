@@ -3,7 +3,6 @@ package org.andre.mlflow.util
 import scala.collection.JavaConversions._
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
-import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.Run
 
 object MLflowUtils {
