@@ -56,14 +56,13 @@ def train(max_depth, max_bins, random):
     # Select example rows to display.
     predictions.select("prediction", "indexedLabel", "features").show(5)
 
-    # Select (prediction, true label) and compute test error.
-    evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
-    accuracy = evaluator.evaluate(predictions)
-    test_error = 1.0 - accuracy
-    print("Test Error = {} ".format(test_error))
-
-    mlflow.log_metric("accuracy", accuracy)
-    mlflow.log_metric("test_error", test_error)
+    # Get evaluator metrics
+    print("Metrics:")
+    for m_name in ["accuracy","f1"]:
+        evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName=m_name)
+        m_value = evaluator.evaluate(predictions)
+        print("  {}: {}".format(m_name,m_value))
+        mlflow.log_metric(m_name,m_value)
 
     treeModel = model.stages[2]
     print(treeModel)
