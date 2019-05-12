@@ -58,11 +58,11 @@ def train(max_depth, max_bins, random):
 
     # Get evaluator metrics
     print("Metrics:")
-    for m_name in ["accuracy","f1"]:
-        evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName=m_name)
-        m_value = evaluator.evaluate(predictions)
-        print("  {}: {}".format(m_name,m_value))
-        mlflow.log_metric(m_name,m_value)
+    for metric_name in ["accuracy","f1"]:
+        evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName=metric_name)
+        metric_value = evaluator.evaluate(predictions)
+        print("  {}: {}".format(metric_name,metric_value))
+        mlflow.log_metric(metric_name,metric_value)
 
     treeModel = model.stages[2]
     print(treeModel)
@@ -70,7 +70,6 @@ def train(max_depth, max_bins, random):
     mlflow_spark.log_model(model, "spark-model")
     #mlflow.mleap.log_model(model, testData, "mleap-model") # TODO: Bombs :(
 
-    spark.stop()
 
 if __name__ == "__main__":
     parser = ArgumentParser()
