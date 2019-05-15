@@ -17,8 +17,12 @@ from mlflow import spark as mlflow_spark
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
 
+splits = [0.7, 0.3]
+default_seed = 2019
+metric_names = ["accuracy","f1","weightedPrecision"]
+
 def train(max_depth, max_bins, random):
-    print("Parameters: max_depth: {}  max_bins: {}".format(max_depth,max_bins))
+    print("Parameters: max_depth: {}  max_bins: {}  random: {}".format(max_depth,max_bins,random))
     spark = SparkSession.builder.appName("DecisionTreeClassificationExample").getOrCreate()
 
     # Load the data stored in LIBSVM format as a DataFrame.
@@ -35,13 +39,14 @@ def train(max_depth, max_bins, random):
 
     # Split the data into training and test sets
     if random:
-        (trainingData, testData) = data.randomSplit([0.7, 0.3])
+        (trainingData, testData) = data.randomSplit(splits)
     else:
-        (trainingData, testData) = data.randomSplit([0.7, 0.3],2019)
+        (trainingData, testData) = data.randomSplit(splits, default_seed)
 
     # Train a DecisionTree model.
     mlflow.log_param("max_depth",max_depth)
     mlflow.log_param("max_bins",max_bins)
+    mlflow.log_param("random",random)
     dt = DecisionTreeClassifier(labelCol="indexedLabel", featuresCol="indexedFeatures", maxDepth=max_depth, maxBins=max_bins)
 
     # Chain indexers and tree in a Pipeline.
@@ -58,7 +63,7 @@ def train(max_depth, max_bins, random):
 
     # Get evaluator metrics
     print("Metrics:")
-    for metric_name in ["accuracy","f1"]:
+    for metric_name in metric_names:
         evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName=metric_name)
         metric_value = evaluator.evaluate(predictions)
         print("  {}: {}".format(metric_name,metric_value))
