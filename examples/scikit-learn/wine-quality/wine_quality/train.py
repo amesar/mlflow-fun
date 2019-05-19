@@ -91,7 +91,8 @@ class Trainer(object):
             mlflow.set_tag("run_origin", self.run_origin)
             mlflow.set_tag("platform", platform.system())
     
-            mlflow.sklearn.log_model(clf, "model")
+            #mlflow.sklearn.log_model(clf, "model")
+            mlflow.sklearn.log_model(clf, "sklearn-model")
     
             # Create plot file
             eps = 5e-3  # the smaller it is the longer is the path

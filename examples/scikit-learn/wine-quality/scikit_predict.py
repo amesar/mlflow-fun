@@ -17,7 +17,7 @@ if __name__ == "__main__":
     print("data_path:",data_path)
     print("run_id:",run_id)
 
-    model = mlflow.sklearn.load_model("model", run_id=run_id)
+    model = mlflow.sklearn.load_model("sklearn-model", run_id=run_id)
     print("model:",model)
 
     df = util.read_prediction_data(data_path)

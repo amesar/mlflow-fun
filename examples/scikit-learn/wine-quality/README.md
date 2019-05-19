@@ -237,7 +237,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 ```
 From [scikit_predict.py](scikit_predict.py):
 ```
-model = mlflow.sklearn.load_model("model",run_id="7e674524514846799310c41f10d6b99d")
+model = mlflow.sklearn.load_model("sklearn-model",run_id="7e674524514846799310c41f10d6b99d")
 df = pd.read_csv("data/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
@@ -252,7 +252,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 ```
 From [pyfunc_predict.py](pyfunc_predict.py):
 ```
-model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/model"
+model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/sklearn-model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
 df = pd.read_csv("data/wine-quality-red.csv")
 predicted = model.predict(df)
@@ -284,7 +284,7 @@ spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
 df = spark.read.option("inferSchema",True).option("header", True).csv("data/wine-quality-red.csv")
 df = df.drop("quality")
 
-udf = mlflow.pyfunc.spark_udf(spark, "model", run_id="7e674524514846799310c41f10d6b99d")
+udf = mlflow.pyfunc.spark_udf(spark, "sklearn-model", run_id="7e674524514846799310c41f10d6b99d")
 df2 = df.withColumn("prediction", udf(*df.columns))
 df2.show(10)
 ```
@@ -293,7 +293,7 @@ df2.show(10)
 You can directly read the model pickle file and then make predictions.
 From [pickle_predict.py](pickle_predict.py):
 ```
-pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/model/model.pkl"
+pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/sklearn-model/model.pkl"
 with open(pickle_path, 'rb') as f:
     model = pickle.load(f)
 df = pd.read_csv("data/wine-quality-red.csv")

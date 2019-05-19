@@ -19,7 +19,7 @@ if __name__ == "__main__":
     print("run_id:",run_id)
 
     client = mlflow.tracking.MlflowClient()
-    model_uri = client.get_run(run_id).info.artifact_uri + "/model"
+    model_uri = client.get_run(run_id).info.artifact_uri + "/sklearn-model"
     print("model_uri:",model_uri)
     model = mlflow.pyfunc.load_pyfunc(model_uri)
     print("model:",model)

@@ -24,7 +24,7 @@ if __name__ == "__main__":
         df = df.drop("quality")
     df.show(10)
 
-    udf = mlflow.pyfunc.spark_udf(spark, "model", run_id=run_id)
+    udf = mlflow.pyfunc.spark_udf(spark, "sklearn-model", run_id=run_id)
     df2 = df.withColumn("prediction", udf(*df.columns))
     df2.show(10)
     df2.select("prediction").show(10)
