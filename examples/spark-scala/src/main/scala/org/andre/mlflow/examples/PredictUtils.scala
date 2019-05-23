@@ -2,6 +2,7 @@ package org.andre.mlflow.examples
 
 import org.apache.spark.sql.{SparkSession,DataFrame}
 import org.apache.spark.ml.{PipelineModel,Transformer}
+import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.mlflow.api.proto.Service.RunInfo
 import org.andre.mlflow.util.MLeapUtils
 
@@ -31,7 +32,19 @@ object PredictUtils {
 
   def showPredictions(model: Transformer, data: DataFrame) {
     val predictions = model.transform(data)
-    val df = predictions.select("prediction", "label", "features")
+    val df = predictions.select("features","label","prediction").sort("features","label","prediction")
     df.show(10)
+  }
+
+  def evaluatePredictions(predictions: DataFrame) = {
+    val evaluator = new RegressionEvaluator()
+      .setLabelCol("label")
+      .setPredictionCol("prediction")
+      .setMetricName("rmse")
+    val rmse = evaluator.evaluate(predictions)
+    println(s"Metrics:")
+    println(s"  RMSE: $rmse")
+    println(s"  isLargerBetter: ${evaluator.isLargerBetter}")
+    rmse
   }
 }

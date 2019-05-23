@@ -5,7 +5,6 @@ package org.andre.mlflow.examples
 import java.io.{File,PrintWriter}
 import org.apache.spark.sql.{SparkSession,DataFrame}
 import org.apache.spark.ml.{Pipeline,PipelineModel}
-import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.{VectorIndexer,VectorIndexerModel}
 import org.apache.spark.ml.regression.{DecisionTreeRegressionModel,DecisionTreeRegressor}
 import org.mlflow.tracking.MlflowClient
@@ -45,6 +44,7 @@ object TrainDecisionTree {
 
   def readData(dataPath: String) : DataHolder = {
     val data = spark.read.format("libsvm").load(dataPath)
+    data.printSchema
 
     // Automatically identify categorical features, and index them.
     // Here, we treat features with > 4 distinct values as continuous.
@@ -93,14 +93,7 @@ object TrainDecisionTree {
     val predictions = model.transform(dataHolder.testData)
 
     // Create metrics: select (prediction, true label) and compute test error.
-    val evaluator = new RegressionEvaluator()
-      .setLabelCol("label")
-      .setPredictionCol("prediction")
-      .setMetricName("rmse")
-    val rmse = evaluator.evaluate(predictions)
-    println(s"Metrics:")
-    println(s"  RMSE: $rmse")
-    println(s"  isLargerBetter: ${evaluator.isLargerBetter}")
+    val rmse = PredictUtils.evaluatePredictions(predictions)
 
     // MLflow - Log metric
     mlflowClient.logMetric(runId, "rmse",rmse)
