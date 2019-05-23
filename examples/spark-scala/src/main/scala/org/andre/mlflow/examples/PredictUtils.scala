@@ -5,7 +5,7 @@ import org.apache.spark.ml.{PipelineModel,Transformer}
 import org.mlflow.api.proto.Service.RunInfo
 import org.andre.mlflow.util.MLeapUtils
 
-object PredictionUtils {
+object PredictUtils {
 
   def predict(runInfo: RunInfo, dataPath: String) {
     val spark = SparkSession.builder.appName("Predict").getOrCreate()

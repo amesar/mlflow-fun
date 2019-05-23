@@ -19,7 +19,7 @@ object PredictByBestRun {
     val best = BestRunUtils.getBestRun(mlflowClient, opts.experimentId, opts.metric, opts.ascending)
     println(s"best.runId: ${best.run.getInfo.getRunUuid}")
     println(s"best.value: ${best.value}")
-    PredictionUtils.predict(best.run.getInfo, opts.dataPath)
+    PredictUtils.predict(best.run.getInfo, opts.dataPath)
   }
 
   object opts {

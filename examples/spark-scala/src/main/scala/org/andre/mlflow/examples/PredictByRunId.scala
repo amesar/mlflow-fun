@@ -14,7 +14,7 @@ object PredictByRunId {
 
     val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
     val runInfo = mlflowClient.getRun(opts.runId).getInfo
-    PredictionUtils.predict(runInfo, opts.dataPath)
+    PredictUtils.predict(runInfo, opts.dataPath)
   }
 
   object opts {
