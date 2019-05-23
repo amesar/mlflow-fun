@@ -1,4 +1,4 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.examples.libsvm
 
 import org.apache.spark.sql.{SparkSession,DataFrame}
 import org.apache.spark.ml.{PipelineModel,Transformer}

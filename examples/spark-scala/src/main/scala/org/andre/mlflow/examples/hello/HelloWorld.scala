@@ -1,4 +1,4 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.examples.hello
 
 import java.io.{File,PrintWriter}
 import org.mlflow.tracking.MlflowClient

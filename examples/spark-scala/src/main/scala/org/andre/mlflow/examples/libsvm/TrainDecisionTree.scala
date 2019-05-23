@@ -1,4 +1,4 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.examples.libsvm
 
 // From: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/ml/DecisionTreeRegressionExample.scala
 

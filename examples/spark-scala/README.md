@@ -17,7 +17,7 @@ mvn clean package
 ### Run
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.HelloWorld \
+  --class org.andre.mlflow.examples.hello.HelloWorld \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   http://localhost:5000
 ```
@@ -28,7 +28,7 @@ Run ID: 81cc7941adae4860899ad5449df52802
 ```
 
 ### Source
-Source snippet from [HelloWorld.scala](src/main/scala/org/andre/mlflow/examples/HelloWorld.scala).
+Source snippet from [HelloWorld.scala](src/main/scala/org/andre/mlflow/examples/hello/HelloWorld.scala).
 ```
 // Create client
 val trackingUri = args(0)
@@ -67,7 +67,7 @@ Saves model as Spark ML and MLeap artifact in MLflow.
 
 #### Source
 
-Source snippet from [TrainDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/TrainDecisionTree.scala).
+Source snippet from [TrainDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/libsvm/TrainDecisionTree.scala).
 ```
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
@@ -117,7 +117,7 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.TrainDecisionTree \
+  --class org.andre.mlflow.examples.libsvm.TrainDecisionTree \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --experimentName scala_DecisionTree \
@@ -129,7 +129,7 @@ spark-submit --master local[2] \
 
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.TrainDecisionTree \
+  --class org.andre.mlflow.examples.libsvm.TrainDecisionTree \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri https://acme.cloud.databricks.com --token MY_TOKEN \
   --experimentName spark_DecisionTree \
@@ -211,15 +211,15 @@ TrainDecisionTree.train(spark, dataPath, modelPath, 5, 5, runOrigin)
 Predicts from Spark ML and MLeap models. 
 
 There are several ways to obtain the run:
-* [PredictByRunId.scala](src/main/scala/org/andre/mlflow/examples/PredictByRunId.scala) - Specify run ID.
-* [PredictByLastRun.scala](src/main/scala/org/andre/mlflow/examples/PredictByLastRun.scala) - Use the latest run.
-* [PredictByBestRun.scala](src/main/scala/org/andre/mlflow/examples/PredictByBestRun.scala) - Use the best run for given metric.
+* [PredictByRunId.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByRunId.scala) - Specify run ID.
+* [PredictByLastRun.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByLastRun.scala) - Use the latest run.
+* [PredictByBestRun.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByBestRun.scala) - Use the best run for given metric.
 
 #### Run
 #### Run By RunID
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.PredictByRunId \
+  --class org.andre.mlflow.examples.libsvm.PredictByRunId \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
@@ -240,7 +240,7 @@ spark-submit --master local[2] \
 #### Run By LastRun
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.PredictByLastRun \
+  --class org.andre.mlflow.examples.libsvm.PredictByLastRun \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
@@ -250,7 +250,7 @@ spark-submit --master local[2] \
 #### Run By BestRun
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.PredictByBestRun \
+  --class org.andre.mlflow.examples.libsvm.PredictByBestRun \
   target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
@@ -261,7 +261,7 @@ spark-submit --master local[2] \
 
 #### Source
 
-Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/PredictUtils.scala).
+Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictUtils.scala).
 ```
 val data = spark.read.format("libsvm").load(opts.dataPath)
 val model = PipelineModel.load(opts.modelPath)

@@ -1,4 +1,4 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.examples.libsvm
 
 import com.beust.jcommander.{JCommander, Parameter}
 import org.andre.mlflow.util.MLflowUtils

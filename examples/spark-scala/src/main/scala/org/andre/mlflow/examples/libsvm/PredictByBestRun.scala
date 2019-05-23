@@ -1,9 +1,9 @@
-package org.andre.mlflow.examples
+package org.andre.mlflow.examples.libsvm
 
 import com.beust.jcommander.{JCommander, Parameter}
-import org.andre.mlflow.util.MLflowUtils
+import org.andre.mlflow.util.{MLflowUtils,BestRunUtils}
 
-object PredictByLastRun {
+object PredictByBestRun {
   def main(args: Array[String]) {
     new JCommander(opts, args.toArray: _*)
     println("Options:")
@@ -11,11 +11,15 @@ object PredictByLastRun {
     println(s"  tracking URI: ${opts.trackingUri}")
     println(s"  token: ${opts.token}")
     println(s"  experimentId: ${opts.experimentId}")
+    println(s"  metric: ${opts.metric}")
+    println(s"  ascending: ${opts.ascending}")
 
     val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    val runInfo = MLflowUtils.getLastRunInfo(mlflowClient, opts.experimentId)
-    println(s"  runId: ${runInfo.getRunUuid}")
-    PredictUtils.predict(runInfo, opts.dataPath)
+
+    val best = BestRunUtils.getBestRun(mlflowClient, opts.experimentId, opts.metric, opts.ascending)
+    println(s"best.runId: ${best.run.getInfo.getRunUuid}")
+    println(s"best.value: ${best.value}")
+    PredictUtils.predict(best.run.getInfo, opts.dataPath)
   }
 
   object opts {
@@ -30,5 +34,11 @@ object PredictByLastRun {
 
     @Parameter(names = Array("--experimentId" ), description = "experimentId", required=true)
     var experimentId: String = null
+
+    @Parameter(names = Array("--metric" ), description = "metric", required=true)
+    var metric: String = null
+
+    @Parameter(names = Array("--ascending" ), description = "ascending", required=false)
+    var ascending = false
   }
 }
