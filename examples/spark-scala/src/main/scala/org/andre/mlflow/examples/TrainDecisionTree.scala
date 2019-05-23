@@ -102,14 +102,11 @@ object TrainDecisionTree {
     println("Prediction:")
     predictions.select("prediction", "label", "features").show(5)
 
-    // Print decision tree
+    // MLflow - Log tree model artifact
     val treeModel = model.stages(1).asInstanceOf[DecisionTreeRegressionModel]
-    println(s"Learned regression tree model:\n ${treeModel.toDebugString}")
-
-    // MLflow - Log simple artifact
-    val path="details.txt"
-    new PrintWriter(path) { write("Info: "+new java.util.Date()) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"info")
+    val path="treeModel.txt"
+    new PrintWriter(path) { write(treeModel.toDebugString) ; close }
+    mlflowClient.logArtifact(runId,new File(path),"details")
 
     // MLflow - Save model in Spark ML and MLeap formats
     saveModelAsSparkML(mlflowClient, runId, modelPath, model)
