@@ -14,7 +14,7 @@
   * mlflow.sklearn.load_model()
   * mlflow.pyfunc.load_pyfunc()
   * mlflow.pyfunc.spark_udf 
-* Data: data/wine-quality-white.csv and data/predict wine-quality-red.csv.
+* Data: ../../data/wine-quality - wine-quality-white.csv and wine-quality-red.csv.
 
 ## Setup
 
@@ -36,7 +36,7 @@ To run with standard main function:
 ```
 python main.py --experiment_name WineQualityExperiment \
   --alpha 0.5 --l1_ratio 0.5 \
-  --data_path data/wine-quality-white.csv 
+  --data_path ../../data/wine-quality/wine-quality-white.csv 
 ```
 
 #### Jupyter notebook
@@ -56,14 +56,14 @@ Note that mlflow run ignores the `set_experiment()` function so you must specify
 **mlflow run local**
 ```
 mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun \
-  -P data_path=data/wine-quality-white.csv --experiment-id=2019
+  -P data_path=../../data/wine-quality/wine-quality-white.csv --experiment-id=2019
 ```
 
 **mlflow run github**
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
   -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
-  -P data_path=https://raw.githubusercontent.com/amesar/mlflow-fun/master/examples/scikit-learn/wine-quality/data/wine-quality-white.csv \
+  -P data_path=https://raw.githubusercontent.com/amesar/mlflow-fun/master/examples/data/wine-quality/wine-quality-white.csv \
   --experiment-id=2019
 ```
 
@@ -103,7 +103,7 @@ python setup.py bdist_egg
 Upload the data file, main file and egg to your Databricks cluster.
 ```
 databricks fs cp main.py dbfs:/tmp/jobs/wine_quality/main.py
-databricks fs cp data/wine-quality-white.csv dbfs:/tmp/jobs/wine_quality/wine-quality-white.csv
+databricks fs cp ../../data/wine-quality/wine-quality-white.csv dbfs:/tmp/jobs/wine_quality/wine-quality-white.csv
 databricks fs cp \
   dist/mlflow_wine_quality-0.0.1-py3.6.egg \
   dbfs:/tmp/jobs/wine_quality/mlflow_wine_quality-0.0.1-py3.6.egg
@@ -188,7 +188,7 @@ See MLflow documentation:
 
 
 ### Data for predictions
-[data/wine-quality-red.csv](data/wine-quality-red.csv):
+[data/wine-quality-red.csv](../../data/wine-quality/wine-quality-red.csv):
 ```
 [
   {
@@ -238,7 +238,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 From [scikit_predict.py](scikit_predict.py):
 ```
 model = mlflow.sklearn.load_model("sklearn-model",run_id="7e674524514846799310c41f10d6b99d")
-df = pd.read_csv("data/wine-quality-red.csv")
+df = pd.read_csv("../../data/wine-quality/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -254,7 +254,7 @@ From [pyfunc_predict.py](pyfunc_predict.py):
 ```
 model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/sklearn-model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
-df = pd.read_csv("data/wine-quality-red.csv")
+df = pd.read_csv("../../data/wine-quality/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -281,7 +281,7 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 From [spark_udf_predict.py](spark_udf_predict.py):
 ```
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv("data/wine-quality-red.csv")
+df = spark.read.option("inferSchema",True).option("header", True).csv("../../data/wine-quality/wine-quality-red.csv")
 df = df.drop("quality")
 
 udf = mlflow.pyfunc.spark_udf(spark, "sklearn-model", run_id="7e674524514846799310c41f10d6b99d")
@@ -296,7 +296,7 @@ From [pickle_predict.py](pickle_predict.py):
 pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/sklearn-model/model.pkl"
 with open(pickle_path, 'rb') as f:
     model = pickle.load(f)
-df = pd.read_csv("data/wine-quality-red.csv")
+df = pd.read_csv("../../data/wine-quality/wine-quality-red.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
