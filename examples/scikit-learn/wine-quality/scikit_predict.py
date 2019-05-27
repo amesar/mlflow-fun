@@ -5,7 +5,7 @@ from __future__ import print_function
 import sys
 import mlflow
 import mlflow.sklearn
-import util
+import predict_util
 
 if __name__ == "__main__":
     if len(sys.argv) < 1:
@@ -16,10 +16,6 @@ if __name__ == "__main__":
     data_path = sys.argv[2] if len(sys.argv) > 2 else "../../data/wine-quality/wine-quality-red.csv"
     print("data_path:",data_path)
     print("run_id:",run_id)
-
     model = mlflow.sklearn.load_model("sklearn-model", run_id=run_id)
     print("model:",model)
-
-    df = util.read_prediction_data(data_path)
-    predictions = model.predict(df)
-    print("predictions:",predictions)
+    predict_util.run_predictions(model,data_path)

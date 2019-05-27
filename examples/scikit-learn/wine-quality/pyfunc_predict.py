@@ -6,7 +6,7 @@ import sys
 import mlflow
 import mlflow.pyfunc
 import mlflow.tracking
-import util
+import predict_util
 
 if __name__ == "__main__":
     if len(sys.argv) < 1:
@@ -23,7 +23,4 @@ if __name__ == "__main__":
     print("model_uri:",model_uri)
     model = mlflow.pyfunc.load_pyfunc(model_uri)
     print("model:",model)
-
-    df = util.read_prediction_data(data_path)
-    predictions = model.predict(df)
-    print("predictions:",predictions)
+    predict_util.run_predictions(model,data_path)

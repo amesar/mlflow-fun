@@ -4,7 +4,7 @@
 from __future__ import print_function
 import sys
 import pickle
-import util
+import predict_util
 
 if __name__ == "__main__":
     if len(sys.argv) < 1:
@@ -19,7 +19,4 @@ if __name__ == "__main__":
         model = pickle.load(f)
     print("model:",model)
     print("model type:",type(model))
-
-    df = util.read_prediction_data(data_path)
-    predictions = model.predict(df)
-    print("predictions:",predictions)
+    predict_util.run_predictions(model,data_path)
