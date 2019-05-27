@@ -9,7 +9,7 @@ import mlflow
 import mlflow.sklearn
 
 if __name__ == "__main__":
-    path = sys.argv[2] if len(sys.argv) > 2 else "data/wine-quality-red.csv"
+    path = sys.argv[2] if len(sys.argv) > 2 else "../../data/wine-quality/wine-quality-red.csv"
     run_id = sys.argv[1]
     print("path:",path)
     print("run_id=",run_id)
