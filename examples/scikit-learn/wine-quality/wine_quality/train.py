@@ -63,6 +63,7 @@ class Trainer(object):
             print("  experiment_id:",experiment_id)
 
             clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
+            print("  model:",clf)
             clf.fit(self.train_x, self.train_y)
             predicted_qualities = clf.predict(self.test_x)
 
