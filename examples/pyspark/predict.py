@@ -5,7 +5,6 @@ import mlflow
 import mlflow.spark as mlflow_spark
 from pyspark.sql import SparkSession
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-import predict_util
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
