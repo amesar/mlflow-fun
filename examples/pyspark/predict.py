@@ -18,7 +18,8 @@ if __name__ == "__main__":
     print("data_path:",data_path)
     data = spark.read.format("libsvm").load(data_path)
 
-    model = mlflow_spark.load_model("spark-model", run_id=run_id)
+    model_uri = "runs:/"+run_id+"/spark-model"
+    model = mlflow_spark.load_model(model_uri)
     predictions = model.transform(data)
 
     print("Prediction Dataframe")

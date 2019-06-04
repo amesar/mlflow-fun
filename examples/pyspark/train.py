@@ -84,7 +84,6 @@ if __name__ == "__main__":
     parser.add_argument("--random", dest="random", help="Random", required=False, default=False, action='store_true')
 
     args = parser.parse_args()
-    current_file = os.path.basename(__file__)
     print("MLflow Version:", version.VERSION)
 
     client = mlflow.tracking.MlflowClient()
@@ -92,7 +91,7 @@ if __name__ == "__main__":
     mlflow.set_experiment(args.experiment_name)
     print("experiment_id:",client.get_experiment_by_name(args.experiment_name).experiment_id)
 
-    with mlflow.start_run(source_name=current_file) as run:
+    with mlflow.start_run() as run:
         print("run_id:",run.info.run_uuid)
         print("experiment_id:",run.info.experiment_id)
         train(args.max_depth,args.max_bins,args.random)

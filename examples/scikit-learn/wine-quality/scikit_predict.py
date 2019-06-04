@@ -16,6 +16,6 @@ if __name__ == "__main__":
     data_path = sys.argv[2] if len(sys.argv) > 2 else "../../data/wine-quality/wine-quality-red.csv"
     print("data_path:",data_path)
     print("run_id:",run_id)
-    model = mlflow.sklearn.load_model("sklearn-model", run_id=run_id)
+    model = mlflow.sklearn.load_model("runs:/"+run_id+"/sklearn-model")
     print("model:",model)
     predict_util.run_predictions(model,data_path)

@@ -42,7 +42,6 @@ class Trainer(object):
         self.test_x = test.drop(["quality"], axis=1)
         self.train_y = train[["quality"]]
         self.test_y = test[["quality"]]
-        self.current_file = os.path.basename(__file__)
 
         self.X = data.drop(["quality"], axis=1).values
         self.y = data[["quality"]].values.ravel()
@@ -56,7 +55,7 @@ class Trainer(object):
 
 
     def train(self, alpha, l1_ratio):
-        with mlflow.start_run(source_name=self.current_file) as run:
+        with mlflow.start_run() as run:
             run_id = run.info.run_uuid
             print("  run_id:",run_id)
             experiment_id = run.info.experiment_id
