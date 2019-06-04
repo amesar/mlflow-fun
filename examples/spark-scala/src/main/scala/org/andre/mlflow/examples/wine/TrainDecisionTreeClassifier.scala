@@ -37,8 +37,7 @@ object TrainDecisionTreeClassifier {
   def train(mlflowClient: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
 
     // MLflow - create run
-    val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
-    val runInfo = mlflowClient.createRun(experimentId, sourceName);
+    val runInfo = mlflowClient.createRun(experimentId)
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
@@ -82,7 +81,7 @@ object TrainDecisionTreeClassifier {
 
     // Select example rows to display
     println("Predictions:")
-    predictions.select("prediction", columnLabel, "features").show(5)
+    predictions.select("prediction", columnLabel, "indexedFeatures").show(5)
 
     // MLflow - Log tree model artifact
     val treeModel = model.stages.last.asInstanceOf[DecisionTreeClassificationModel]

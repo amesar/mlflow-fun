@@ -69,8 +69,7 @@ object TrainDecisionTree {
     if (maxBins != -1) clf.setMaxBins(maxBins)
 
     // MLflow - create run
-    val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
-    val runInfo = mlflowClient.createRun(experimentId, sourceName);
+    val runInfo = mlflowClient.createRun(experimentId)
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")

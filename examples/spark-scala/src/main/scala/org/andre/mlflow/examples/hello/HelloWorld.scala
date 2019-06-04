@@ -19,8 +19,7 @@ object HelloWorld {
     println("Experiment ID: "+expId)
 
     // Create run
-    val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
-    val runInfo = mlflowClient.createRun(expId, sourceName)
+    val runInfo = mlflowClient.createRun(expId)
     val runId = runInfo.getRunUuid()
     println("Run ID: "+runId)
 

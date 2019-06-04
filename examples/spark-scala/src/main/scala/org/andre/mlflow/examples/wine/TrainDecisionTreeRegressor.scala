@@ -44,8 +44,7 @@ object TrainDecisionTreeRegressor {
 
   def train(mlflowClient: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
     // MLflow - create run
-    val sourceName = (getClass().getSimpleName()+".scala").replace("$","")
-    val runInfo = mlflowClient.createRun(experimentId, sourceName);
+    val runInfo = mlflowClient.createRun(experimentId)
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
