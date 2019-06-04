@@ -82,7 +82,7 @@ object TrainDecisionTreeClassifier {
 
     // Select example rows to display
     println("Predictions:")
-    predictions.select("prediction", columnLabel, "indexedFeatures").show(5)
+    predictions.select("prediction", columnLabel, "features").show(5)
 
     // MLflow - Log tree model artifact
     val treeModel = model.stages.last.asInstanceOf[DecisionTreeClassificationModel]
