@@ -9,10 +9,12 @@ import mlflow
 import mlflow.sklearn
 
 if __name__ == "__main__":
-    path = sys.argv[2] if len(sys.argv) > 2 else "../../data/wine-quality/wine-quality-red.csv"
     run_id = sys.argv[1]
+    path = sys.argv[2] if len(sys.argv) > 2 else "../../data/wine-quality/wine-quality-red.csv"
+    model_name = sys.argv[3] if len(sys.argv) > 3 else "sklearn-model"
     print("path:",path)
-    print("run_id=",run_id)
+    print("run_id:",run_id)
+    print("model_name:",model_name)
     print("MLflow Version:", mlflow.version.VERSION)
 
     spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
@@ -25,9 +27,6 @@ if __name__ == "__main__":
     df.show(10)
 
     udf = mlflow.pyfunc.spark_udf(spark, "sklearn-model", run_id=run_id)
-    df2 = df.withColumn("prediction", udf(*df.columns))
-    df2.show(10)
-    df2.select("prediction").show(10)
-    pred = df2.select("prediction").first()[0]
-    print("predictions: {:,.7f}".format(pred))
-
+    predictions = df.withColumn("prediction", udf(*df.columns))
+    predictions.show(10)
+    predictions.select("prediction").show(10)
