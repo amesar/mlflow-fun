@@ -53,7 +53,7 @@ object TrainDecisionTreeRegressor {
     // Create model
     val clf = new DecisionTreeRegressor()
       .setLabelCol(columnLabel)
-      .setFeaturesCol("indexedFeatures")
+      .setFeaturesCol("features")
     if (maxDepth != -1) clf.setMaxDepth(maxDepth)
     if (maxBins != -1) clf.setMaxBins(maxBins)
 
@@ -92,7 +92,7 @@ object TrainDecisionTreeRegressor {
 
     // Select example rows to display.
     println("Prediction:")
-    predictions.select("prediction", columnLabel, "indexedFeatures").show(5)
+    predictions.select("prediction", columnLabel, "features").show(5)
 
 
     // MLflow - Log tree model artifact

@@ -46,7 +46,7 @@ object TrainDecisionTreeClassifier {
     // Create model
     val clf = new DecisionTreeClassifier()
       .setLabelCol(columnLabel)
-      .setFeaturesCol("indexedFeatures")
+      .setFeaturesCol("features")
     if (maxDepth != -1) clf.setMaxDepth(maxDepth)
     if (maxBins != -1) clf.setMaxBins(maxBins)
 
