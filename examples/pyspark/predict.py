@@ -4,6 +4,8 @@ import sys
 import mlflow
 import mlflow.spark as mlflow_spark
 from pyspark.sql import SparkSession
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+import predict_util
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
@@ -27,3 +29,10 @@ if __name__ == "__main__":
     df = predictions.select("prediction", "indexedLabel","probability").filter("prediction <> indexedLabel")
     df.printSchema()
     df.show(5,False)
+
+    metric_names = ["accuracy","f1","weightedPrecision"]
+    print("Metrics:")
+    for metric_name in metric_names:
+        evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName=metric_name)
+        metric_value = evaluator.evaluate(predictions)
+        print("  {}: {}".format(metric_name,metric_value))
