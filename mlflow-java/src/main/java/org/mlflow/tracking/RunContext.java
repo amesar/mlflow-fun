@@ -14,12 +14,12 @@ public class RunContext implements AutoCloseable {
         this.runId = mlflowClient.createRun().getRunUuid();
     }
 
-    public RunContext(MlflowClient mlflowClient, long experimentId) {
+    public RunContext(MlflowClient mlflowClient, String experimentId) {
         this.mlflowClient = mlflowClient;
         this.runId = mlflowClient.createRun(experimentId).getRunUuid();
     }
 
-    public RunContext(MlflowClient mlflowClient, long experimentId, String sourceName) {
+    public RunContext(MlflowClient mlflowClient, String experimentId, String sourceName) {
         this.mlflowClient = mlflowClient;
         this.runId = mlflowClient.createRun(experimentId, sourceName).getRunUuid();
     }

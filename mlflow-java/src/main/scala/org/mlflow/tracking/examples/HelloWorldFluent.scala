@@ -3,6 +3,7 @@ package org.mlflow.tracking.examples
 import java.io.{File,PrintWriter}
 import org.mlflow.tracking.{MlflowClient,RunContext}
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
+import org.mlflow.util.MLflowUtils
 
 object HelloWorldFluent {
   def main(args: Array[String]) {
