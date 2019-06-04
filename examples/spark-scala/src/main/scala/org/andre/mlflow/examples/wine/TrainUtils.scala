@@ -9,7 +9,6 @@ import org.andre.mlflow.util.MLeapUtils
 
 object TrainUtils {
   case class DataHolder(trainingData: DataFrame, testData: DataFrame, assembler: VectorAssembler)
-  
   val seed = 2019
   val columnLabel = "quality"
 
@@ -24,11 +23,9 @@ object TrainUtils {
 
     val assembler = new VectorAssembler()
       .setInputCols(columns.toArray)
-      .setOutputCol("indexedFeatures")
+      .setOutputCol("features")
 
-    // Split the data into training and test sets (30% held out for testing).
     val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3), seed)
-    
     DataHolder(trainingData, testData, assembler)
   }
 
