@@ -26,15 +26,14 @@ def dump_run(run):
     print("Run")
     dump_run_info(run.info,"  Info","  ")
     print("  Params:")
-    for e in run.data.params:
-        print("    {}: {}".format(e.key,e.value))
+    for k,v in run.data.params.items():
+        print("    {}: {}".format(k,v))
     print("  Metrics:")
-    for e in run.data.metrics:
-        sdt = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(e.timestamp/1000))
-        print("    {}: {}  - timestamp: {} {}".format(e.key,e.value,e.timestamp,sdt))
+    for k,v in run.data.metrics.items():
+        print("    {}: {}".format(k,v))
     print("  Tags:")
-    for e in run.data.tags:
-        print("    {}: {}".format(e.key,e.value))
+    for k,v in run.data.tags.items():
+        print("    {}: {}".format(k,v))
         
 def dump_run_id(run_id, client=None):
     if client is None: client = mlflow.tracking.MlflowClient()
