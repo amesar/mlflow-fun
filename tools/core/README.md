@@ -3,62 +3,7 @@
 ## Overview
 
 Some useful tools for MLflow.
-* Dumps experiment or run information recursively.
 * Exports a run from one MLflow server and imports it into another server.
-
-
-## Dump experiment or run
-
-Dumps all experiment or run information recursively.
-
-```
-python dump_run.py --run_id 2cbab69842e4412c99bfb5e15344bc42 --artifact_max_level 5 
-  
-python dump_experiment.py --experiment_id 123 --showRuns --artifact_max_level 5
-```
-
-Example for [dump_experiment.py](dump_experiment.py)
-```
-Experiment Details:
-  experiment_id: 123
-  name: py/sk/ElasticNet/WineQuality
-  artifact_location: /Users/andre/work/mlflow/local_mlrun/mlruns/1
-  lifecycle_stage: active
-  #runs: 3
-Run 2cbab69842e4412c99bfb5e15344bc42
-  run_uuid: 2cbab69842e4412c99bfb5e15344bc42
-  experiment_id: 123
-  name:
-  source_type: 4
-  source_name: train_wine_quality.py
-  entry_point_name:
-  user_id: andre
-  status: 3
-  start_time: 1550849061031
-  end_time: 1550849061685
-  source_version: b84cb9ea744d27632eedcc3aa79974ea3c360927
-  lifecycle_stage: active
-  artifact_uri: /Users/andre/work/mlflow/local_mlrun/mlruns/1/2cbab69842e4412c99bfb5e15344bc42/artifacts
-  Params:
-    alpha: 0.5
-    l1_ratio: 0.5
-  Metrics:
-    mae: 0.6278761410160693  - timestamp: 1550849061 1970-01-18 22:47:29
-    r2: 0.12678721972772677  - timestamp: 1550849061 1970-01-18 22:47:29
-    rmse: 0.82224284975954  - timestamp: 1550849061 1970-01-18 22:47:29
-  Tags:
-    platform: Darwin
-  Artifacts:
-    Artifact - level 1:
-      path: model
-      is_dir: True
-      bytes: None
-      Artifact - level 2:
-        path: model/MLmodel
-        is_dir: False
-        bytes: 343
-. . .
-```
 
 ## Export/Import Run
 
