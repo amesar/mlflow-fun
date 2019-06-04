@@ -65,11 +65,11 @@ class Trainer(object):
             clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
             print("  model:",clf)
             clf.fit(self.train_x, self.train_y)
-            predicted_qualities = clf.predict(self.test_x)
+            predictions = clf.predict(self.test_x)
 
-            rmse = np.sqrt(mean_squared_error(self.test_y, predicted_qualities))
-            mae = mean_absolute_error(self.test_y, predicted_qualities)
-            r2 = r2_score(self.test_y, predicted_qualities)
+            rmse = np.sqrt(mean_squared_error(self.test_y, predictions))
+            mae = mean_absolute_error(self.test_y, predictions)
+            r2 = r2_score(self.test_y, predictions)
     
             print("  Parameters:")
             print("    alpha:",alpha)
