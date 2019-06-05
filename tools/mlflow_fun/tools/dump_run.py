@@ -13,7 +13,7 @@ TS_FORMAT = "%Y-%m-%d_%H:%M:%S"
 
 def dump_run_info(info, name="RunInfo", indent=""):
     print("{}:".format(name))
-    for k,v in info.__dict__.items(): 
+    for k,v in sorted(info.__dict__.items()):
         if not k.endswith("_time"):
             print("{}  {}: {}".format(indent,k[1:],v))
     start = _dump_time(info,'_start_time',indent)
@@ -26,13 +26,13 @@ def dump_run(run):
     print("Run")
     dump_run_info(run.info,"  Info","  ")
     print("  Params:")
-    for k,v in run.data.params.items():
+    for k,v in sorted(run.data.params.items()):
         print("    {}: {}".format(k,v))
     print("  Metrics:")
-    for k,v in run.data.metrics.items():
+    for k,v in sorted(run.data.metrics.items()):
         print("    {}: {}".format(k,v))
     print("  Tags:")
-    for k,v in run.data.tags.items():
+    for k,v in sorted(run.data.tags.items()):
         print("    {}: {}".format(k,v))
         
 def dump_run_id(run_id, client=None):
