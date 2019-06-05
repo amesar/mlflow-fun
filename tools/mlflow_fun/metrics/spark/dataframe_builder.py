@@ -52,9 +52,9 @@ class SlowDataframeBuilder(BaseDataframeBuilder):
             if j%self.logmod==0: print("  run {}/{} of experiment {}".format(j,len(infos),experiment_id))
             run = self.mlflow_client.get_run(info.run_uuid)
             dct = self._strip_underscores(info)
-            params = { "_p_"+x.key:x.value for x in run.data.params }
-            metrics = { "_m_"+x.key:x.value for x in run.data.metrics }
-            tags = { "_t_"+x.key:x.value for x in run.data.tags }
+            params = { "_p_"+k:v for k,v in run.data.params }
+            metrics = { "_m_"+k:v for k,v in run.data.metrics }
+            tags = { "_t_"+k:v for k,v in run.data.tags }
             dct.update(params)
             dct.update(metrics)
             dct.update(tags)

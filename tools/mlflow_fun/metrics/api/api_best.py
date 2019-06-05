@@ -5,10 +5,10 @@ client = mlflow.tracking.MlflowClient()
 def lt(x,y): return x < y
 def gt(x,y): return x > y
 
-def calc(metric,run, best, funk):
-    for m in run.data.metrics:
-        if m.key == metric and (best is None or funk(m.value,best[1])):
-           best = (run.info.run_uuid,m.value)
+def calc(metric_name, run, best, funk):
+    metric_value = run.data.metrics.get(metric_name,None)
+    if metric_value is not None and (best is None or funk(m.value,best[1])):
+         best = (run.info.run_uuid,metric_value)
     return best
 
 """

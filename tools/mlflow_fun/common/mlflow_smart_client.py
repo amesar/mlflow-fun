@@ -29,8 +29,8 @@ class MlflowSmartClient(object):
         return rows
 
     def _merge(self, dct, lst, prefix):
-        dct2 = { prefix + x.__dict__['_key'] : x.__dict__['_value'] for x in lst }
-        dct.update(dct2)
+        lst = { prefix+k:v for k,v in lst.items() }
+        dct.update(lst)
 
     def _strip_underscores(self, obj):
         return { k[1:]:v for (k,v) in obj.__dict__.items() }
