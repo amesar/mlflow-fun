@@ -34,11 +34,12 @@ def dump_run(run):
     print("  Tags:")
     for k,v in sorted(run.data.tags.items()):
         print("    {}: {}".format(k,v))
+    return run
         
 def dump_run_id(run_id, client=None):
     if client is None: client = mlflow.tracking.MlflowClient()
     run = client.get_run(run_id)
-    dump_run(run)
+    return dump_run(run)
 
 def _dump_time(info, k, indent=""):
     v = info.__dict__.get(k,None)
@@ -66,6 +67,11 @@ def dump_artifacts(client, run_id, path="", indent="", max_level=MAX_LEVEL):
     print("{}Artifacts:".format(indent))
     _dump_artifacts(client, run_id, path, indent, 0, max_level)
 
+
+def dump_run_id_with_artifacts(run_id, max_level=1, client=None):
+    if client is None: client = mlflow.tracking.MlflowClient()
+    dump_run_id(run_id)
+    dump_artifacts(client, run_id, path="", indent="  ", max_level=max_level)
 
 def dump_run_id_with_artifacts(run_id, max_level=1, client=None):
     if client is None: client = mlflow.tracking.MlflowClient()
