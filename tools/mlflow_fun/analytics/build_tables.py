@@ -1,5 +1,11 @@
-from __future__ import print_function
 from pyspark.sql import SparkSession, Row
+'''
+Builds SQL tables for experiments and runs from the Python API.
+
+Note: In MLflow 1.0.0 user_id exists in RunInfo and also as "mlflow.user" in the tags.
+In open source, both are populated. In Databricks managed, only the tag is populated.
+Hence the gnarly logic in populating RunInfo.user_id from the tag with idx_user_id etc.
+'''
 
 import sys, os, time
 from argparse import ArgumentParser
@@ -10,15 +16,18 @@ mlflow_utils.dump_mlflow_info()
 mlflow_client = mlflow.tracking.MlflowClient()
 spark = SparkSession.builder.appName("mlflow_analytics").enableHiveSupport().getOrCreate()
 
+# RunInfo fields we care about that have been moved over to tags in MLflow 1.0.0
+column_tags = { 'source_name': 'mlflow.source.name' }
+
 class BuildTables(object):
-    def __init__(self, database, data_dir, use_parquet=False, experiment_id=None):
+    def __init__(self, database, data_dir, use_parquet=False, experiment_ids=None):
         print("database:",database)
         print("data_dir:",data_dir)
         print("use_parquet:",use_parquet)
-        print("experiment_id:",experiment_id)
+        print("experiment_ids:",experiment_ids)
         self.database = database
         self.data_dir = data_dir
-        self.experiment_id = experiment_id
+        self.experiment_ids = experiment_ids
         self.delimiter = "\t"
         self.use_parquet = use_parquet
 
@@ -64,31 +73,47 @@ class BuildTables(object):
         self.build_table_ddl("experiments")
 
     def build_run_table(self, exps):
-        Run = None
+        run_row = None
+        idx_user_id = None
         rows = []
         for j,exp in enumerate(exps):
             try:
-                runs = mlflow_client.list_run_infos(exp.experiment_id)
-                #print("{}/{} Found {} runs for experiment {} - {}".format((1+j),len(exps),len(runs),exp.experiment_id,exp.name))
+                runs = mlflow_client.search_runs([exp.experiment_id],"") 
                 print("{}/{} Experiment {} has {} runs - {}".format((1+j),len(exps),exp.experiment_id,len(runs),exp.name))
                 for run in runs:
-                    if Run is None:
-                        columns = self.get_colum_names(run)
-                        Run = Row(*columns)
-                    values = self.get_values(run)
-                    rows.append(Run(*values))
+                    if run_row is None:
+                        columns = self.get_colum_names(run.info)
+                        columns += column_tags.keys()
+                        run_row = Row(*columns)
+                        idx_user_id = columns.index('user_id')
+                    values = self.get_values(run.info)
+                    user_id = values[idx_user_id]
+                    user_id_exists = user_id is None or user_id == ''
+                    if user_id_exists or len(column_tags) > 0:
+                        if user_id_exists:
+                            mlflow_user = run.data.tags.get('mlflow.user',None)
+                            values[idx_user_id] = mlflow_user
+                        for col,tag in column_tags.items():
+                            v = run.data.tags.get(tag,'')
+                            values.append(v)
+                    else:
+                        user_id = values[idx_user_id] 
+                    rows.append(run_row(*values))
             except Exception as e:
                 print("WARNING: exp_id:",exp.experiment_id,"ex:",e)
+                import traceback
+                traceback.print_exc()
         df = spark.createDataFrame(rows)
         self.write_df(df,"runs")
         self.build_table_ddl("runs")
         print("Total: Found {} experiments and {} runs".format(len(exps),len(rows)))
 
+
     def build_exp_run_tables(self):
-        if self.experiment_id is None:
+        if self.experiment_ids is None:
             exps = mlflow_client.list_experiments() 
         else:
-            exps = [ mlflow_client.get_experiment(self.experiment_id) ]
+            exps = [ mlflow_client.get_experiment(exp_id) for exp_id in self.experiment_ids ]
         print("Found {} experiments".format(len(exps)))
         if len(exps) == 0:
             print("WARNING: No experiments found")
@@ -120,6 +145,8 @@ class BuildTables(object):
             spark.sql('CREATE TABLE {} USING CSV\
                 OPTIONS (path = "{}", header "true", inferSchema "true", delimiter "{}") \
                 '.format(table,path,self.delimiter))
+        #print("Table DDL:",table)
+        #spark.sql('describe formatted {}'.format(table)).show(100,False)
 
     def build(self):
         self.mk_dir("experiments")
@@ -133,8 +160,9 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--database", dest="database", help="database", required=True)
     parser.add_argument("--data_dir", dest="data_dir", help="data_dir", required=True)
-    parser.add_argument("--experiment_id", dest="experiment_id", help="experiment_id", type=int, required=False)
+    parser.add_argument("--experiment_ids", dest="experiment_ids", help="experiment_ids", type=str, required=False)
     parser.add_argument("--use_parquet", dest="use_parquet", help="Write as parquet (default CSV)", required=False, default=False, action='store_true')
     args = parser.parse_args()
-    builder = BuildTables(args.database, args.data_dir, args.use_parquet, args.experiment_id)
+    exp_ids = None if args.experiment_ids is None else args.experiment_ids.split(",")
+    builder = BuildTables(args.database, args.data_dir, args.use_parquet, exp_ids)
     builder.build()
