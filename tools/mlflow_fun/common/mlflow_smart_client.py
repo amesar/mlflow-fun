@@ -1,7 +1,7 @@
 from __future__ import print_function
 import mlflow
 
-''' Client with extra opitmized functionality based on search_runs '''
+''' Client with extra optimized functionality based on search_runs '''
 class MlflowSmartClient(object):
     def __init__(self, mlflow_client=None):
         if mlflow_client == None:
@@ -22,6 +22,8 @@ class MlflowSmartClient(object):
         rows = []
         for run in self.list_runs(experiment_id):
             dct = self._strip_underscores(run.info)
+            if 'run_id' in dct: # in 1.0.0 both appear though onlu run_id is documented
+                dct.pop('run_uuid', None)
             self._merge(dct, run.data.params, '_p_')
             self._merge(dct, run.data.metrics, '_m_')
             self._merge(dct, run.data.tags, '_t_')
