@@ -1,4 +1,4 @@
-# mlflow-fun - scikit-learn - Wine Quality Example
+# mlflow-fun - sklearn - Wine Quality Example
 
 ## Overview
 * Wine Quality Elastic Net Example

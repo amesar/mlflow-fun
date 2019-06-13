@@ -4,7 +4,7 @@ MLflow examples for Python and Scala training models.
 
 ## Examples
 * Python:
-  * [Python Scikit-learn example](examples/scikit-learn/wine-quality/README.md)
+  * [Python Scikit-learn example](examples/sklearn/wine-quality/README.md)
   * [PySpark ML examples](examples/pyspark/README.md)
   * [PyTorch ML examples](examples/pytorch/README.md)
   * [Hello World example](examples/hello_world)
@@ -58,7 +58,7 @@ To run the examples against a Databricks cluster see the following documentation
 * [Databricks REST API](https://docs.databricks.com/api/latest/index.html) and 
 [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
 
-For examples see [Hello World](examples/hello_world) and [Scikit-learn Wine Quality](examples/scikit-learn/wine-quality).
+For examples see [Hello World](examples/hello_world) and [Scikit-learn Wine Quality](examples/sklearn/wine-quality).
 
 Setup:
 ```

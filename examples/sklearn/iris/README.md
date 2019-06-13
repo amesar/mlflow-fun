@@ -1,4 +1,4 @@
-# mlflow-fun - scikit-learn - Iris Example
+# mlflow-fun - sklearn - Iris Example
 
 Simple Scikit-learn [DecisionTreeClassifier](http://scikit-learn.org/stable/modules/tree.html) that:
 * Logs parameters and metrics
