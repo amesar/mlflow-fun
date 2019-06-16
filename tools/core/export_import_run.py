@@ -29,22 +29,18 @@ def run(src_run_id, dst_exp_id, dst_uri, log_source_info):
     
     mlflow.tracking.set_tracking_uri(dst_uri)
     with mlflow.start_run( \
-            experiment_id=dst_exp.experiment_id, \
-            run_name=src_run.info.name, \
-            source_name=src_run.info.source_name, \
-            source_version=src_run.info.source_version, \
-            source_type=src_run.info.source_type, \
-            entry_point_name=src_run.info.entry_point_name \
-            # nested=src_run.info.nested # NOTE: where is nested flag?
+            experiment_id=dst_exp.experiment_id
+            #run_name=src_run.info.name, # NOTE: where is run_name?
+            ## nested=src_run.info.nested # NOTE: where is nested flag?
             ) as run:
         dst_run_id = run.info.run_uuid
         print("dst_run_id:",dst_run_id)
-        for e in src_run.data.params:
-             mlflow.log_param(e.key, e.value)
-        for e in src_run.data.metrics:
-             mlflow.log_metric(e.key, e.value)
-        for e in src_run.data.tags:
-             mlflow.set_tag(e.key, e.value)
+        for k,v in src_run.data.params.items():
+             mlflow.log_param(k,v)
+        for k,v in src_run.data.metrics.items():
+             mlflow.log_metric(k,v)
+        for k,v in src_run.data.tags.items():
+             mlflow.set_tag(k,v)
 
         if log_source_info:
              mlflow.set_tag("_exim_src_run_id",src_run_id)
@@ -62,7 +58,7 @@ def run(src_run_id, dst_exp_id, dst_uri, log_source_info):
         local_path = src_client.download_artifacts(src_run_id,"")
         print("local_path:",local_path)
         mlflow.log_artifacts(local_path)
-        shutil.rmtree(local_path)
+        #shutil.rmtree(local_path)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
