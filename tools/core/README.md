@@ -1,10 +1,5 @@
 # mlflow-fun/tools - Core
 
-## Overview
-
-Some useful tools for MLflow.
-* Exports a run from one MLflow server and imports it into another server.
-
 ## Export/Import Run
 
 Exports a run from one MLflow server and imports it into another server.
@@ -15,16 +10,6 @@ In this example we use:
 * Source tracking server runs on port 5000 
 * Destination server runs on 5001
 
-**Create new destination experiment**
-
-First create an experiment in the destination MLflow tracking server.
-```
-export MLFLOW_TRACKING_URI=http://localhost:5001
-mlflow experiments create new_experiment
-
-Created experiment 'local_runs' with id 1
-```
-
 **Export and import the run**
 
 Then run [export_import_run.py](export_import_run.py). 
@@ -34,7 +19,7 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 
 python export_import_run.py \
   --src_run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
-  --dst_experiment_id 123 \
+  --dst_experiment_id_name my_experiment \
   --dst_uri http://localhost:5001
   --log_source_info
 ```
