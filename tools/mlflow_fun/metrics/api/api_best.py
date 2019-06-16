@@ -2,13 +2,17 @@ from argparse import ArgumentParser
 import mlflow
 client = mlflow.tracking.MlflowClient()
 
+TAG_PARENT_RUN_ID = "mlflow.parentRunId"
+
 def lt(x,y): return x < y
 def gt(x,y): return x > y
 
 def calc(metric_name, run, best, funk):
-    metric_value = run.data.metrics.get(metric_name,None)
-    if metric_value is not None and (best is None or funk(metric_value,best[1])):
-         best = (run.info.run_uuid, metric_value)
+    parent_run_id = run.data.tags.get(TAG_PARENT_RUN_ID,None)
+    if parent_run_id is None: # Only check for root runs - ignore child runs
+        metric_value = run.data.metrics.get(metric_name,None)
+        if metric_value is not None and (best is None or funk(metric_value,best[1])):
+             best = (run.info.run_uuid, metric_value)
     return best
 
 """
