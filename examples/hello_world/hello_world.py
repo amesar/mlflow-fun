@@ -9,14 +9,15 @@ print("experiment_name:",experiment_name)
 
 def run(alpha, run_origin, log_artifact):
     mlflow.set_experiment(experiment_name)
-    with mlflow.start_run(run_name=run_origin) as run:
+    with mlflow.start_run(run_name=run_origin) as run:  # NOTE: mlflow CLI ignores run_name
         print("runId:",run.info.run_uuid)
         print("artifact_uri:",mlflow.get_artifact_uri())
         print("alpha:",alpha)
         print("log_artifact:",log_artifact)
         print("run_origin:",run_origin)
         mlflow.log_param("alpha", alpha)
-        mlflow.log_metric("auroch", 0.123)
+        mlflow.log_metric("rmse", 0.786)
+        mlflow.set_tag("mlflow.runName",run_origin) # mlflow CLI picks this up
         mlflow.set_tag("run_origin", run_origin)
         mlflow.set_tag("log_artifact", log_artifact)
         if log_artifact:

@@ -55,7 +55,7 @@ class Trainer(object):
 
 
     def train(self, alpha, l1_ratio):
-        with mlflow.start_run(run_name=self.run_origin) as run:
+        with mlflow.start_run(run_name=self.run_origin) as run:  # NOTE: mlflow CLI ignores run_name
             run_id = run.info.run_uuid
             print("  run_id:",run_id)
             experiment_id = run.info.experiment_id
@@ -85,6 +85,7 @@ class Trainer(object):
             mlflow.log_metric("r2", r2)
             mlflow.log_metric("mae", mae)
             
+            mlflow.set_tag("mlflow.runName",self.run_origin) # mlflow CLI picks this up
             mlflow.set_tag("data_path", self.data_path)
             mlflow.set_tag("exp_id", experiment_id)
             mlflow.set_tag("exp_name", self.experiment_name)
