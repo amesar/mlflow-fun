@@ -55,7 +55,7 @@ class Trainer(object):
 
 
     def train(self, alpha, l1_ratio):
-        with mlflow.start_run() as run:
+        with mlflow.start_run(run_name=self.run_origin) as run:
             run_id = run.info.run_uuid
             print("  run_id:",run_id)
             experiment_id = run.info.experiment_id
