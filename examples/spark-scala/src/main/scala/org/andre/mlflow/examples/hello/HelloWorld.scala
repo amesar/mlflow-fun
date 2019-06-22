@@ -2,7 +2,7 @@ package org.andre.mlflow.examples.hello
 
 import java.io.{File,PrintWriter}
 import org.mlflow.tracking.MlflowClient
-import org.mlflow.api.proto.Service.RunStatus
+import org.mlflow.api.proto.Service.{RunStatus,CreateRun}
 import scala.collection.JavaConversions._
 import org.andre.mlflow.util.MLflowUtils
 
@@ -10,34 +10,41 @@ object HelloWorld {
   def main(args: Array[String]) {
 
     // Create MLflow client
-    val mlflowClient = MLflowUtils.createMlflowClient(args)
+    val client = MLflowUtils.createMlflowClient(args)
 
     // Create or get existing experiment
     val expName = "scala_HelloWorld"
-    val expId = MLflowUtils.setExperiment(mlflowClient, expName)
+    val expId = MLflowUtils.setExperiment(client, expName)
     println("Experiment name: "+expName)
     println("Experiment ID: "+expId)
 
+    val request = CreateRun.newBuilder()
+        .setExperimentId(expId)
+        .build()
+
     // Create run
-    val runInfo = mlflowClient.createRun(expId)
+    val runInfo = client.createRun(expId)
     val runId = runInfo.getRunUuid()
     println("Run ID: "+runId)
 
     // Log params and metrics
-    mlflowClient.logParam(runId, "p1","hi")
-    mlflowClient.logMetric(runId, "m1",0.123)
+    client.logParam(runId, "p1","hi")
+    client.logMetric(runId, "m1",0.123)
+    client.setTag(runId, "origin","laptop")
+    client.setTag(runId, "mlflow.source.name",MLflowUtils.getSourceName(getClass())) // populates "Source" field in UI
+    client.setTag(runId, "mlflow.runName","myRun") // populates "Run Name" field in UI
 
     // Log file artifact
     new PrintWriter("info.txt") { write("File artifact: "+new java.util.Date()) ; close }
-    mlflowClient.logArtifact(runId, new File("info.txt"))
+    client.logArtifact(runId, new File("info.txt"))
 
     // Log directory artifact
     val dir = new File("tmp")
     dir.mkdir
     new PrintWriter(new File(dir, "model.txt")) { write("Directory artifact: "+new java.util.Date()) ; close }
-    mlflowClient.logArtifacts(runId, dir, "model")
+    client.logArtifacts(runId, dir, "model")
 
     // Close run
-    mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+    client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
   }
 }

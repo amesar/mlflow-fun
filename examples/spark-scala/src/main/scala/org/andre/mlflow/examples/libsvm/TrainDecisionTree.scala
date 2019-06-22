@@ -30,16 +30,16 @@ object TrainDecisionTree {
     println(s"  runOrigin: ${opts.runOrigin}")
 
     // MLflow - create or get existing experiment
-    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
 
-    val experimentId = MLflowUtils.setExperiment(mlflowClient, opts.experimentName)
+    val experimentId = MLflowUtils.setExperiment(client, opts.experimentName)
     println("Experiment ID: "+experimentId)
 
     // Read data
     val dataHolder = readData(opts.dataPath)
 
     // Train model
-    train(mlflowClient, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
+    train(client, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
   }
 
   def readData(dataPath: String) : DataHolder = {
@@ -60,7 +60,7 @@ object TrainDecisionTree {
     DataHolder(trainingData, testData, featureIndexer)
   }
 
-  def train(mlflowClient: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: DataHolder) {
+  def train(client: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: DataHolder) {
     // Create a DecisionTree model
     val clf = new DecisionTreeRegressor()
       .setLabelCol("label")
@@ -69,18 +69,22 @@ object TrainDecisionTree {
     if (maxBins != -1) clf.setMaxBins(maxBins)
 
     // MLflow - create run
-    val runInfo = mlflowClient.createRun(experimentId)
+    val runInfo = client.createRun(experimentId)
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
 
     // MLflow - Log parameters
-    mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
-    mlflowClient.logParam(runId, "maxBins",""+clf.getMaxBins)
-    mlflowClient.logParam(runId, "runOrigin",runOrigin)
+    client.logParam(runId, "maxDepth",""+clf.getMaxDepth)
+    client.logParam(runId, "maxBins",""+clf.getMaxBins)
+    client.logParam(runId, "runOrigin",runOrigin)
     println(s"Params:")
     println(s"  maxDepth: ${clf.getMaxDepth}")
     println(s"  maxBins: ${clf.getMaxBins}")
+
+    // MLflow - set tags
+    client.setTag(runId, "mlflow.source.name",MLflowUtils.getSourceName(getClass())) // populates "Source" field in UI
+    client.setTag(runId, "mlflow.runName","myRun") // populates "Run Name" field in UI
 
     // Chain indexer and tree in a Pipeline.
     val pipeline = new Pipeline().setStages(Array(dataHolder.featureIndexer, clf))
@@ -95,7 +99,7 @@ object TrainDecisionTree {
     val rmse = PredictUtils.evaluatePredictions(predictions)
 
     // MLflow - Log metric
-    mlflowClient.logMetric(runId, "rmse",rmse)
+    client.logMetric(runId, "rmse",rmse)
 
     // Select example rows to display.
     println("Prediction:")
@@ -105,27 +109,27 @@ object TrainDecisionTree {
     val treeModel = model.stages(1).asInstanceOf[DecisionTreeRegressionModel]
     val path="treeModel.txt"
     new PrintWriter(path) { write(treeModel.toDebugString) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"details")
+    client.logArtifact(runId,new File(path),"details")
 
     // MLflow - Save model in Spark ML and MLeap formats
-    saveModelAsSparkML(mlflowClient, runId, modelPath, model)
-    saveModelAsMLeap(mlflowClient, runId, modelPath, model, predictions)
+    saveModelAsSparkML(client, runId, modelPath, model)
+    saveModelAsMLeap(client, runId, modelPath, model, predictions)
 
     // MLflow - close run
-    mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+    client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
   }
 
-  def saveModelAsSparkML(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
+  def saveModelAsSparkML(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
     val modelPath = s"$baseModelDir/spark-model"
     model.write.overwrite().save(modelPath)
-    mlflowClient.logArtifacts(runId, new File(modelPath), "spark-model")
+    client.logArtifacts(runId, new File(modelPath), "spark-model")
   }
 
-  def saveModelAsMLeap(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
+  def saveModelAsMLeap(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
     MLeapUtils.saveModel(model, predictions, "file:"+modelPath.getAbsolutePath)
-    mlflowClient.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
+    client.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 
   object opts {

@@ -55,4 +55,6 @@ object MLflowUtils {
     val info = getLastRunInfo(client, experimentId)
     client.getRun(info.getRunUuid) 
   }
+
+  def getSourceName(clazz: Class[_]) = clazz.getSimpleName().replace("$","")+".scala"
 }
