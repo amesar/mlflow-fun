@@ -10,17 +10,6 @@ import org.mlflow.api.proto.Service.RunInfo
 object DumpRun {
   val FORMAT = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-  def main(args: Array[String]) {
-    new JCommander(opts, args.toArray: _*)
-    println("Options:")
-    println(s"  tracking URI: ${opts.trackingUri}")
-    println(s"  token: ${opts.token}")
-    println(s"  runId: ${opts.runId}")
-    println(s"  artifactMaxLevel: ${opts.artifactMaxLevel}")
-    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    dumpRun(client, opts.runId, opts.artifactMaxLevel)
-  }
-
   def dumpRun(client: MlflowClient, runId: String, artifactMaxLevel: Int, indent: String = "") {
     val run = client.getRun(runId)
     dumpRunInfo(run.getInfo, indent)
@@ -70,6 +59,17 @@ object DumpRun {
         println(s"$indent  fileSize: ${x.getFileSize}")
       }
     }
+  }
+
+  def main(args: Array[String]) {
+    new JCommander(opts, args.toArray: _*)
+    println("Options:")
+    println(s"  tracking URI: ${opts.trackingUri}")
+    println(s"  token: ${opts.token}")
+    println(s"  runId: ${opts.runId}")
+    println(s"  artifactMaxLevel: ${opts.artifactMaxLevel}")
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    dumpRun(client, opts.runId, opts.artifactMaxLevel)
   }
 
   object opts {

@@ -6,19 +6,9 @@ import org.mlflow.tracking.MlflowClient
 import org.andre.mlflow.util.MLflowUtils
 
 object DumpExperiment {
-  def main(args: Array[String]) {
-    new JCommander(opts, args.toArray: _*)
-    println("Options:")
-    println(s"  tracking URI: ${opts.trackingUri}")
-    println(s"  token: ${opts.token}")
-    println(s"  experimentId: ${opts.experimentId}")
-    println(s"  artifactMaxLevel: ${opts.artifactMaxLevel}")
-    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    dumpExperiment(client, opts.experimentId, opts.artifactMaxLevel, opts.showRuns)
-  }
 
   def dumpExperiment(client: MlflowClient, experimentId: String, artifactMaxLevel: Int, showRuns: Boolean) {
-    val exp0 = client.getExperiment(opts.experimentId)
+    val exp0 = client.getExperiment(experimentId)
     val exp1 = exp0.getExperiment
     println(s"Experiment Details:")
     println(s"  experimentId: ${exp1.getExperimentId}")
@@ -38,6 +28,17 @@ object DumpExperiment {
         DumpRun.dumpRunInfo(info,"  ")
       }
     }
+  }
+
+  def main(args: Array[String]) {
+    new JCommander(opts, args.toArray: _*)
+    println("Options:")
+    println(s"  tracking URI: ${opts.trackingUri}")
+    println(s"  token: ${opts.token}")
+    println(s"  experimentId: ${opts.experimentId}")
+    println(s"  artifactMaxLevel: ${opts.artifactMaxLevel}")
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    dumpExperiment(client, opts.experimentId, opts.artifactMaxLevel, opts.showRuns)
   }
 
   object opts {
