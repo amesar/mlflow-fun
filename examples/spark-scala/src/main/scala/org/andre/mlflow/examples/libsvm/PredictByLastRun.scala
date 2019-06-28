@@ -12,8 +12,8 @@ object PredictByLastRun {
     println(s"  token: ${opts.token}")
     println(s"  experimentId: ${opts.experimentId}")
 
-    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    val runInfo = MLflowUtils.getLastRunInfo(mlflowClient, opts.experimentId)
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    val runInfo = MLflowUtils.getLastRunInfo(client, opts.experimentId)
     println(s"  runId: ${runInfo.getRunUuid}")
     PredictUtils.predict(runInfo, opts.dataPath)
   }

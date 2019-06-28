@@ -29,9 +29,9 @@ object TrainDecisionTreeRegressor {
     println(s"  runOrigin: ${opts.runOrigin}")
 
     // MLflow - create or get existing experiment
-    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
 
-    val experimentId = MLflowUtils.setExperiment(mlflowClient, opts.experimentName)
+    val experimentId = MLflowUtils.setExperiment(client, opts.experimentName)
     println("Experiment ID: "+experimentId)
 
     // Read data
@@ -39,12 +39,12 @@ object TrainDecisionTreeRegressor {
     println("dataHolder: "+dataHolder)
 
     // Train model
-    train(mlflowClient, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
+    train(client, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
   }
 
-  def train(mlflowClient: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
+  def train(client: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
     // MLflow - create run
-    val runInfo = mlflowClient.createRun(experimentId)
+    val runInfo = client.createRun(experimentId)
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
@@ -57,9 +57,9 @@ object TrainDecisionTreeRegressor {
     if (maxBins != -1) clf.setMaxBins(maxBins)
 
     // MLflow - Log parameters
-    mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
-    mlflowClient.logParam(runId, "maxBins",""+clf.getMaxBins)
-    mlflowClient.logParam(runId, "runOrigin",runOrigin)
+    client.logParam(runId, "maxDepth",""+clf.getMaxDepth)
+    client.logParam(runId, "maxBins",""+clf.getMaxBins)
+    client.logParam(runId, "runOrigin",runOrigin)
     println(s"Params:")
     println(s"  maxDepth: ${clf.getMaxDepth}")
     println(s"  maxBins: ${clf.getMaxBins}")
@@ -87,7 +87,7 @@ object TrainDecisionTreeRegressor {
     println(s"  isLargerBetter: ${evaluator.isLargerBetter}")
 
     // MLflow - Log metric
-    mlflowClient.logMetric(runId, "rmse",rmse)
+    client.logMetric(runId, "rmse",rmse)
 
     // Select example rows to display.
     println("Prediction:")
@@ -98,14 +98,14 @@ object TrainDecisionTreeRegressor {
     val treeModel = model.stages.last.asInstanceOf[DecisionTreeRegressionModel]
     val path="treeModel.txt"
     new PrintWriter(path) { write(treeModel.toDebugString) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"details")
+    client.logArtifact(runId,new File(path),"details")
 
     // MLflow - Save model in Spark ML and MLeap formats
-    TrainUtils.saveModelAsSparkML(mlflowClient, runId, modelPath, model)
-    TrainUtils.saveModelAsMLeap(mlflowClient, runId, modelPath, model, predictions)
+    TrainUtils.saveModelAsSparkML(client, runId, modelPath, model)
+    TrainUtils.saveModelAsMLeap(client, runId, modelPath, model, predictions)
 
     // MLflow - close run
-    mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+    client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
   }
 
   object opts {

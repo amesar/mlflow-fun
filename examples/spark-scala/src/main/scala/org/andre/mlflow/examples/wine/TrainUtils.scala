@@ -29,16 +29,16 @@ object TrainUtils {
     DataHolder(trainingData, testData, assembler)
   }
 
-  def saveModelAsSparkML(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
+  def saveModelAsSparkML(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
     val modelPath = s"$baseModelDir/spark-model"
     model.write.overwrite().save(modelPath)
-    mlflowClient.logArtifacts(runId, new File(modelPath), "spark-model")
+    client.logArtifacts(runId, new File(modelPath), "spark-model")
   }
 
-  def saveModelAsMLeap(mlflowClient: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
+  def saveModelAsMLeap(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
     MLeapUtils.saveModel(model, predictions, "file:"+modelPath.getAbsolutePath)
-    mlflowClient.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
+    client.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 }

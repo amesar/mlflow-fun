@@ -14,9 +14,9 @@ object PredictByBestRun {
     println(s"  metric: ${opts.metric}")
     println(s"  ascending: ${opts.ascending}")
 
-    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
 
-    val best = BestRunUtils.getBestRun(mlflowClient, opts.experimentId, opts.metric, opts.ascending)
+    val best = BestRunUtils.getBestRun(client, opts.experimentId, opts.metric, opts.ascending)
     println(s"best.runId: ${best.run.getInfo.getRunUuid}")
     println(s"best.value: ${best.value}")
     PredictUtils.predict(best.run.getInfo, opts.dataPath)

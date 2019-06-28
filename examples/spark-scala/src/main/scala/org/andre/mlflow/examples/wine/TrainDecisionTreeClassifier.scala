@@ -27,17 +27,17 @@ object TrainDecisionTreeClassifier {
     println(s"  maxBins: ${opts.maxBins}")
     println(s"  runOrigin: ${opts.runOrigin}")
 
-    val mlflowClient = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    val experimentId = MLflowUtils.setExperiment(mlflowClient, opts.experimentName)
+    val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
+    val experimentId = MLflowUtils.setExperiment(client, opts.experimentName)
     println("Experiment ID: "+experimentId)
     val dataHolder = TrainUtils.readData(spark, opts.dataPath)
-    train(mlflowClient, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
+    train(client, experimentId, opts.modelPath, opts.maxDepth, opts.maxBins, opts.runOrigin, dataHolder)
   }
 
-  def train(mlflowClient: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
+  def train(client: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
 
     // MLflow - create run
-    val runInfo = mlflowClient.createRun(experimentId)
+    val runInfo = client.createRun(experimentId)
     val runId = runInfo.getRunUuid()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
@@ -50,9 +50,9 @@ object TrainDecisionTreeClassifier {
     if (maxBins != -1) clf.setMaxBins(maxBins)
 
     // MLflow - Log parameters
-    mlflowClient.logParam(runId, "maxDepth",""+clf.getMaxDepth)
-    mlflowClient.logParam(runId, "maxBins",""+clf.getMaxBins)
-    mlflowClient.logParam(runId, "runOrigin",runOrigin)
+    client.logParam(runId, "maxDepth",""+clf.getMaxDepth)
+    client.logParam(runId, "maxBins",""+clf.getMaxBins)
+    client.logParam(runId, "runOrigin",runOrigin)
     println(s"Params:")
     println(s"  maxDepth: ${clf.getMaxDepth}")
     println(s"  maxBins: ${clf.getMaxBins}")
@@ -76,7 +76,7 @@ object TrainDecisionTreeClassifier {
           .setMetricName(metricName)
         val metricValue = evaluator.evaluate(predictions)
         println(s"  $metricName: metricValue")
-        mlflowClient.logMetric(runId,metricName,metricValue)
+        client.logMetric(runId,metricName,metricValue)
     }
 
     // Select example rows to display
@@ -87,14 +87,14 @@ object TrainDecisionTreeClassifier {
     val treeModel = model.stages.last.asInstanceOf[DecisionTreeClassificationModel]
     val path="treeModel.txt"
     new PrintWriter(path) { write(treeModel.toDebugString) ; close }
-    mlflowClient.logArtifact(runId,new File(path),"details")
+    client.logArtifact(runId,new File(path),"details")
 
     // MLflow - Save model in Spark ML and MLeap formats
-    TrainUtils.saveModelAsSparkML(mlflowClient, runId, modelPath, model)
-    TrainUtils.saveModelAsMLeap(mlflowClient, runId, modelPath, model, predictions)
+    TrainUtils.saveModelAsSparkML(client, runId, modelPath, model)
+    TrainUtils.saveModelAsMLeap(client, runId, modelPath, model, predictions)
 
     // MLflow - close run
-    mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+    client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
   }
 
   object opts {
