@@ -41,8 +41,8 @@ object DumpRun {
     println(s"$indent  endTime:   ${info.getEndTime}")
     println(s"$indent  startTime: ${FORMAT.format(new Date(info.getStartTime))}")
     println(s"$indent  endTime:   ${FORMAT.format(new Date(info.getEndTime))}")
-    val duration = info.getEndTime - info.getStartTime
-    println(s"$indent  _duration (ms): ${duration}")
+    val duration = (info.getEndTime - info.getStartTime).toDouble / 1000
+    println(s"$indent  _duration: ${duration} seconds")
   }
 
   def dumpArtifacts(client: MlflowClient, runId: String, path: String, level: Int, maxLevel: Int, indent: String) {
