@@ -308,7 +308,7 @@ RunInfo:
   endTime:   1561568648413
   startTime: 2019-06-26 13:03:55
   endTime:   2019-06-26 13:04:08
-  _duration (ms): 13055
+  _duration: 13.055 seconds
 Params:
   runOrigin: train.sh_local_env
   maxBins: 32
