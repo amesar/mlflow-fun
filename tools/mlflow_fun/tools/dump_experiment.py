@@ -40,7 +40,7 @@ def dump_experiment_details(exp):
 def dump_runs(infos, artifact_max_level):
     print("Runs:")
     for j,info in enumerate(infos):
-        print("  Run {}:".format(j))
+        print("  Run {}/{}:".format(j+1,len(infos)))
         dump_run.dump_run_id(info.run_uuid, artifact_max_level, indent="    ")
 
 if __name__ == "__main__":

@@ -52,8 +52,8 @@ def _dump_time(info, k, indent=""):
 def dump_artifacts(run_id, path, level, max_level, indent):
     if level+1 > max_level: return
     artifacts = client.list_artifacts(run_id,path)
-    for art in artifacts:
-        print("{}Artifact - level {}:".format(indent,level))
+    for j,art in enumerate(artifacts):
+        print("{}Artifact {}/{} - level {}:".format(indent,j+1,len(artifacts),level))
         for k,v in art.__dict__.items(): print("  {}{}: {}".format(indent,k[1:],v))
         if art.is_dir:
             dump_artifacts(run_id, art.path, level+1, max_level, indent+INDENT)

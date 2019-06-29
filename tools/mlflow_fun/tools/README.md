@@ -3,6 +3,11 @@
 ## Overview
 
 Some useful tools for MLflow.
+
+## Dump experiment or run
+Dumps all experiment or run information recursively.
+
+**Overview**
 * [dump_run.py](dump_run.py) - Dumps run information.
   * Shows info, params, metrics and tags.
   * Recursively shows all artifacts up to the specified level.
@@ -11,10 +16,7 @@ Some useful tools for MLflow.
 * A large value for `artifact_max_level` also incurs many API calls.
 
 
-## Dump experiment or run
-
-Dumps all experiment or run information recursively.
-
+**Run dump tools**
 ```
 export PYTHONPATH=../..
 
@@ -23,7 +25,7 @@ python dump_run.py --run_id 2cbab69842e4412c99bfb5e15344bc42 --artifact_max_leve
 python dump_experiment.py --experiment_id 1812 --show_runs --artifact_max_level 5
 ```
 
-Sample output for dump_experiment.py.
+**Sample output for dump_experiment.py**
 ```
 Experiment Details:
   experiment_id: 1812
