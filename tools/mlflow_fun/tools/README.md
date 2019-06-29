@@ -22,7 +22,7 @@ export PYTHONPATH=../..
 
 python dump_run.py --run_id 2cbab69842e4412c99bfb5e15344bc42 --artifact_max_level 5 
   
-python dump_experiment.py --experiment_id 1812 --show_runs --artifact_max_level 5
+python dump_experiment.py --experiment_id 1812 --show_info --show_data  --artifact_max_level 5
 ```
 
 **Sample output for dump_experiment.py**
@@ -34,7 +34,7 @@ Experiment Details:
   lifecycle_stage: active
   #runs: 5
 Runs:
-  Run 0:
+  Run 0/5:
     RunInfo:
       run_uuid: fdc33f23d2ac4b0bae5f8181700c00ed
       experiment_id: 1812
@@ -64,23 +64,23 @@ Runs:
       mlflow.source.name: train.py
       mlflow.source.type: LOCAL
     Artifacts:
-      Artifact - level 1:
+      Artifact 1/5 - level 1:
         path: sklearn-model
         is_dir: True
         bytes: None
-        Artifact - level 2:
+        Artifact 1/3 - level 2:
           path: sklearn-model/MLmodel
           is_dir: False
           bytes: 351
-        Artifact - level 2:
+        Artifact 2/3 - level 2:
           path: sklearn-model/conda.yaml
           is_dir: False
           bytes: 119
-        Artifact - level 2:
+        Artifact 3/3 - level 2:
           path: sklearn-model/model.pkl
           is_dir: False
           bytes: 627
-      Artifact - level 1:
+      Artifact 2/5 - level 1:
         path: wine_ElasticNet-paths.png
         is_dir: False
         bytes: 27772
