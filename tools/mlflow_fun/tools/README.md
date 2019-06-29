@@ -12,7 +12,8 @@ Dumps all experiment or run information recursively.
   * Shows info, params, metrics and tags.
   * Recursively shows all artifacts up to the specified level.
 * [dump_experiment.py](dump_experiment.py) - Dumps experiment information.
-  * If `show_runs` is true, beware of experiments with many runs as each run results in an API call.
+  * If `showInfo` is true, then just the run infos will be dumped.
+  * If `showData` is true, then an API call for each run will be executed. Beware of experiments with many runs.
 * A large value for `artifact_max_level` also incurs many API calls.
 
 
