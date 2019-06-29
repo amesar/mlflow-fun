@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 import mlflow
 client = mlflow.tracking.MlflowClient()
 
@@ -28,7 +27,7 @@ def get_best_run_slow(experiment_id, metric, ascending=False):
     return best
 
 """
-Finds the best run by calling search once to get data for all an experiment's runs
+Finds the best run by calling search_runs once to get data for all of an experiment's runs
 """
 def get_best_run_fast(experiment_id, metric, ascending=False):
     funk = lt if ascending else gt
@@ -38,7 +37,11 @@ def get_best_run_fast(experiment_id, metric, ascending=False):
         best = calc(metric, run, best, funk)
     return best
 
+def get_best_run(experiment_id, metric, ascending=False):
+    return get_best_run_fast(experiment_id, metric, ascending)
+
 if __name__ == "__main__":
+    from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("--experiment_id", dest="experiment_id", help="Experiment ID", type=str, required=True)
     parser.add_argument("--metric", dest="metric", help="Metric", type=str, required=True)
