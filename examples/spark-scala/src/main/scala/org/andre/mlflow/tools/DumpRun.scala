@@ -49,14 +49,15 @@ object DumpRun {
     if (level+1 > maxLevel) {
        return
     }
-    for (x <- client.listArtifacts(runId, path)) {
-      println(s"${indent}Artifact - level $level")
-      println(s"$indent  path: ${x.getPath}")
-      println(s"$indent  isDir: ${x.getIsDir}")
-      if (x.getIsDir) {
-        dumpArtifacts(client, runId, x.getPath, level+1, maxLevel, indent+"  ")
+    val artifacts = client.listArtifacts(runId, path)
+    for ((art,j) <- artifacts.zipWithIndex) {
+      println(s"${indent}Artifact ${j+1}/${artifacts.size} - level $level")
+      println(s"$indent  path: ${art.getPath}")
+      println(s"$indent  isDir: ${art.getIsDir}")
+      if (art.getIsDir) {
+        dumpArtifacts(client, runId, art.getPath, level+1, maxLevel, indent+"  ")
       } else {
-        println(s"$indent  fileSize: ${x.getFileSize}")
+        println(s"$indent  fileSize: ${art.getFileSize}")
       }
     }
   }

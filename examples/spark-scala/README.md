@@ -284,7 +284,8 @@ Dumps all experiment or run information recursively.
   * Shows info, params, metrics and tags.
   * Recursively shows all artifacts up to the specified level.
 * [DumpExperiment.scala](src/main/scala/org/andre/mlflow/tools/DumpExperiment.scala) - Dumps run information.
-  * If `showRuns` is true, beware of experiments with many runs as each run results in an API call.
+  * If `showInfo` is true, then just the run infos will be dumped.
+  * If `showData` is true, then an API call for each run will be executed. Beware of experiments with many runs.
 * A large value for `artifactMaxLevel` also incurs many API calls.
 
 
@@ -318,10 +319,10 @@ Tags:
   mlflow.runName: myRun
   mlflow.source.name: TrainDecisionTree.scala
 Artifacts:
-  Artifact - level 0
+  Artifact 1/5 - level 0
     path: details
     isDir: true
-    Artifact - level 1
+    Artifact 1/1 - level 1
       path: details/treeModel.txt
       isDir: false
       fileSize: 252
@@ -333,9 +334,9 @@ Artifacts:
 ```
 scala -cp target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
   org.andre.mlflow.tools.DumpExperiment \
-  --experimentId 1812
-  --artifactMaxLevel 5
-  --showRuns
+  --experimentId 1812 \
+  --artifactMaxLevel 5 \
+  --showInfo --showInfo
 ```
 
 ```
@@ -346,7 +347,7 @@ Experiment Details:
   lifecycleStage: active
   runsCount: 7
 Runs:
-  Run 0:
+  Run 1/7:
     RunInfo:
       runId: 033be9f1f7e7494daba64bde62c2cf83
 . . .

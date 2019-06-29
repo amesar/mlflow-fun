@@ -6,27 +6,27 @@ import org.mlflow.tracking.MlflowClient
 import org.andre.mlflow.util.MLflowUtils
 
 object DumpExperiment {
-
-  def dumpExperiment(client: MlflowClient, experimentId: String, artifactMaxLevel: Int, showRuns: Boolean) {
-    val exp0 = client.getExperiment(experimentId)
-    val exp1 = exp0.getExperiment
+  def dumpExperiment(client: MlflowClient, experimentId: String, artifactMaxLevel: Int, showRunInfo: Boolean, showRunData: Boolean, inDatabricks: Boolean) {
+    val expResponse = client.getExperiment(experimentId)
+    val exp1 = expResponse.getExperiment
     println(s"Experiment Details:")
     println(s"  experimentId: ${exp1.getExperimentId}")
     println(s"  name: ${exp1.getName}")
     println(s"  artifactLocation: ${exp1.getArtifactLocation}")
     println(s"  lifecycleStage: ${exp1.getLifecycleStage}")
-    println(s"  runsCount: ${exp0.getRunsCount}")
+    println(s"  runsCount: ${expResponse.getRunsCount}")
 
     println(s"Runs:")
-    if (showRuns) {
-      for((info,j) <- exp0.getRunsList.zipWithIndex) {
-        println(s"  Run $j:")
-        DumpRun.dumpRun(client, info.getRunId, artifactMaxLevel,"    ")
-      }
-    } else {
-      for(info <- exp0.getRunsList) {
-        DumpRun.dumpRunInfo(info,"  ")
-      }
+    if (showRunInfo || showRunData) {
+        val infos = if (inDatabricks) client.listRunInfos(experimentId) else expResponse.getRunsList
+        for((info,j) <- infos.zipWithIndex) {
+          println(s"  Run ${j+1}/${infos.size}:")
+          if (showRunData) {
+            DumpRun.dumpRun(client, info.getRunId, artifactMaxLevel,"    ")
+          } else {
+            DumpRun.dumpRunInfo(info,"    ")
+          }
+        }
     }
   }
 
@@ -37,8 +37,11 @@ object DumpExperiment {
     println(s"  token: ${opts.token}")
     println(s"  experimentId: ${opts.experimentId}")
     println(s"  artifactMaxLevel: ${opts.artifactMaxLevel}")
+    println(s"  showRunInfo: ${opts.showRunInfo}")
+    println(s"  showRunData: ${opts.showRunData}")
+    println(s"  inDatabricks: ${opts.inDatabricks}")
     val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
-    dumpExperiment(client, opts.experimentId, opts.artifactMaxLevel, opts.showRuns)
+    dumpExperiment(client, opts.experimentId, opts.artifactMaxLevel, opts.showRunInfo, opts.showRunData, opts.inDatabricks)
   }
 
   object opts {
@@ -54,7 +57,13 @@ object DumpExperiment {
     @Parameter(names = Array("--artifactMaxLevel" ), description = "Number of artifact levels to recurse", required=false)
     var artifactMaxLevel = 1
 
-    @Parameter(names = Array("--showRuns" ), description = "Show run details", required=false)
-    var showRuns = false
+    @Parameter(names = Array("--showRunInfo" ), description = "Show run info", required=false)
+    var showRunInfo = false
+
+    @Parameter(names = Array("--showRunData" ), description = "Show run info and data", required=false)
+    var showRunData = false
+
+    @Parameter(names = Array("--inDatabricks" ), description = "Running inside Databricks", required=false)
+    var inDatabricks = false
   }
 }
