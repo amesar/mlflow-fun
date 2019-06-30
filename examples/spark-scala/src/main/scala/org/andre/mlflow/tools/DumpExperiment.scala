@@ -8,16 +8,17 @@ import org.andre.mlflow.util.MLflowUtils
 object DumpExperiment {
   def dumpExperiment(client: MlflowClient, experimentId: String, artifactMaxLevel: Int, showRunInfo: Boolean, showRunData: Boolean, inDatabricks: Boolean) {
     val expResponse = client.getExperiment(experimentId)
-    val exp1 = expResponse.getExperiment
+    val exp = expResponse.getExperiment
     println(s"Experiment Details:")
-    println(s"  experimentId: ${exp1.getExperimentId}")
-    println(s"  name: ${exp1.getName}")
-    println(s"  artifactLocation: ${exp1.getArtifactLocation}")
-    println(s"  lifecycleStage: ${exp1.getLifecycleStage}")
+    println(s"  experimentId: ${exp.getExperimentId}")
+    println(s"  name: ${exp.getName}")
+    println(s"  artifactLocation: ${exp.getArtifactLocation}")
+    println(s"  lifecycleStage: ${exp.getLifecycleStage}")
     println(s"  runsCount: ${expResponse.getRunsCount}")
 
     println(s"Runs:")
     if (showRunInfo || showRunData) {
+        // If in Databricks no infos in experiment
         val infos = if (inDatabricks) client.listRunInfos(experimentId) else expResponse.getRunsList
         for((info,j) <- infos.zipWithIndex) {
           println(s"  Run ${j+1}/${infos.size}:")
@@ -51,7 +52,7 @@ object DumpExperiment {
     @Parameter(names = Array("--token" ), description = "REST API token", required=false)
     var token: String = null
 
-    @Parameter(names = Array("--experimentId" ), description = "rexperimentId", required=true)
+    @Parameter(names = Array("--experimentId" ), description = "experimentId", required=true)
     var experimentId: String = null
 
     @Parameter(names = Array("--artifactMaxLevel" ), description = "Number of artifact levels to recurse", required=false)
