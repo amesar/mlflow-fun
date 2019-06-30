@@ -5,9 +5,10 @@ Scala training and prediction examples using the MLflow Java client
 * Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats.
 
 MLflow tools
-* DumpExperiment
-* DumpRun
-* SearchRuns
+* DumpExperiment - Dump experiment as text.
+* DumpRun - Dump run as text.
+* SearchRuns - Search for runs using search criteria.
+* RunsToCsvConverter - Dump experiment runs to CSV file.
 
 ## Setup
 
@@ -374,7 +375,7 @@ RunInfo:
   runId: 867390ad87b14dea9841829a7130c2ea
   experimentId: 2
   lifecycleStage: active
-  userId: ander
+  userId: andre
   status: FINISHED
   artifactUri: /opt/mlflow/server/mlruns/2/867390ad87b14dea9841829a7130c2ea/artifacts
   startTime: 1561227891052
@@ -387,4 +388,35 @@ RunInfo:
   experimentId: 2
 . . .
 
+```
+
+### Dump Experiment Runs to CSV file
+
+Create a flattend view of an experiment's runs.
+
+All info, data.params, data.metrics and data.tags fields will be flattened into one table. In order to prevent name clashes, data fields will be prefixed with:
+* \_p\_ - params
+* \_m\_ - metrics
+* \_t\_ - tags
+
+If `outputCsvFile` is not specified, the CSV file will be created from the experiment ID as in `exp_runs_2.csv`.
+
+Since run data (params, metrics, tags) fields not required to be the same for each run, we build a sparse table. Note the blank values for `_m_rmse` and `_t_exp_id`.
+
+```
+scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
+  org.andre.mlflow.tools.RunsToCsvConverter \
+  --experimentId 2 \
+  --outputCsvFile runs.csv
+```
+Formatted output sample - with subset of columns for readability.
+```
+_m_rmse            _p_alpha _t_exp_id _t_mlflow.user endTime       runId                            startTime     
+0.7504340478812798 0.001    2         andre          1561673524523 3ec72be101054b5d9caa87feba2d3f20 1561673523591 
+0.7504340478812798 0.001    2         andre          1561673429978 831a89ee12894e379518841783b18090 1561673427962 
+                   0.5                andre          1561670127154 ddaaab3337fd472ea0dfc071ffda9e72 1561670112506 
+                   0.5                andre          1561669962054 223b6bb0a8ca405bba96cd083ac8d584 1561669945008 
+0.6793073338113734 0.01     2         andre          1561227895063 867390ad87b14dea9841829a7130c2ea 1561227891052 
+0.6793073338113734 0.01     2         andre          1561227887437 b9976197bca74e059a1c8d2c35748d6f 1561227883234 
+0.7504340478812797 0.001    2         andre          1561227881226 e68d48bd41914cac857399caeede2a0a 1561227880485 
 ```
