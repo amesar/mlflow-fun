@@ -9,7 +9,14 @@ if __name__ == "__main__":
     parser.add_argument("--use_parquet", dest="use_parquet", help="Write as parquet (default CSV)", required=False, default=False, action='store_true')
     parser.add_argument("--experiment_ids", dest="experiment_ids", help="Experiment IDs", required=False)
     args = parser.parse_args()
-    exp_ids = [] if args.experiment_ids is None else [int(id) for id in args.experiment_ids.split(",")]
+    print("Arguments:")
+    print("  experiment_ids:",args.experiment_ids)
+    print("  database:",args.database)
+    print("  data_dir:",args.data_dir)
+    print("  use_parquet:",args.use_parquet)
+
+    exp_ids = [] if args.experiment_ids is None else [id for id in args.experiment_ids.split(",")]
+
     builder = TableBuilder(args.database, args.data_dir, args.use_parquet)
     builder.build_experiments(exp_ids)
 
