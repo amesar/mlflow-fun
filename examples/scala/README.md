@@ -7,6 +7,7 @@ Scala training and prediction examples using the MLflow Java client
 MLflow tools
 * DumpExperiment
 * DumpRun
+* SearchRuns
 
 ## Setup
 
@@ -294,16 +295,16 @@ Dumps all experiment or run information recursively.
 scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   org.andre.mlflow.tools.DumpRun \
   --runId 033be9f1f7e7494daba64bde62c2cf83 \
-  --artifactMaxLevel 1812
+  --artifactMaxLevel 2
 ```
 ```
 RunInfo:
   runId: 033be9f1f7e7494daba64bde62c2cf83
-  experimentId: 1812
+  experimentId: 2
   lifecycleStage: active
   userId: andre
   status: FINISHED
-  artifactUri: /opt/mlflow/server/mlruns/1812/033be9f1f7e7494daba64bde62c2cf83/artifacts
+  artifactUri: /opt/mlflow/server/mlruns/2/033be9f1f7e7494daba64bde62c2cf83/artifacts
   startTime: 1561568635358
   endTime:   1561568648413
   startTime: 2019-06-26 13:03:55
@@ -334,7 +335,7 @@ Artifacts:
 ```
 scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   org.andre.mlflow.tools.DumpExperiment \
-  --experimentId 1812 \
+  --experimentId 2 \
   --artifactMaxLevel 5 \
   --showRunInfo --showRunData
 ```
@@ -343,7 +344,7 @@ scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
 Experiment Details:
   experimentId: 2
   name: sklearn_wine_elasticNet
-  artifactLocation: /opt/mlflow/server/mlruns/1812
+  artifactLocation: /opt/mlflow/server/mlruns/2
   lifecycleStage: active
   runsCount: 7
 Runs:
@@ -351,4 +352,39 @@ Runs:
     RunInfo:
       runId: 033be9f1f7e7494daba64bde62c2cf83
 . . .
+```
+
+### Search Runs
+
+Executes `search runs` feature.
+Documentation: 
+[Java](https://mlflow.org/docs/latest/java_api/org/mlflow/tracking/MlflowClient.html#searchRuns-java.util.List-java.lang.String-),
+[Python](https://mlflow.org/docs/latest/python_api/mlflow.tracking.html#mlflow.tracking.MlflowClient.search_runs)
+and [REST](https://mlflow.org/docs/latest/rest-api.html#search-runs).
+
+```
+scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
+  org.andre.mlflow.tools.SearchRuns \
+  --experimentId 2 \
+  --filter "metrics.rmse < 0.7"
+```
+```
+Found 2 matches
+RunInfo:
+  runId: 867390ad87b14dea9841829a7130c2ea
+  experimentId: 2
+  lifecycleStage: active
+  userId: ander
+  status: FINISHED
+  artifactUri: /opt/mlflow/server/mlruns/2/867390ad87b14dea9841829a7130c2ea/artifacts
+  startTime: 1561227891052
+  endTime:   1561227895063
+  startTime: 2019-06-22 14:24:51
+  endTime:   2019-06-22 14:24:55
+  _duration: 4.011 seconds
+RunInfo:
+  runId: b9976197bca74e059a1c8d2c35748d6f
+  experimentId: 2
+. . .
+
 ```
