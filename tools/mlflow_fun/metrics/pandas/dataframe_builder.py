@@ -20,7 +20,7 @@ class PandasDataframeBuilder(object):
             return None
         if metric not in df:
             return []
-        df = df[['run_uuid',metric]]
+        df = df[['run_id',metric]]
         df = df.sort_values(metric,ascending=ascending)
         best = df.iloc[0]
         return (best[0],best[1])

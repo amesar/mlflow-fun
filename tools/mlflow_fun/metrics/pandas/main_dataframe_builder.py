@@ -19,7 +19,7 @@ if __name__ == "__main__":
         df = builder.build_dataframe(args.experiment_id)
         print("Columns:")
         print(df.dtypes,"\n")
-        df = df[['run_uuid',metric]]
+        df = df[['run_id',metric]]
         df = df.sort_values(metric,ascending=args.ascending)
         best = df.iloc[0]
         best = (best[0],best[1])
