@@ -1,23 +1,22 @@
 # mlflow-fun
 
-MLflow examples for Python and Scala training models.
+Exploring MLflow in depth for Python and Scala.
 
 ## Examples
-* Python:
-  * [Python Scikit-learn example](examples/sklearn/wine-quality/README.md)
-  * [PySpark ML examples](examples/pyspark/README.md)
-  * [PyTorch ML examples](examples/pytorch/README.md)
-  * [Hello World example](examples/hello_world)
-    * [Hello World Nested Runs example](examples/hello_world_nested_runs)
-* Scala/Java:
-  * Note: You need to install Python MLflow in order for Java artifacts to work: `pip install mlflow`
-  * [Scala Spark ML examples](examples/spark-scala/README.md) - uses MLFlow Java client
-* Legacy:
-  * [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)
+#### Python
+* [Hello World](examples/hello_world) and [Hello World Nested Runs](examples/hello_world_nested_runs).
+* [Python Scikit-learn](examples/sklearn/wine-quality/README.md) - most advanced example.
+* [PySpark ML](examples/pyspark/README.md).
+* [PyTorch ML](examples/pytorch/README.md).
+* [Tools](tools) - Useful MLflow tools: dump run, dump experiment, dump runs to CSV files, etc.
 
-## Other
-  * [tools](tools) - Useful MLflow tools
-  * [mlflow-java](mlflow-java/README.md) - MLflow Java and Scala extras such as proposed [RunContext](mlflow-java/src/main/java/org/mlflow/tracking/RunContext.java)
+#### Scala with Java client
+* [Scala Spark ML examples](examples/scala/README.md) - uses MLFlow Java client.
+* [Tools](examples/scala/README.md#Tools) - Useful MLflow tools: dump run, dump experiment, dump runs to CSV files, etc.
+* Note: You mist install Python MLflow for Java client to work: `pip install mlflow`.
+
+#### Other
+  * [mlflow-java](mlflow-java/README.md) - MLflow Java and Scala extras such as proposed [RunContext](mlflow-java/src/main/java/org/mlflow/tracking/RunContext.java).
 
 ## Setup
 
@@ -31,7 +30,6 @@ Install either with PyPi or Miniconda ([conda.yaml](conda.yaml)).
 
 ```
 pip install mlflow
-pip install cloudpickle
 ```
 
 #### Miniconda
@@ -60,7 +58,7 @@ To run the examples against a Databricks cluster see the following documentation
 
 For examples see [Hello World](examples/hello_world) and [Scikit-learn Wine Quality](examples/sklearn/wine-quality).
 
-Setup:
+Setup
 ```
 export MLFLOW_TRACKING_URI=databricks
 ```
@@ -71,3 +69,5 @@ export DATABRICKS_TOKEN=MY_TOKEN
 export DATABRICKS_HOST=https://myshard.cloud.databricks.com
 ```
 
+## Legacy
+  * [Scala Spark ML with deprecated Jackson-based MLflow client](examples/spark-scala-jackson/README.md)

@@ -4,7 +4,7 @@ Scala training and prediction examples using the MLflow Java client
 * Hello World - Simple MLflow example.
 * Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats.
 
-MLflow tools
+[MLflow tools](#Tools)
 * DumpExperiment - Dump experiment as text.
 * DumpRun - Dump run as text.
 * SearchRuns - Search for runs using search criteria.
@@ -12,15 +12,16 @@ MLflow tools
 
 ## Setup
 
-Note: You need to install Python MLflow in order for Java artifacts to work: `pip install mlflow`.
+Note: You must install Python MLflow for MLflow Java client to work: `pip install mlflow`.
 
 ## Build
 ```
 mvn clean package
 ```
 
-## Hello World Sample
-### Run
+## Examples
+### Hello World
+#### Run
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.hello.HelloWorld \
@@ -59,19 +60,19 @@ mlflowClient.logMetric(runId, "m1",0.123F)
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
-## Spark ML DecisionTree Sample
+### Spark ML DecisionTree Sample
 
 Sample demonstrating:
 *  Trains a model
 *  Saves the model in Spark ML and MLeap formats
 *  Predicts from Spark ML and MLeap formats
 
-### Train
+#### Train
 
 Saves model as Spark ML and MLeap artifact in MLflow.
 
 
-#### Source
+##### Source
 
 Source snippet from [TrainDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/libsvm/TrainDecisionTree.scala).
 ```
@@ -119,7 +120,7 @@ mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
-### Run against local Spark and local MLflow tracking server
+#### Run against local Spark and local MLflow tracking server
 
 ```
 spark-submit --master local[2] \
@@ -131,7 +132,7 @@ spark-submit --master local[2] \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
 
-### Run against local Spark and Databricks hosted tracking server
+#### Run against local Spark and Databricks hosted tracking server
 
 ```
 spark-submit --master local[2] \
@@ -143,13 +144,13 @@ spark-submit --master local[2] \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
 
-### Run in Databricks Cluster
+#### Run in Databricks Cluster
 
 You can also run your jar in a Databricks cluster with the standard Databricks REST API run endpoints.
 See [runs submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit), [run now](https://docs.databricks.com/api/latest/jobs.html#run-now) and [spark_jar_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkjartask).
 In this example we showcase runs_submit.
 
-#### Setup
+##### Setup
 
 Upload the data file and jar to your Databricks cluster.
 ```
@@ -178,7 +179,7 @@ Here is a snippet from
   }
 ```
 
-#### Run with new cluster
+##### Run with new cluster
 
 Create [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the run.
 ```
@@ -187,7 +188,7 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
 
-#### Run with existing cluster
+##### Run with existing cluster
 
 Every time you build a new jar, you need to upload (as described above) it to DBFS and restart the cluster.
 ```
@@ -201,7 +202,7 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
   https://acme.cloud.databricks.com/api/2.0/jobs/runs/submit
 ```
 
-#### Run jar from Databricks notebook
+##### Run jar from Databricks notebook
 
 Create a notebook with the following cell. Attach it to the existing cluster described above.
 ```
@@ -212,7 +213,7 @@ val runOrigin = "run_from_jar_Notebook"
 TrainDecisionTree.train(spark, dataPath, modelPath, 5, 5, runOrigin)
 ```
 
-### Predict
+#### Predict
 
 Predicts from Spark ML and MLeap models. 
 
@@ -221,8 +222,8 @@ There are several ways to obtain the run:
 * [PredictByLastRun.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByLastRun.scala) - Use the latest run.
 * [PredictByBestRun.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByBestRun.scala) - Use the best run for given metric.
 
-#### Run
-#### Run By RunID
+##### Run
+##### Run By RunID
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.PredictByRunId \
@@ -243,7 +244,7 @@ spark-submit --master local[2] \
 +----------+-----+--------------------+
 ```
 
-#### Run By LastRun
+##### Run By LastRun
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.PredictByLastRun \
@@ -253,7 +254,7 @@ spark-submit --master local[2] \
   --experimentId 2
 ```
 
-#### Run By BestRun
+##### Run By BestRun
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.PredictByBestRun \
@@ -264,8 +265,7 @@ spark-submit --master local[2] \
   --metric rmse --ascending
 ```
 
-
-#### Source
+##### Source
 
 Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictUtils.scala).
 ```
@@ -276,8 +276,9 @@ println("Prediction:")
 predictions.select("prediction", "label", "features").show(10,false)
 ```
 
-## Dump tools
+## Tools
 
+### Text dump tools
 
 Dumps all experiment or run information recursively.
 
@@ -291,7 +292,7 @@ Dumps all experiment or run information recursively.
 * A large value for `artifactMaxLevel` also incurs many API calls.
 
 
-### Dump Run
+#### Dump Run
 ```
 scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   org.andre.mlflow.tools.DumpRun \
@@ -331,7 +332,7 @@ Artifacts:
 
 ```
 
-### Dump Experiment
+#### Dump Experiment
 
 ```
 scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
@@ -353,6 +354,38 @@ Runs:
     RunInfo:
       runId: 033be9f1f7e7494daba64bde62c2cf83
 . . .
+```
+
+
+### Dump Experiment Runs to CSV file
+
+Create a flattened tabke of an experiment's runs and dump to CSV file.
+
+All info, data.params, data.metrics and data.tags fields will be flattened into one table. In order to prevent name clashes, data fields will be prefixed with:
+* \_p\_ - params
+* \_m\_ - metrics
+* \_t\_ - tags
+
+If `outputCsvFile` is not specified, the CSV file will be created from the experiment ID as in `exp_runs_2.csv`.
+
+Since run data (params, metrics, tags) fields are not required to be the same for each run, we build a sparse table. Note the blank values for `_m_rmse` and `_t_exp_id` in the output sample below.
+
+```
+scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
+  org.andre.mlflow.tools.RunsToCsvConverter \
+  --experimentId 2 \
+  --outputCsvFile runs.csv
+```
+Formatted output sample - with subset of columns for readability.
+```
+_m_rmse            _p_alpha _t_exp_id _t_mlflow.user endTime       runId                            startTime     
+0.7504340478812798 0.001    2         andre          1561673524523 3ec72be101054b5d9caa87feba2d3f20 1561673523591 
+0.7504340478812798 0.001    2         andre          1561673429978 831a89ee12894e379518841783b18090 1561673427962 
+                   0.5                andre          1561670127154 ddaaab3337fd472ea0dfc071ffda9e72 1561670112506 
+                   0.5                andre          1561669962054 223b6bb0a8ca405bba96cd083ac8d584 1561669945008 
+0.6793073338113734 0.01     2         andre          1561227895063 867390ad87b14dea9841829a7130c2ea 1561227891052 
+0.6793073338113734 0.01     2         andre          1561227887437 b9976197bca74e059a1c8d2c35748d6f 1561227883234 
+0.7504340478812797 0.001    2         andre          1561227881226 e68d48bd41914cac857399caeede2a0a 1561227880485 
 ```
 
 ### Search Runs
@@ -388,35 +421,4 @@ RunInfo:
   experimentId: 2
 . . .
 
-```
-
-### Dump Experiment Runs to CSV file
-
-Create a flattend view of an experiment's runs.
-
-All info, data.params, data.metrics and data.tags fields will be flattened into one table. In order to prevent name clashes, data fields will be prefixed with:
-* \_p\_ - params
-* \_m\_ - metrics
-* \_t\_ - tags
-
-If `outputCsvFile` is not specified, the CSV file will be created from the experiment ID as in `exp_runs_2.csv`.
-
-Since run data (params, metrics, tags) fields not required to be the same for each run, we build a sparse table. Note the blank values for `_m_rmse` and `_t_exp_id`.
-
-```
-scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
-  org.andre.mlflow.tools.RunsToCsvConverter \
-  --experimentId 2 \
-  --outputCsvFile runs.csv
-```
-Formatted output sample - with subset of columns for readability.
-```
-_m_rmse            _p_alpha _t_exp_id _t_mlflow.user endTime       runId                            startTime     
-0.7504340478812798 0.001    2         andre          1561673524523 3ec72be101054b5d9caa87feba2d3f20 1561673523591 
-0.7504340478812798 0.001    2         andre          1561673429978 831a89ee12894e379518841783b18090 1561673427962 
-                   0.5                andre          1561670127154 ddaaab3337fd472ea0dfc071ffda9e72 1561670112506 
-                   0.5                andre          1561669962054 223b6bb0a8ca405bba96cd083ac8d584 1561669945008 
-0.6793073338113734 0.01     2         andre          1561227895063 867390ad87b14dea9841829a7130c2ea 1561227891052 
-0.6793073338113734 0.01     2         andre          1561227887437 b9976197bca74e059a1c8d2c35748d6f 1561227883234 
-0.7504340478812797 0.001    2         andre          1561227881226 e68d48bd41914cac857399caeede2a0a 1561227880485 
 ```
