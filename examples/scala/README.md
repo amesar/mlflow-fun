@@ -10,7 +10,7 @@ MLflow tools
 
 ## Setup
 
-Note: built using Scala 2.11 so doesn't work for Spark 2.4.2 and higher.
+Note: You need to install Python MLflow in order for Java artifacts to work: `pip install mlflow`.
 
 ## Build
 ```
@@ -22,7 +22,7 @@ mvn clean package
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.hello.HelloWorld \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   http://localhost:5000
 ```
 ```
@@ -122,7 +122,7 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.TrainDecisionTree \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --experimentName scala_DecisionTree \
   --dataPath ../data/sample_libsvm_data.txt \
@@ -134,7 +134,7 @@ spark-submit --master local[2] \
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.TrainDecisionTree \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri https://acme.cloud.databricks.com --token MY_TOKEN \
   --experimentName spark_DecisionTree \
   --dataPath ../data/sample_libsvm_data.txt \
@@ -154,8 +154,8 @@ Upload the data file and jar to your Databricks cluster.
 databricks fs cp data/sample_libsvm_data.txt \
   dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt
 
-databricks fs cp target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
-  dbfs:/tmp/jobs/spark-scala-example/mlflow-spark-examples-1.0-SNAPSHOT.jar
+databricks fs cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
+  dbfs:/tmp/jobs/spark-scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar
 ```
 
 Here is a snippet from
@@ -164,7 +164,7 @@ Here is a snippet from
 ```
   "libraries": [
     { "pypi": { "package": "mlflow" } },
-    { "jar": "dbfs:/tmp/jobs/spark-scala-example/mlflow-spark-examples-1.0-SNAPSHOT.jar" }
+    { "jar": "dbfs:/tmp/jobs/spark-scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar" }
   ],
   "spark_jar_task": {
     "main_class_name": "org.andre.mlflow.examples.TrainDecisionTree",
@@ -224,7 +224,7 @@ There are several ways to obtain the run:
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.PredictByRunId \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
   --runId 3e422c4736a34046a74795384741ac33
@@ -245,7 +245,7 @@ spark-submit --master local[2] \
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.PredictByLastRun \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
   --experimentId 2
@@ -255,7 +255,7 @@ spark-submit --master local[2] \
 ```
 spark-submit --master local[2] \
   --class org.andre.mlflow.examples.libsvm.PredictByBestRun \
-  target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
   --dataPath data/sample_libsvm_data.txt \
   --experimentId 2
@@ -291,7 +291,7 @@ Dumps all experiment or run information recursively.
 
 ### Dump Run
 ```
-scala -cp target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   org.andre.mlflow.tools.DumpRun \
   --runId 033be9f1f7e7494daba64bde62c2cf83 \
   --artifactMaxLevel 1812
@@ -332,11 +332,11 @@ Artifacts:
 ### Dump Experiment
 
 ```
-scala -cp target/mlflow-spark-examples-1.0-SNAPSHOT.jar \
+scala -cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   org.andre.mlflow.tools.DumpExperiment \
   --experimentId 1812 \
   --artifactMaxLevel 5 \
-  --showInfo --showInfo
+  --showRunInfo --showRunData
 ```
 
 ```
