@@ -15,6 +15,27 @@ object MLflowUtils {
     }
   }
 
+  def getExperiment(client: MlflowClient, experimentIdOrName: String) = {
+    if (isNumeric(experimentIdOrName)) {
+      try {
+        val expResponse = client.getExperiment(experimentIdOrName)
+        expResponse.getExperiment()
+      } catch {
+        case e: org.mlflow.tracking.MlflowHttpException => {
+          throw new NoSuchElementException(s"Cannot find experiment name '$experimentIdOrName'. ${e}")
+        }
+      }
+    } else {
+      val expOpt = client.getExperimentByName(experimentIdOrName)
+      expOpt.isPresent  match {
+        case true => expOpt.get()
+        case _ => throw new NoSuchElementException(s"Cannot find experiment name '$experimentIdOrName'")
+      }
+    }
+  }
+
+  def isNumeric(input: String) = input.forall(_.isDigit)
+
   def createMlflowClient(args: Array[String]) = {
     println("args: "+args)
     if (args.length == 0) {
