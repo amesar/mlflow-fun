@@ -20,11 +20,13 @@ if __name__ == "__main__":
     builder = TableBuilder(args.database, args.data_dir, args.use_parquet)
     builder.build_experiments(exp_ids)
 
+#def foo():
     from pyspark.sql import SparkSession
-    spark = SparkSession.builder.appName("mlflow_metrics").enableHiveSupport().getOrCreate()
+    spark = SparkSession.builder.appName("app").enableHiveSupport().getOrCreate()
+    print("== SPARK QUERIES:")
     for exp_id in exp_ids:
         table = "{}.exp_{}".format(args.database,exp_id)
+        spark.sql("describe table {}".format(table)).show(1000,False)
         query = "select count(*) from {}".format(table)
         print(query)
-        spark.sql(query).show()
-        spark.sql("describe table {}".format(table)).show()
+        spark.sql(query).show(1000,False)

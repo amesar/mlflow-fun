@@ -1,4 +1,3 @@
-from __future__ import print_function
 from pyspark.sql import SparkSession, Row
 
 import traceback
@@ -59,7 +58,7 @@ class TableBuilder(object):
             self._build_table_ddl(table)
             return n
         except Exception as e:
-            print("WARNING: Cannot list runs for experiment {} {}".format(experiment_id,e))
+            print("WARNING: Cannot list runs for experiment {}. Ex: {}".format(experiment_id,e))
             traceback.print_exc()
             return 0
 

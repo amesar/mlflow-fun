@@ -1,5 +1,6 @@
 from __future__ import print_function
 import mlflow
+import pandas as pd
 
 ''' Client with extra optimized functionality based on search_runs '''
 class MlflowSmartClient(object):
@@ -11,28 +12,3 @@ class MlflowSmartClient(object):
     ''' List all run data: info, data.params, data.metrics and data.tags '''
     def list_runs(self, experiment_id):
         return self.mlflow_client.search_runs([experiment_id], "")
-
-    ''' 
-    List all run data as flattened dict. 
-    All attributes of info, data.params, data.metrics and data.tags are flattened into one dict.
-    Parameters are prefixed with _p_, metrics with _m_ and tags with _t_.
-    Example: { "_p_alpha": "0.1", "_m_rmse": 0.82, "_t_data_path": "data.csv", "run_uuid: "123" }
-    '''
-    def list_runs_flat(self, experiment_id):
-        rows = []
-        for run in self.list_runs(experiment_id):
-            dct = self._strip_underscores(run.info)
-            if 'run_id' in dct: # in 1.0.0 both appear though onlu run_id is documented
-                dct.pop('run_uuid', None)
-            self._merge(dct, run.data.params, '_p_')
-            self._merge(dct, run.data.metrics, '_m_')
-            self._merge(dct, run.data.tags, '_t_')
-            rows.append(dct)
-        return rows
-
-    def _merge(self, dct, lst, prefix):
-        lst = { prefix+k:v for k,v in lst.items() }
-        dct.update(lst)
-
-    def _strip_underscores(self, obj):
-        return { k[1:]:v for (k,v) in obj.__dict__.items() }

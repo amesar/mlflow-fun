@@ -3,6 +3,9 @@ from pyspark.sql import SparkSession, Row
 from collections import OrderedDict
 import mlflow
 from mlflow_fun.common import mlflow_utils
+from mlflow_fun.common.mlflow_smart_client import MlflowSmartClient
+from mlflow_fun.common.runs_to_pandas_converter import RunsToPandasConverter
+converter = RunsToPandasConverter()
 
 def get_best_run(experiment_id, metric, ascending=True, which="fast"):
     if not metric.startswith("_m_"): 
@@ -65,7 +68,6 @@ class SlowDataframeBuilder(BaseDataframeBuilder):
 ''' Calls REST client runs/search endpoint '''
 class FastDataframeBuilder(BaseDataframeBuilder):
     def __init__(self, mlflow_smart_client=None, spark=None, logmod=20):
-        from mlflow_fun.common.mlflow_smart_client import MlflowSmartClient
         self.logmod = logmod 
         if mlflow_smart_client is None:
             mlflow_smart_client = MlflowSmartClient()
@@ -77,9 +79,21 @@ class FastDataframeBuilder(BaseDataframeBuilder):
         print("logmod:",logmod)
 
     def build_dataframe_(self, experiment_id, idx=None, num_exps=None):
-        runs = self.mlflow_smart_client.list_runs_flat(experiment_id)
+        runs = self.mlflow_smart_client.list_runs(experiment_id)
         if len(runs) == 0:
             print("WARNING: No runs for experiment {}".format(experiment_id))
             return (None,0)
-        df = self.spark.createDataFrame(runs)
-        return (df,len(runs))
+
+        # Three different ways to create Spark DataFrame - TODO which is more efficient at scale
+
+        #pdf = converter.to_pandas_df(runs) # creates a table with NaNs
+        #df = self.spark.createDataFrame(pdf)
+
+        #runs2 = converter.to_sparse_list_of_dicts(runs) # creates a table with NULL - warning: inferring schema from dict is deprecated
+        #df = self.spark.createDataFrame(runs2)
+
+        (columns,runs2) = converter.to_sparse_list_of_lists(runs) # creates a table with NULL - no warning :)
+        df = self.spark.createDataFrame(runs2)
+        df = df.toDF(*columns)
+
+        return (df,len(runs2))

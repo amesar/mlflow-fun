@@ -359,7 +359,7 @@ Runs:
 
 ### Dump Experiment Runs to CSV file
 
-Create a flattened tabke of an experiment's runs and dump to CSV file.
+Create a flattened table of an experiment's runs and dump to CSV file.
 
 All info, data.params, data.metrics and data.tags fields will be flattened into one table. In order to prevent name clashes, data fields will be prefixed with:
 * \_p\_ - params

@@ -3,11 +3,15 @@
 ## Overview
 
 Some useful tools for MLflow.
+* Dump as text
+  * Dump Run
+  * Dump Experiment
+* Dump experiment runs as CSV
 
-## Dump experiment or run
+## Dump experiment or run as text
 Dumps all experiment or run information recursively.
 
-**Overview**
+### Overview
 * [dump_run.py](dump_run.py) - Dumps run information.
   * Shows info, params, metrics and tags.
   * Recursively shows all artifacts up to the specified level.
@@ -16,8 +20,7 @@ Dumps all experiment or run information recursively.
   * If `showData` is true, then an API call for each run will be executed. Beware of experiments with many runs.
 * A large value for `artifact_max_level` also incurs many API calls.
 
-
-**Run dump tools**
+### Run dump tools
 ```
 export PYTHONPATH=../..
 
@@ -85,4 +88,49 @@ Runs:
         path: wine_ElasticNet-paths.png
         is_dir: False
         bytes: 27772
+```
+
+## Dump Experiment Runs to CSV file
+
+Create a flattened table of an experiment's runs and dump to CSV file.
+
+All info, data.params, data.metrics and data.tags fields will be flattened into one table. In order to prevent name clashes, data fields will be prefixed with:
+* \_p\_ - params
+* \_m\_ - metrics
+* \_t\_ - tags
+
+Since run data (params, metrics, tags) fields are not required to be the same for each run, we build a sparse table. Note the blank values for `_m_rmse` and `_t_exp_id` in the csv_file sample below.
+
+By default, all the run.data.* fields are displayed. The `skip_` options control which are displayed.
+
+Options:
+* experiment - Experiment ID or name
+* sort - opinionated pretty sort:
+  *  Order of columns: 
+    * run.info
+      *  First columns: run_id, start_time, end_time
+      *  artifact_uri is last colum as it is very long
+   * run.info.data.params
+   * run.info.data.metrics
+   * run.info.data.tags
+* pretty_time - Human-readable timestamps
+* duration - Display run duration (end_time-sgtart_time) as `__duration` field
+* skip_params - Don't display params fields
+* skip_metrics - Don't display metrics fields
+* skip_tags - Don't display tags fields
+* nan_to_blank - Convert Pandas NaN to ""
+* csv_file - If not specified, the CSV file will be created from the experiment ID as in `exp_runs_2.csv`.
+
+```
+pythom runs_to_pandas_converter.py \
+  --experiment 2 \
+  --sort \
+  --pretty_time \
+  --duration \
+  --skip_params \
+  --skip_metrics \
+  --skip_tags \
+  --nan_to_blank \
+  --csv_file output.csv
+
 ```

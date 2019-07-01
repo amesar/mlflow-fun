@@ -9,6 +9,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     metric = args.metric if args.metric.startswith("_m_") else "_m_"+args.metric
 
+    print("Arguments:")
+    print("  experiment_id:",args.experiment_id)
+    print("  metric:",args.metric)
+    print("  metric:",metric)
+    print("  ascending:",args.ascending)
+
     print("====== get_best_run")
     builder = PandasDataframeBuilder()
     best = builder.get_best_run(args.experiment_id,metric,args.ascending)
