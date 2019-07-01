@@ -1,6 +1,6 @@
 
 import pandas as pd
-from mlflow_fun.common.new_mlflow_smart_client import MlflowSmartClient
+from mlflow_fun.common.mlflow_smart_client import MlflowSmartClient
 from mlflow_fun.common.runs_to_pandas_converter import RunsToPandasConverter
 converter = RunsToPandasConverter()
 
