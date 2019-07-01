@@ -1,5 +1,6 @@
 import pandas as pd
 from mlflow_fun.common import sparse_utils
+from mlflow_fun.common import mlflow_utils
 
 ''' 
 Flatten all runs as a sparse dict and create Pandas dataframe.
@@ -90,7 +91,6 @@ class RunsToPandasConverter(object):
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
-    from mlflow_fun.tools import utils
     from mlflow_fun.common.mlflow_smart_client import MlflowSmartClient
     import mlflow
     print("MLflow Version:", mlflow.version.VERSION)
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     client = mlflow.tracking.MlflowClient()
     smart_client = MlflowSmartClient()
-    exp = utils.get_experiment(client, args.experiment_id_or_name)
+    exp = mlflow_utils.get_experiment(client, args.experiment_id_or_name)
     exp_id = exp.experiment_id
     print("experiment_id:",exp_id)
     runs = smart_client.list_runs(exp_id)
