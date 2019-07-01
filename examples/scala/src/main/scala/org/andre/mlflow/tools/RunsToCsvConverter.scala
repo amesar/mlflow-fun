@@ -11,8 +11,9 @@ import org.mlflow.api.proto.Service.{Run,RunInfo}
 
 object RunsToCsvConverter {
   val sparseMissingValue = ""
+  val defaultDelimiter = ","
 
-  def writeToCsvFile(client: MlflowClient, experimentId: String, outputCsvFile: String, delimiter: String) {
+  def writeToCsvFile(client: MlflowClient, experimentId: String, outputCsvFile: String, delimiter: String = defaultDelimiter) {
     val runs = convertRunsToMap(client, experimentId)
     if (runs.size > 0) {
       writeRuns(outputCsvFile, runs, delimiter)
