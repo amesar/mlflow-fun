@@ -11,7 +11,7 @@ class RunTest extends BaseTest {
   def simpleRun() {
     val expId = client.createExperiment(createExperimentName())
 
-    val runInfo = client.createRun(expId, "RunTest.scala");
+    val runInfo = client.createRun(expId)
     val runId = runInfo.getRunUuid()
     client.logParam(runId, "p1","hi")
     client.logMetric(runId, "m1",0.123F)
@@ -30,9 +30,6 @@ class RunTest extends BaseTest {
 
     val request = CreateRun.newBuilder()
         .setExperimentId(expId)
-        .setRunName("my_run")
-        .setSourceName("RunTest.scala")
-        .setSourceVersion("my_version")
         .build()
     val runInfo = client.createRun(request)
     val runId = runInfo.getRunUuid()

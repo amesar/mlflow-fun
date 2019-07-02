@@ -17,20 +17,21 @@ object HelloWorldFluent {
         new MlflowClient(trackingUri)
       }
 
-    val expName = "scala/HelloWorld"
+    val expName = "scala/HelloWorld_Fluent"
     val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
     println(s"Experiment name: $expName")
     println(s"Experiment ID: $expId")
 
-    val sourceName = getClass().getSimpleName()+".scala"
+    val sourceName = getClass().getSimpleName().replace("$","")+".scala"
     println(s"Source Name: $sourceName")
 
-    new RunContext(mlflowClient, expId, sourceName) {
+    new RunContext(mlflowClient, expId) {
       println(s"Run ID: ${getRunId()}")
 
-      logParam("param1","p1")
-      logMetric("metric1",0.123987651)
+      logParam("alpha","0.5")
+      logMetric("rmse",0.786)
       setTag("fluent","true")
+      setTag("mlflow.source.name",sourceName)
       setTag("mlflow.note.content","my **bold** note")
 
       val now = new java.util.Date()
@@ -40,7 +41,6 @@ object HelloWorldFluent {
       val dir = new File("/tmp/run_artifacts")
       dir.mkdirs()
       new PrintWriter(s"$dir/info1.txt") { write(s"Info1 at: $now") ; close }
-      new PrintWriter(s"$dir/info2.txt") { write(s"Info2 at: $now") ; close }
       logArtifacts(dir)
       logArtifacts(dir,"dir")
     }
