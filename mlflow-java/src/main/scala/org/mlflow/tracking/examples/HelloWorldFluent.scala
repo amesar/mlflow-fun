@@ -43,6 +43,8 @@ object HelloWorldFluent {
       new PrintWriter(s"$dir/info1.txt") { write(s"Info1 at: $now") ; close }
       logArtifacts(dir)
       logArtifacts(dir,"dir")
+
+      close() // NOTE: Needed for Scala but not Java.
     }
   }
 }

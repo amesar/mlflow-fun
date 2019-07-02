@@ -8,6 +8,7 @@ import org.mlflow.api.proto.Service.CreateRun;
 public class RunContext implements AutoCloseable {
     private MlflowClient mlflowClient;
     private String runId;
+    private RunStatus runStatus = RunStatus.FINISHED;
 
     public RunContext(MlflowClient mlflowClient) {
         this.mlflowClient = mlflowClient;
@@ -56,8 +57,12 @@ public class RunContext implements AutoCloseable {
         return runId;
     }
 
+    public void setRunStatus(RunStatus runStatus) {
+        this.runStatus = runStatus;
+    }
+
     @Override
     public void close() {
-        mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis());
+        mlflowClient.setTerminated(runId, runStatus, System.currentTimeMillis());
     }
 }

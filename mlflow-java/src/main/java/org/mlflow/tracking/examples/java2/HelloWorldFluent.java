@@ -14,7 +14,7 @@ public class HelloWorldFluent {
         try (RunContext run = new RunContext(client, expId)) {
            run.logParam("alpha", "0.5");
            run.logMetric("rmse", 0.786);
-           run.setTag("origin","HelloWorldFluent Java Example")
+           run.setTag("origin","HelloWorldFluent Java Example");
         } 
     }
 }
