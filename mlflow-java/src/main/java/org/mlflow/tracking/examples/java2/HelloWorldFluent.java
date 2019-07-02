@@ -12,6 +12,7 @@ public class HelloWorldFluent {
         System.out.println("expId: "+expId);
 
         try (RunContext run = new RunContext(client, expId)) {
+           System.out.println("runId: "+run.getRunId());
            run.logParam("alpha", "0.5");
            run.logMetric("rmse", 0.786);
            run.setTag("origin","HelloWorldFluent Java Example");
