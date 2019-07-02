@@ -2,6 +2,9 @@ import sys
 from mlflow_fun.metrics.spark.table_builder import TableBuilder
 from argparse import ArgumentParser
 
+"""
+Example main that builds analytics tables and executes a few queries.
+"""
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--database", dest="database", help="Database", required=True)
@@ -20,7 +23,6 @@ if __name__ == "__main__":
     builder = TableBuilder(args.database, args.data_dir, args.use_parquet)
     builder.build_experiments(exp_ids)
 
-#def foo():
     from pyspark.sql import SparkSession
     spark = SparkSession.builder.appName("app").enableHiveSupport().getOrCreate()
     print("== SPARK QUERIES:")
