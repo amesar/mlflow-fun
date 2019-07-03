@@ -60,6 +60,44 @@ mlflowClient.logMetric(runId, "m1",0.123F)
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
+### Resilient Hello World
+
+Shows how to set run status if failure occurs during run. 
+
+#### Run
+
+```
+spark-submit --master local[2] \
+  --class org.andre.mlflow.examples.hello.ResilientHelloWorld \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
+  http://localhost:5000 throwException
+```
+```
+Experiment name: scala_ResilientHelloWorld
+Experiment ID: 13
+Run ID: e3ec538d27e14dbfb05bd2eae01ddb5d
+Status FAILED: java.lang.Exception: Ouch
+Retrieved run: runId: e3ec538d27e14dbfb05bd2eae01ddb5d - status: FAILED
+```
+#### Code
+
+Snippet from [ResilientHelloWorld.scala](src/main/scala/org/andre/mlflow/examples/hello/ResilientHelloWorld.scala).
+```
+  val runId = client.createRun(experimentId).getRunId()
+  println("Run ID: "+runId)
+  try {
+    client.logParam(runId, "alpha","0.5")
+    if (doThrowException) {
+      throw new Exception("Ouch")
+    }
+    client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
+  } catch {
+    case e: Exception => {
+      client.setTerminated(runId, RunStatus.FAILED, System.currentTimeMillis())
+    }
+  }
+```
+
 ### Spark ML DecisionTree Sample
 
 Sample demonstrating:
