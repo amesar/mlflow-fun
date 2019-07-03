@@ -78,9 +78,11 @@ class BuildTables(object):
         rows = []
         for j,exp in enumerate(exps):
             try:
-                runs = mlflow_client.search_runs([exp.experiment_id],"") 
+                #runs = mlflow_client.search_runs([exp.experiment_id],"") # does not return more than 1000 runs 
+                runs = mlflow_client.list_run_infos(exp.experiment_id)
                 print("{}/{} Experiment {} has {} runs - {}".format((1+j),len(exps),exp.experiment_id,len(runs),exp.name))
-                for run in runs:
+                for info in runs:
+                    run = mlflow_client.get_run(info.run_id)
                     if run_row is None:
                         columns = self.get_colum_names(run.info)
                         columns += column_tags.keys()

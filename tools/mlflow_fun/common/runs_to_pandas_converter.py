@@ -1,6 +1,5 @@
 import pandas as pd
 from mlflow_fun.common import sparse_utils
-from mlflow_fun.common import mlflow_utils
 
 ''' 
 Flatten all runs as a sparse dict and create Pandas dataframe.
@@ -64,7 +63,6 @@ class RunsToPandasConverter(object):
                  self.format_time(df, 'end_time')
         return df
 
-
     def _sort_columns(self, df):
         ARTIFACT_URI = "artifact_uri"
         skipme_first = [ "run_id", "start_time", "end_time" ]
@@ -90,6 +88,8 @@ class RunsToPandasConverter(object):
         df[column] = pd.to_datetime(df[column], unit='ms').dt.strftime('%Y-%m-%d %H:%M:%S')
 
 if __name__ == "__main__":
+    from mlflow_fun.common import mlflow_utils
+    from tabulate import tabulate
     from argparse import ArgumentParser
     from mlflow_fun.common.mlflow_smart_client import MlflowSmartClient
     import mlflow
@@ -122,6 +122,9 @@ if __name__ == "__main__":
     converter = RunsToPandasConverter(args.sort, args.pretty_time, args.duration, args.skip_params, args.skip_metrics, args.skip_tags)
 
     df = converter.to_pandas_df(runs)
+
+    print(tabulate(df, headers='keys', tablefmt='psql'))
+
     path = "exp_runs_{}.csv".format(exp_id) if args.csv_file is None else args.csv_file
     print("Output CSV file:",path)
     with open(path, 'w') as f:
