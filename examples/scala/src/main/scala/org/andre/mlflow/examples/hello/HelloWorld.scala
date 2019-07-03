@@ -18,10 +18,6 @@ object HelloWorld {
     println("Experiment name: "+expName)
     println("Experiment ID: "+expId)
 
-    val request = CreateRun.newBuilder()
-        .setExperimentId(expId)
-        .build()
-
     // Create run
     val runInfo = client.createRun(expId)
     val runId = runInfo.getRunUuid()
