@@ -2,7 +2,7 @@ import sys
 import mlflow
 from argparse import ArgumentParser
 
-sys.stdout.write("MLflow Version: {}".format(mlflow.version.VERSION))
+sys.stdout.write("MLflow Version: {}\n".format(mlflow.version.VERSION))
 sys.stdout.write("MLflow Tracking URI: {}\n".format(mlflow.get_tracking_uri()))
 
 def process(base_name, max_level, max_children, level=0, idx=0):
