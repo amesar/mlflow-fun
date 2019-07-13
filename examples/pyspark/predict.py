@@ -28,11 +28,3 @@ if __name__ == "__main__":
     df = predictions.select(colPrediction, colLabel, colFeatures)
     print("Predictions:")
     df.show(5,False)
-
-def bar():
-    metric_names = ["accuracy","f1","weightedPrecision"]
-    print("Metrics:")
-    for metric_name in metric_names:
-        evaluator = MulticlassClassificationEvaluator(labelCol="indexedLabel", predictionCol="prediction", metricName=metric_name)
-        metric_value = evaluator.evaluate(predictions)
-        print("  {}: {}".format(metric_name,metric_value))
