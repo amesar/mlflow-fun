@@ -12,7 +12,7 @@ from sklearn.tree import DecisionTreeRegressor
 
 import mlflow
 import mlflow.sklearn
-from wine_quality2 import plot_utils
+from wine_quality import plot_utils
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
