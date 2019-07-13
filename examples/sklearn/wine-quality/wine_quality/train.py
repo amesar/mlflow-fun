@@ -2,16 +2,13 @@
 # P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
 # Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
 
-from __future__ import print_function
-import os
-import sys
 import platform
 
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import ElasticNet, enet_path
+from sklearn.tree import DecisionTreeRegressor
 
 import mlflow
 import mlflow.sklearn
@@ -34,7 +31,7 @@ class Trainer(object):
         print("data_path:",data_path)
         data = pd.read_csv(data_path)
     
-        # Split the data into training and test sets. (0.75, 0.25) split.
+        # Split the data into training and test sets - (0.75, 0.25).
         train, test = train_test_split(data)
     
         # The predicted column is "quality" which is a scalar from [3, 9]
@@ -54,37 +51,42 @@ class Trainer(object):
             print("experiment_id:",experiment_id)
 
 
-    def train(self, alpha, l1_ratio):
+    def train(self, max_depth, max_leaf_nodes):
         with mlflow.start_run(run_name=self.run_origin) as run:  # NOTE: mlflow CLI ignores run_name
             run_id = run.info.run_uuid
-            print("  run_id:",run_id)
             experiment_id = run.info.experiment_id
+            print("MLflow:")
+            print("  run_id:",run_id)
             print("  experiment_id:",experiment_id)
 
-            clf = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
-            print("  model:",clf)
-            clf.fit(self.train_x, self.train_y)
-            predictions = clf.predict(self.test_x)
+            # Create model
+            dt = DecisionTreeRegressor(max_depth=max_depth, max_leaf_nodes=max_leaf_nodes)
+            print("Model:",dt)
 
+            # Fit and predict
+            dt.fit(self.train_x, self.train_y)
+            predictions = dt.predict(self.test_x)
+
+            # MLflow params
+            print("Parameters:")
+            print("  max_depth:",max_depth)
+            print("  max_leaf_nodes:",max_leaf_nodes)
+            mlflow.log_param("max_depth", max_depth)
+            mlflow.log_param("max_leaf_nodes", max_leaf_nodes)
+
+            # MLflow metrics
             rmse = np.sqrt(mean_squared_error(self.test_y, predictions))
             mae = mean_absolute_error(self.test_y, predictions)
             r2 = r2_score(self.test_y, predictions)
-    
-            print("  Parameters:")
-            print("    alpha:",alpha)
-            print("    l1_ratio:",l1_ratio)
-            print("  Metrics:")
-            print("    rmse:",rmse)
-            print("    mae:",mae)
-            print("    r2:",r2)
-    
-            mlflow.log_param("alpha", alpha)
-            mlflow.log_param("l1_ratio", l1_ratio)
-    
+            print("Metrics:")
+            print("  rmse:",rmse)
+            print("  mae:",mae)
+            print("  r2:",r2)
             mlflow.log_metric("rmse", rmse)
             mlflow.log_metric("r2", r2)
             mlflow.log_metric("mae", mae)
             
+            # MLflow tags
             mlflow.set_tag("mlflow.runName",self.run_origin) # mlflow CLI picks this up
             mlflow.set_tag("data_path", self.data_path)
             mlflow.set_tag("exp_id", experiment_id)
@@ -92,13 +94,12 @@ class Trainer(object):
             mlflow.set_tag("run_origin", self.run_origin)
             mlflow.set_tag("platform", platform.system())
     
-            mlflow.sklearn.log_model(clf, "sklearn-model")
+            # MLflow log model
+            mlflow.sklearn.log_model(dt, "sklearn-model")
     
-            # Create plot file
-            eps = 5e-3  # the smaller it is the longer is the path
-            alphas_enet, coefs_enet, _ = enet_path(self.X, self.y, eps=eps, l1_ratio=l1_ratio, fit_intercept=False)
-            plot_file = "wine_ElasticNet-paths.png"
-            plot_utils.plot_enet_descent_path(self.X, self.y, l1_ratio, alphas_enet, coefs_enet, plot_file)
+            # MLflow artifact - plot file
+            plot_file = "plot.png"
+            plot_utils.plot_me(self.test_y, predictions, plot_file)
             mlflow.log_artifact(plot_file)
     
         return (experiment_id,run_id)

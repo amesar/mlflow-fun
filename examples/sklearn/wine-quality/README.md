@@ -1,11 +1,12 @@
 # mlflow-fun - sklearn - Wine Quality Example
 
 ## Overview
-* Wine Quality Elastic Net Example
-* This example demonstrates all features of MLflow training and prediction.
+* Data -  Wine Quality
+* Model -  DecisionTreeRegressor
+* This example demonstrates many features of MLflow training and prediction
 * Saves model in pickle format
-* Saves plot artifacts
-* Shows several ways to run training - 
+* Saves plot artifact
+* Shows several ways to run training:
   * _mlflow run_ CLI 
   * run against Databricks cluster
   * call egg from notebook
@@ -35,7 +36,7 @@ Source: [main.py](main.py) and [train.py](wine_quality/train.py).
 To run with standard main function:
 ```
 python main.py --experiment_name WineQualityExperiment \
-  --alpha 0.5 --l1_ratio 0.5 \
+  --max_depth 2 --max_leaf_nodes 32 \
   --data_path ../../data/wine-quality/wine-quality-white.csv 
 ```
 
@@ -48,21 +49,20 @@ jupyter notebook
 
 ### Using mlflow run
 
-
 These runs use the [MLproject](MLproject) file. For more details see [MLflow documentation - Running Projects](https://mlflow.org/docs/latest/projects.html#running-projects).
 
 Note that mlflow run ignores the `set_experiment()` function so you must specify the experiment with the  `--experiment-id` argument.
 
 **mlflow run local**
 ```
-mlflow run . -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=LocalRun \
+mlflow run . -P max_depth=2 -P max_leaf_nodes=32 -P run_origin=mlflow_run_local \
   -P data_path=../../data/wine-quality/wine-quality-white.csv --experiment-id=2019
 ```
 
 **mlflow run github**
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
-  -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
+  -P max_depth=2 -P max_leaf_nodes=32 -P run_origin=mlflow_run_git \
   -P data_path=https://raw.githubusercontent.com/amesar/mlflow-fun/master/examples/data/wine-quality/wine-quality-white.csv \
   --experiment-id=2019
 ```
@@ -80,7 +80,7 @@ The token and tracking server URL will be picked up from your Databricks CLI ~/.
 Now run.
 ```
 mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-quality \
-  -P alpha=0.01 -P l1_ratio=0.75 -P run_origin=GitRun \
+  -P max_depth=2 -P max_leaf_nodes=32 -P run_origin=mlflow_run_git_dbx \
   -P data_path=/dbfs/tmp/data/wine-quality-white.csv \
   --experiment-id=2019 \
   --mode databricks --cluster-spec mlflow_run_cluster.json
@@ -88,10 +88,7 @@ mlflow run https://github.com/amesar/mlflow-fun.git#examples/scikit-learn/wine-q
 
 ### Databricks Cluster Runs
 
-You can also package your code as an egg and run it with the standard Databricks REST API endpoints
-[job/runs/submit](https://docs.databricks.com/api/latest/jobs.html#runs-submit) 
-or [jobs/run-now](https://docs.databricks.com/api/latest/jobs.html#run-now) 
-using the [spark_python_task](https://docs.databricks.com/api/latest/jobs.html#jobssparkpythontask). 
+You can also package your code as an egg and run it against a Databricks cluster using the [Databricks CLI](https://docs.databricks.com/user-guide/dev-tools/databricks-cli.html).
 
 #### Setup
 
@@ -100,7 +97,7 @@ Build the egg.
 python setup.py bdist_egg
 ```
 
-Upload the data file, main file and egg to your Databricks cluster.
+Upload the data file, main file and egg to DBFS.
 ```
 databricks fs cp main.py dbfs:/tmp/jobs/wine_quality/main.py
 databricks fs cp ../../data/wine-quality/wine-quality-white.csv dbfs:/tmp/jobs/wine_quality/wine-quality-white.csv
@@ -117,9 +114,7 @@ databricks fs cp \
 Define your run in [run_submit_new_cluster.json](run_submit_new_cluster.json) and launch the run.
 
 ```
-curl -X POST -H "Authorization: Bearer MY_TOKEN" \
-  -d @run_submit_new_cluster.json  \
-  https://myshard.cloud.databricks.com/api/2.0/jobs/runs/submit
+databricks runs submit --json-file run_submit_new_cluster.json
 ```
 
 ##### Run with existing cluster
@@ -131,9 +126,7 @@ databricks clusters restart --cluster-id 1222-015510-grams64
 
 Define your run in [run_submit_existing_cluster.json](run_submit_existing_cluster.json) and launch the run.
 ```
-curl -X POST -H "Authorization: Bearer MY_TOKEN" \
-  -d @run_submit_existing_cluster.json  \
-  https://myshard.cloud.databricks.com/api/2.0/jobs/runs/submit
+databricks runs submit --json-file run_submit_existing_cluster.json
 ```
 
 #### Job Run Now
@@ -169,7 +162,7 @@ Create a notebook with the following cell. Attach it to the existing cluster des
 from wine_quality import Trainer
 data_path = "/dbfs/tmp/jobs/wine_quality/wine-quality-white.csv"
 trainer = Trainer("WineQualityExperiment", data_path, "from_notebook_with_egg")
-trainer.train(0.4, 0.4)
+trainer.train(2, 32)
 ```
 
 ## Predictions
