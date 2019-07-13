@@ -1,8 +1,10 @@
 # mlflow-fun - Spark Scala Example
 
 Scala training and prediction examples using the MLflow Java client
-* Hello World - Simple MLflow example.
-* Spark ML DecisionTree - advanced - saves and predicts SparkML and MLeap model formats.
+* [Hello World](#Hello-World) - Simple MLflow example.
+* [Resilient Hello World](#Resilient-Hello-World) - Shows how to set run status if run fails.
+
+* Spark ML DecisionTreeRegressor - Advanced - saves and predicts with SparkML and MLeap model formats.
 
 [MLflow tools](#Tools)
 * DumpExperiment - Dump experiment as text.
@@ -48,9 +50,8 @@ println("Experiment name: "+expName)
 println("Experiment ID: "+expId)
 
 // Create run
-val sourceName = getClass().getSimpleName()+".scala"
-val runInfo = mlflowClient.createRun(expId, sourceName);
-val runId = runInfo.getRunUuid()
+val runInfo = mlflowClient.createRun(expId)
+val runId = runInfo.getRunId()
 
 // Log params and metrics
 mlflowClient.logParam(runId, "p1","hi")
@@ -86,7 +87,7 @@ Snippet from [ResilientHelloWorld.scala](src/main/scala/org/andre/mlflow/example
   val runId = client.createRun(experimentId).getRunId()
   println("Run ID: "+runId)
   try {
-    client.logParam(runId, "alpha","0.5")
+    client.logParam(runId, "alpha", "0.5")
     if (doThrowException) {
       throw new Exception("Ouch")
     }
@@ -98,12 +99,13 @@ Snippet from [ResilientHelloWorld.scala](src/main/scala/org/andre/mlflow/example
   }
 ```
 
-### Spark ML DecisionTree Sample
+### Spark ML DecisionTreeRegressor Sample
 
-Sample demonstrating:
+Sample that:
 *  Trains a model
 *  Saves the model in Spark ML and MLeap formats
 *  Predicts from Spark ML and MLeap formats
+*  Uses wine quality dataset - [wine-quality-white.csv](../data/wine-quality/wine-quality-white.csv)
 
 #### Train
 
@@ -112,7 +114,7 @@ Saves model as Spark ML and MLeap artifact in MLflow.
 
 ##### Source
 
-Source snippet from [TrainDecisionTree.scala](src/main/scala/org/andre/mlflow/examples/libsvm/TrainDecisionTree.scala).
+Source snippet from [TrainDecisionTreeRegressor.scala](src/main/scala/org/andre/mlflow/examples/wine/TrainDecisionTreeRegressor.scala).
 ```
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.RunStatus
@@ -121,22 +123,21 @@ import org.mlflow.api.proto.Service.RunStatus
 val mlflowClient = new MlflowClient("http://localhost:5000")
 
 // MLflow - create or get existing experiment
-val expName = "scala/SimpleDecisionTree"
+val expName = "scala/TrainDecisionTreeRegressor"
 val expId = MLflowUtils.setExperiment(mlflowClient, expName)
 
 // MLflow - create run
-val sourceName = getClass().getSimpleName()+".scala"
-val runInfo = mlflowClient.createRun(expId, sourceName);
+val runInfo = mlflowClient.createRun(expId)
 val runId = runInfo.getRunUuid()
 
 // MLflow - Log parameters
-mlflowClient.logParameter(runId, "maxDepth",""+dt.getMaxDepth)
-mlflowClient.logParameter(runId, "maxBins",""+dt.getMaxBins)
+mlflowClient.logParam(runId, "maxDepth", "1")
+mlflowClient.logParam(runId, "maxBins", "32")
 
 . . . 
 
 // MLflow - Log metric
-mlflowClient.logMetric(runId, "rmse",rmse.toFloat)
+mlflowClient.logMetric(runId, "rmse", 0.786)
 
 // MLflow - save model as artifact
 //pipeline.save("tmp")
@@ -144,15 +145,9 @@ clf.save("tmp")
 mlflowClient.logArtifacts(runId, new File("tmp"),"model")
 
 // MLflow - save model as Spark ML artifact
-val sparkModelPath = "out/spark_model"
+val sparkModelPath = "out/spark-model"
 model.write.overwrite().save(sparkModelPath)
-mlflowClient.logArtifacts(runId, new File(sparkModelPath), "spark_model")
-
-// MLflow - save model as MLeap artifact
-val mleapModelDir = new File("out/mleap_model")
-mleapModelDir.mkdir
-MLeapUtils.save(model, predictions, "file:"+mleapModelDir.getAbsolutePath)
-mlflowClient.logArtifacts(runId, mleapModelDir, "mleap_model")
+mlflowClient.logArtifacts(runId, new File(sparkModelPath), "spark-model")
 
 // MLflow - close run
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
@@ -162,11 +157,11 @@ mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis()
 
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.libsvm.TrainDecisionTree \
+  --class org.andre.mlflow.examples.wine.TrainDecisionTreeRegressor \
   target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
-  --experimentName scala_DecisionTree \
-  --dataPath ../data/sample_libsvm_data.txt \
+  --experimentName scala_wine \
+  --dataPath ../data/wine-quality/wine-quality-white.csv \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
 
@@ -174,11 +169,11 @@ spark-submit --master local[2] \
 
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.libsvm.TrainDecisionTree \
+  --class org.andre.mlflow.examples.wine.TrainDecisionTreeRegressor \
   target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri https://acme.cloud.databricks.com --token MY_TOKEN \
-  --experimentName spark_DecisionTree \
-  --dataPath ../data/sample_libsvm_data.txt \
+  --experimentName /Shared/experiments/demo/scala_wine \
+  --dataPath ../data/wine-quality/wine-quality-white.csv \
   --modelPath model_sample --maxDepth 5 --maxBins 5
 ```
 
@@ -192,11 +187,11 @@ In this example we showcase runs_submit.
 
 Upload the data file and jar to your Databricks cluster.
 ```
-databricks fs cp data/sample_libsvm_data.txt \
-  dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt
+databricks fs cp ../data/wine-quality/wine-quality-white.csv \
+  dbfs:/tmp/jobs/scala-example/wine-quality-white.csv
 
 databricks fs cp target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
-  dbfs:/tmp/jobs/spark-scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar
+  dbfs:/tmp/jobs/scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar
 ```
 
 Here is a snippet from
@@ -205,13 +200,13 @@ Here is a snippet from
 ```
   "libraries": [
     { "pypi": { "package": "mlflow" } },
-    { "jar": "dbfs:/tmp/jobs/spark-scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar" }
+    { "jar": "dbfs:/tmp/jobs/scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar" }
   ],
   "spark_jar_task": {
     "main_class_name": "org.andre.mlflow.examples.TrainDecisionTree",
     "parameters": [ 
-      "--dataPath",  "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt",
-      "--modelPath", "/dbfs/tmp/jobs/spark-scala-example/models",
+      "--dataPath",  "dbfs:/tmp/jobs/scala-example/wine-quality-white.csv",
+      "--modelPath", "/dbfs/tmp/jobs/scala-example/models",
       "--runOrigin", "run_submit_new_cluster.json"
     ]
   }
@@ -228,7 +223,7 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
 
 ##### Run with existing cluster
 
-Every time you build a new jar, you need to upload (as described above) it to DBFS and restart the cluster.
+Every time you build a new jar, you need to upload it to DBFS (as described above) and restart the cluster.
 ```
 databricks clusters restart --cluster-id 0113-005848-about166
 ```
@@ -245,8 +240,8 @@ curl -X POST -H "Authorization: Bearer MY_TOKEN" \
 Create a notebook with the following cell. Attach it to the existing cluster described above.
 ```
 import org.andre.mlflow.examples.TrainDecisionTree
-val dataPath = "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt"
-val modelPath = "/dbfs/tmp/jobs/spark-scala-example/models"
+val dataPath = "dbfs:/tmp/jobs/scala-example/wine-quality-white.csv"
+val modelPath = "/dbfs/tmp/jobs/scala-example/models"
 val runOrigin = "run_from_jar_Notebook"
 TrainDecisionTree.train(spark, dataPath, modelPath, 5, 5, runOrigin)
 ```
@@ -256,18 +251,18 @@ TrainDecisionTree.train(spark, dataPath, modelPath, 5, 5, runOrigin)
 Predicts from Spark ML and MLeap models. 
 
 There are several ways to obtain the run:
-* [PredictByRunId.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByRunId.scala) - Specify run ID.
-* [PredictByLastRun.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByLastRun.scala) - Use the latest run.
-* [PredictByBestRun.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictByBestRun.scala) - Use the best run for given metric.
+* [PredictByLastRun.scala](src/main/scala/org/andre/mlflow/examples/wine/PredictByLastRun.scala) - Use the latest run.
+* [PredictByBestRun.scala](src/main/scala/org/andre/mlflow/examples/wine/PredictByBestRun.scala) - Use the best run for given metric.
+* [PredictByRunId.scala](src/main/scala/org/andre/mlflow/examples/wine/PredictByRunId.scala) - Specify run ID.
 
 ##### Run
 ##### Run By RunID
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.libsvm.PredictByRunId \
+  --class org.andre.mlflow.examples.wine.PredictByRunId \
   target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
-  --dataPath data/sample_libsvm_data.txt \
+  --dataPath ../data/wine-quality/wine-quality-white.csv \
   --runId 3e422c4736a34046a74795384741ac33
 ```
 
@@ -285,29 +280,29 @@ spark-submit --master local[2] \
 ##### Run By LastRun
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.libsvm.PredictByLastRun \
+  --class org.andre.mlflow.examples.wine.PredictByLastRun \
   target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
-  --dataPath data/sample_libsvm_data.txt \
+  --dataPath ../data/wine-quality/wine-quality-white.csv \
   --experimentId 2
 ```
 
 ##### Run By BestRun
 ```
 spark-submit --master local[2] \
-  --class org.andre.mlflow.examples.libsvm.PredictByBestRun \
+  --class org.andre.mlflow.examples.wine.PredictByBestRun \
   target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
   --trackingUri http://localhost:5000 \
-  --dataPath data/sample_libsvm_data.txt \
+  --dataPath ../data/wine-quality/wine-quality-white.csv \
   --experimentId 2
   --metric rmse --ascending
 ```
 
 ##### Source
 
-Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/libsvm/PredictUtils.scala).
+Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/wine/PredictUtils.scala).
 ```
-val data = spark.read.format("libsvm").load(opts.dataPath)
+val data = spark.read.format("libsvm").load(opts.dataPath) // TODO
 val model = PipelineModel.load(opts.modelPath)
 val predictions = model.transform(data)
 println("Prediction:")

@@ -1,21 +1,21 @@
 {
   "run_name": "MLflow_RunSubmit_NewCluster",
   "new_cluster": {
-    "spark_version": "5.2.x-scala2.11",
+    "spark_version": "5.4.x-scala2.11",
     "node_type_id": "i3.xlarge",
     "num_workers": 1
   },
   "timeout_seconds": 3600,
   "libraries": [
     { "pypi": { "package": "mlflow" } },
-    { "jar": "dbfs:/tmp/jobs/spark-scala-example/mlflow-spark-examples-1.0-SNAPSHOT.jar" }
+    { "jar": "dbfs:/tmp/jobs/scala-example/mlflow-scala-examples-1.0-SNAPSHOT.jar" }
   ],
   "spark_jar_task": {
-    "main_class_name": "org.andre.mlflow.examples.TrainDecisionTree",
+    "main_class_name": "org.andre.mlflow.examples.wine.TrainDecisionTreeRegressor",
     "parameters": [ 
-      "--experimentName", "/Shared/experiments/demo/scala_DecisionTree",
-      "--dataPath",  "dbfs:/tmp/jobs/spark-scala-example/sample_libsvm_data.txt",
-      "--modelPath", "/dbfs/tmp/jobs/spark-scala-example/models",
+      "--experimentName", "/Shared/experiments/demo/scala_wine",
+      "--dataPath",  "dbfs:/tmp/jobs/scala-example/wine-quality-white.csv",
+      "--modelPath", "/dbfs/tmp/jobs/scala-example/models",
       "--runOrigin", "run_submit_new_cluster.json"
     ]
   }

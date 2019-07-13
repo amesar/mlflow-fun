@@ -1,7 +1,5 @@
 package org.andre.mlflow.examples.wine
 
-// From: https://github.com/apache/spark/blob/master/examples/src/main/scala/org/apache/spark/examples/ml/DecisionTreeRegressionExample.scala
-
 import java.io.{File,PrintWriter}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.Pipeline
@@ -12,14 +10,17 @@ import org.mlflow.api.proto.Service.RunStatus
 import com.beust.jcommander.{JCommander, Parameter}
 import org.andre.mlflow.util.MLflowUtils
 
+/**
+ * MLflow DecisionTreeRegressor with wine quality data.
+ */
 object TrainDecisionTreeRegressor {
   val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
-  val columnLabel = "quality"
+  val metrics = Seq("rmse","r2", "mae")
 
   def main(args: Array[String]) {
     new JCommander(opts, args: _*)
     println("Options:")
-    println(s"  Tracking URI: ${opts.trackingUri}")
+    println(s"  trackingUri: ${opts.trackingUri}")
     println(s"  token: ${opts.token}")
     println(s"  experimentName: ${opts.experimentName}")
     println(s"  dataPath: ${opts.dataPath}")
@@ -45,56 +46,48 @@ object TrainDecisionTreeRegressor {
   def train(client: MlflowClient, experimentId: String, modelPath: String, maxDepth: Int, maxBins: Int, runOrigin: String, dataHolder: TrainUtils.DataHolder) {
     // MLflow - create run
     val runInfo = client.createRun(experimentId)
-    val runId = runInfo.getRunUuid()
+    val runId = runInfo.getRunId()
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
 
-    // Create model
-    val clf = new DecisionTreeRegressor()
-      .setLabelCol(columnLabel)
-      .setFeaturesCol("features")
-    if (maxDepth != -1) clf.setMaxDepth(maxDepth)
-    if (maxBins != -1) clf.setMaxBins(maxBins)
-
-    // MLflow - Log parameters
-    client.logParam(runId, "maxDepth",""+clf.getMaxDepth)
-    client.logParam(runId, "maxBins",""+clf.getMaxBins)
-    client.logParam(runId, "runOrigin",runOrigin)
+    // MLflow - log parameters
+    val params = Seq(("maxDepth",maxDepth),("maxBins",maxBins),("runOrigin",runOrigin))
     println(s"Params:")
-    println(s"  maxDepth: ${clf.getMaxDepth}")
-    println(s"  maxBins: ${clf.getMaxBins}")
+    for (p <- params) {
+      println(s"  ${p._1}: ${p._2}")
+      client.logParam(runId, p._1,p._2.toString)
+    }
 
+    // Create model
+    val dt = new DecisionTreeRegressor()
+      .setLabelCol(CommonUtils.colLabel)
+      .setFeaturesCol(CommonUtils.colFeatures)
+      .setMaxDepth(maxDepth)
+      .setMaxBins(maxBins)
 
-    // Chain indexer and tree in a Pipeline
-    val pipeline = new Pipeline().setStages(Array(dataHolder.assembler,clf))
+    // Create pipeline
+    val pipeline = new Pipeline().setStages(Array(dataHolder.assembler,dt))
 
-    // Train model. This also runs the indexer.
+    // Fit model
     val model = pipeline.fit(dataHolder.trainingData)
 
-    // Make predictions.
+    // Make predictions
     val predictions = model.transform(dataHolder.testData)
     println("Predictions Schema:")
-    predictions.printSchema
 
-    // Create metrics: select (prediction, true label) and compute test error.
-    val evaluator = new RegressionEvaluator()
-      .setLabelCol(columnLabel)
-      .setPredictionCol("prediction")
-      .setMetricName("rmse")
-    val rmse = evaluator.evaluate(predictions)
-    println(s"Metrics:")
-    println(s"  RMSE: $rmse")
-    println(s"  isLargerBetter: ${evaluator.isLargerBetter}")
+    // MLflow - log metrics
+    println("Metrics:")
+    for (metric <- metrics) {
+      val evaluator = new RegressionEvaluator()
+        .setLabelCol(CommonUtils.colLabel)
+        .setPredictionCol(CommonUtils.colPrediction)
+        .setMetricName(metric)
+      val v = evaluator.evaluate(predictions)
+      println(s"  $metric: $v - isLargerBetter: ${evaluator.isLargerBetter}")
+      client.logMetric(runId, metric, v)
+    }
 
-    // MLflow - Log metric
-    client.logMetric(runId, "rmse",rmse)
-
-    // Select example rows to display.
-    println("Prediction:")
-    predictions.select("prediction", columnLabel, "features").show(5)
-
-
-    // MLflow - Log tree model artifact
+    // MLflow - log tree model artifact
     val treeModel = model.stages.last.asInstanceOf[DecisionTreeRegressionModel]
     val path="treeModel.txt"
     new PrintWriter(path) { write(treeModel.toDebugString) ; close }
@@ -122,10 +115,10 @@ object TrainDecisionTreeRegressor {
     var modelPath: String = null
 
     @Parameter(names = Array("--maxDepth" ), description = "maxDepth", required=false)
-    var maxDepth = -1
+    var maxDepth: Int = 5 // per doc
 
     @Parameter(names = Array("--maxBins" ), description = "maxBins", required=false)
-    var maxBins = -1
+    var maxBins: Int = 32 // per doc
 
     @Parameter(names = Array("--runOrigin" ), description = "runOrigin", required=false)
     var runOrigin = "None"

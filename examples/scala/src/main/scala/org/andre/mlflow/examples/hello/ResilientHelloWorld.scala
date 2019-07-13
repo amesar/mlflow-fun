@@ -3,10 +3,11 @@ package org.andre.mlflow.examples.hello
 import java.io.{File,PrintWriter}
 import org.mlflow.tracking.MlflowClient
 import org.mlflow.api.proto.Service.{RunStatus,CreateRun}
-//import scala.collection.JavaConversions._
 import org.andre.mlflow.util.MLflowUtils
 
-/* Shows how to set run status if failure occurs during run. */
+/**
+ * Shows how to set run status if failure occurs during run. 
+ */
 object ResilientHelloWorld {
   def main(args: Array[String]) {
     val client = MLflowUtils.createMlflowClient(args(0))
@@ -24,9 +25,9 @@ object ResilientHelloWorld {
       if (doThrowException) {
         throw new Exception("Ouch")
       }
-      client.logParam(runId, "alpha","0.5")
-      client.logMetric(runId, "rmse",0.786)
-      client.setTag(runId, "origin","laptop")
+      client.logParam(runId, "alpha", "0.5")
+      client.logMetric(runId, "rmse", 0.786)
+      client.setTag(runId, "origin", "laptop")
       println("Status OK")
       client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
     } catch {
