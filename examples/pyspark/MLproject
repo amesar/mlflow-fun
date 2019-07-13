@@ -5,6 +5,7 @@ conda_env: conda.yaml
 entry_points:
   main:
     parameters:
+      data_path: string
       max_depth: {type: int, default: 2 }
       max_bins: {type: int, default: 32 }
-    command: "spark-submit --master local[2] train.py --max_depth {max_depth} --max_bins {max_bins}"
+    command: "spark-submit --master local[2] train.py --data_path {data_path} --max_depth {max_depth} --max_bins {max_bins}"
