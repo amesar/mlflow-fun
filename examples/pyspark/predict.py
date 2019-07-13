@@ -1,7 +1,6 @@
 import mlflow
-import mlflow.spark as mlflow_spark
+import mlflow.spark
 from pyspark.sql import SparkSession
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from common import *
 
 print("MLflow Version:", mlflow.version.VERSION)
@@ -23,7 +22,7 @@ if __name__ == "__main__":
     model_uri = "runs:/{}/spark-model".format(args.run_id)
     print("model_uri:",model_uri)
 
-    model = mlflow_spark.load_model(model_uri)
+    model = mlflow.spark.load_model(model_uri)
     predictions = model.transform(data)
     df = predictions.select(colPrediction, colLabel, colFeatures)
     print("Predictions:")
