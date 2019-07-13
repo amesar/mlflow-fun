@@ -111,19 +111,19 @@ object TrainDecisionTreeRegressor {
     @Parameter(names = Array("--dataPath" ), description = "Data path", required=true)
     var dataPath: String = null
 
-    @Parameter(names = Array("--modelPath" ), description = "Data path", required=true)
+    @Parameter(names = Array("--modelPath" ), description = "Model path", required=true)
     var modelPath: String = null
 
-    @Parameter(names = Array("--maxDepth" ), description = "maxDepth", required=false)
+    @Parameter(names = Array("--maxDepth" ), description = "maxDepth param", required=false)
     var maxDepth: Int = 5 // per doc
 
-    @Parameter(names = Array("--maxBins" ), description = "maxBins", required=false)
+    @Parameter(names = Array("--maxBins" ), description = "maxBins param", required=false)
     var maxBins: Int = 32 // per doc
 
-    @Parameter(names = Array("--runOrigin" ), description = "runOrigin", required=false)
+    @Parameter(names = Array("--runOrigin" ), description = "runOrigin tag", required=false)
     var runOrigin = "None"
 
-    @Parameter(names = Array("--experimentName" ), description = "experimentName", required=false)
-    var experimentName = "scala_DecisionTree"
+    @Parameter(names = Array("--experimentName" ), description = "Experiment name", required=false)
+    var experimentName = "scala"
   }
 }

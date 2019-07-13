@@ -4,7 +4,7 @@ import mlflow
 
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
-experiment_name = os.environ.get("MLFLOW_EXPERIMENT_NAME","HelloWorld")
+experiment_name = os.environ.get("MLFLOW_EXPERIMENT_NAME","hello_world")
 print("experiment_name:",experiment_name)
 
 def run(alpha, run_origin, log_artifact):

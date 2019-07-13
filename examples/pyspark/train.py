@@ -16,8 +16,6 @@ spark = SparkSession.builder.appName("App").getOrCreate()
 print("MLflow Version:", mlflow.version.VERSION)
 print("Tracking URI:", mlflow.tracking.get_tracking_uri())
 
-metric_names = ["accuracy","f1","weightedPrecision"]
-
 metrics = ["rmse","r2", "mae"]
 
 def train(data, maxDepth, maxBins):
@@ -35,7 +33,7 @@ def train(data, maxDepth, maxBins):
     assembler = VectorAssembler(inputCols=data.columns[:-1], outputCol=colFeatures)
     pipeline = Pipeline(stages=[assembler, dt])
     
-    # Fit model
+    # Fit model and predic
     model = pipeline.fit(trainingData)
     predictions = model.transform(testData)
 

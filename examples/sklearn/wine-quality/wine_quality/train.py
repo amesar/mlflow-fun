@@ -17,6 +17,8 @@ from wine_quality import plot_utils
 print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
+colLabel = "quality"
+
 class Trainer(object):
     def __init__(self, experiment_name, data_path, run_origin="none"):
         self.experiment_name = experiment_name
@@ -27,21 +29,19 @@ class Trainer(object):
         print("experiment_name:",self.experiment_name)
         print("run_origin:",run_origin)
 
-        # Read the wine-quality csv file 
+        # Read and prepare data
         print("data_path:",data_path)
         data = pd.read_csv(data_path)
-    
-        # Split the data into training and test sets - (0.75, 0.25).
         train, test = train_test_split(data)
     
         # The predicted column is "quality" which is a scalar from [3, 9]
-        self.train_x = train.drop(["quality"], axis=1)
-        self.test_x = test.drop(["quality"], axis=1)
-        self.train_y = train[["quality"]]
-        self.test_y = test[["quality"]]
+        self.train_x = train.drop([colLabel], axis=1)
+        self.test_x = test.drop([colLabel], axis=1)
+        self.train_y = train[[colLabel]]
+        self.test_y = test[[colLabel]]
 
-        self.X = data.drop(["quality"], axis=1).values
-        self.y = data[["quality"]].values.ravel()
+        self.X = data.drop([colLabel], axis=1).values
+        self.y = data[[colLabel]].values.ravel()
 
         # If using 'mlflow run' must use --experiment-id to set experiment since set_experiment() does not take effect
         if self.experiment_name != "none":
