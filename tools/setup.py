@@ -13,5 +13,6 @@ setup(name='mlflow_fun',
                 'mlflow_fun.metrics.pandas',
                 'mlflow_fun.metrics.sql',
                 'mlflow_fun.tools',
+                'mlflow_fun.export_import',
                 'mlflow_fun.make_exps_page'],
       zip_safe=False)
