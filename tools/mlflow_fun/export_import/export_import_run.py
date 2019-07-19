@@ -5,8 +5,8 @@ First create an experiment in the destination MLflow server: mlflow experiments 
 
 import os
 import time
-from argparse import ArgumentParser
 import mlflow
+from mlflow_fun.export_import import utils
 
 def set_experiment(client, exp_name):
     exp = client.get_experiment_by_name(exp_name)
@@ -41,22 +41,27 @@ def run(src_run_id, dst_exp_name, dst_uri, log_source_info):
              mlflow.log_param(k,v)
         for k,v in src_run.data.metrics.items():
              mlflow.log_metric(k,v)
-        for k,v in src_run.data.tags.items():
-             mlflow.set_tag(k,v)
+        #for k,v in src_run.data.tags.items():
+             #mlflow.set_tag(k,v)
 
+        tags = src_run.data.tags.copy()
         if log_source_info:
-             mlflow.set_tag("_exim_src_run_id",src_run_id)
-             mlflow.set_tag("_exim_src_experiment_id",src_run.info.experiment_id)
-             src_exp = src_client.get_experiment(src_run.info.experiment_id)
-             mlflow.set_tag("_exim_src_experiment_name",src_exp.name) 
-             mlflow.set_tag("_exim_src_uri",src_uri)
-             dbx_host = os.environ.get("DATABRICKS_HOST",None)
-             if dbx_host is not None:
-                 mlflow.set_tag("_exim_DATABRICKS_HOST", dbx_host)
-             now = int(time.time()+.5)
-             snow = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now))
-             mlflow.set_tag("_exim_import_timestamp",now)
-             mlflow.set_tag("_exim_import_timestamp_nice",snow)
+             utils.add_log_source_info(src_client, tags, src_run)
+        #if log_source_info:
+             #mlflow.set_tag("_exim_src_run_id",src_run_id)
+             #mlflow.set_tag("_exim_src_experiment_id",src_run.info.experiment_id)
+             #src_exp = src_client.get_experiment(src_run.info.experiment_id)
+             #mlflow.set_tag("_exim_src_experiment_name",src_exp.name) 
+             #mlflow.set_tag("_exim_src_uri",src_uri)
+             #dbx_host = os.environ.get("DATABRICKS_HOST",None)
+             #if dbx_host is not None:
+                 #mlflow.set_tag("_exim_DATABRICKS_HOST", dbx_host)
+             #now = int(time.time()+.5)
+             #snow = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now))
+             #mlflow.set_tag("_exim_import_timestamp",now)
+             #mlflow.set_tag("_exim_import_timestamp_nice",snow)
+        for k,v in tags.items():
+             mlflow.set_tag(k,v)
 
         # copy artifacts
         local_path = src_client.download_artifacts(src_run_id,"")
@@ -64,6 +69,7 @@ def run(src_run_id, dst_exp_name, dst_uri, log_source_info):
         mlflow.log_artifacts(local_path)
 
 if __name__ == "__main__":
+    from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("--src_run_id", dest="src_run_id", help="Source run_id", required=True)
     parser.add_argument("--dst_uri", dest="dst_uri", help="Destination MLFLOW API URL", required=True)

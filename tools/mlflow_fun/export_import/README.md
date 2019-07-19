@@ -24,14 +24,14 @@ python export_import_run.py \
   --log_source_info
 ```
 
-The `log_source_info` option creates metadata tags with import information. Sample tags from UI:
+The `log_source_info` option creates metadata tags with import information. 
 ```
 Name                         Value
-_exim_import_timestamp       1551037752
-_exim_import_timestamp_nice  2019-02-24 19:49:12
-_exim_src_experiment_id      2368826
-_exim_src_run_id             50fa90e751eb4b3f9ba9cef0efe8ea30
-_exim_src_uri                http://localhost:5000
+mlflow_tools.timestamp       1551037752
+mlflow_tools.timestamp_nice  2019-02-24 19:49:12
+mlflow_tools.experiment_id   2368826
+mlflow_tools.run_id          50fa90e751eb4b3f9ba9cef0efe8ea30
+mlflow_tools.tracking_uri    http://localhost:5000
 ```
 
 **Check predictions from new run**
