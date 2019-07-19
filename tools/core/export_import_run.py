@@ -3,16 +3,10 @@ Exports a run from one MLflow server and imports it into another server.
 First create an experiment in the destination MLflow server: mlflow experiments create my_experiment
 """
 
-from __future__ import print_function
-
 import os
 import time
-import datetime
-import shutil
 from argparse import ArgumentParser
 import mlflow
-mlflow.exceptions.MlflowException
-from mlflow import tracking
 
 def set_experiment(client, exp_name):
     exp = client.get_experiment_by_name(exp_name)
@@ -53,6 +47,8 @@ def run(src_run_id, dst_exp_name, dst_uri, log_source_info):
         if log_source_info:
              mlflow.set_tag("_exim_src_run_id",src_run_id)
              mlflow.set_tag("_exim_src_experiment_id",src_run.info.experiment_id)
+             src_exp = src_client.get_experiment(src_run.info.experiment_id)
+             mlflow.set_tag("_exim_src_experiment_name",src_exp.name) 
              mlflow.set_tag("_exim_src_uri",src_uri)
              dbx_host = os.environ.get("DATABRICKS_HOST",None)
              if dbx_host is not None:
