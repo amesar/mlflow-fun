@@ -8,6 +8,11 @@ import tempfile
 import json
 import mlflow
 from mlflow_fun.export_import import utils
+print("MLflow Version:", mlflow.version.VERSION)
+print("MLflow Tracking URI:", mlflow.get_tracking_uri())
+
+# Databricks tags that cannot be set
+dbx_skip_tags = set([ "mlflow.user" ])
 
 client = mlflow.tracking.MlflowClient()
 
@@ -30,7 +35,10 @@ def export_run_to_zip(run, zip_file, log_source_info=False):
 
 def export_run_to_dir(run, run_dir, log_source_info=False):
     run_id = run.info.run_id
-    tags = run.data.tags.copy()
+
+    #tags = run.data.tags.copy()
+    tags = { k:v for k,v in run.data.tags.items() if k not in dbx_skip_tags }
+
     if log_source_info:
         utils.add_log_source_info(client, tags, run)
 

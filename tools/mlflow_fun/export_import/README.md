@@ -35,11 +35,17 @@ mlflow_tools.export.tracking_uri    http://localhost:5000
 ### Export experiment
 
 Export an experiment to a directory or zip file.
+
+Arguments
+* experiment - Source experiment name or ID
+* output - Destination directory or zip file
+
+Run examples
 ```
-python export_run.py --experiment_id 2 --output=out --log_source_info
+python export_run.py --experiment=2 --output=out --log_source_info
 ```
 ```
-python export_run.py --experiment_id 2 --output=exp.zip
+python export_run.py --experiment=sklearn_wine --output=exp.zip
 ```
 
 Output export directory example
@@ -62,14 +68,21 @@ manifest.json example - source information
 ### Import experiment
 
 Import an experiment from a directory or zip file.
+
+Arguments
+* experiment_name - Destination experiment name  - will be created if it does not exist
+* input - Source directory or zip file produced by export_experiment.py
+
+Run examples
+
 ```
 python import_experiment.py \
-  --experiment_name sklearn_wine \
+  --experiment_name=sklearn_wine \
   --input=out 
 ```
 ```
 python import_experiment.py \
-  --experiment_name sklearn_wine \
+  --experiment_name=sklearn_wine \
   --input=exp.zip 
 ```
 
@@ -77,16 +90,22 @@ python import_experiment.py \
 
 ### Export run
 
-Export run to directory or zip file
+Export run to directory or zip file.
+
+Arguments
+* run_id - Source run ID
+* output - Destination directory or zip file
+
+Run examples
 ```
 python export_run.py \
-  --run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
+  --run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --output=out
   --log_source_info
 ```
 ```
 python export_run.py \
-  --run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
+  --run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --output=run.zip
 ```
 
@@ -134,11 +153,17 @@ Sample run.json
 ### Import run
 
 Imports a run from a directory or zip file.
+
+Arguments
+* experiment_name - Destination experiment name  - will be created if it does not exist
+* input - Source directory or zip file produced by export_run.py
+
+Run examples
 ```
 python import_run.py \
-  --run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
+  --run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --input=out \
-  --experiment_name sklearn_wine2
+  --experiment_name=sklearn_wine2
 ```
 
 ### Copy run from one tracking server to another
@@ -159,7 +184,7 @@ Run [export_import_run.py](export_import_run.py).
 export MLFLOW_TRACKING_URI=http://localhost:5000
 
 python export_import_run.py \
-  --src_run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
+  --src_run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --dst_experiment_id_name my_experiment \
   --dst_uri http://localhost:5001
   --log_source_info

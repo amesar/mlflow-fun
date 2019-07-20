@@ -8,9 +8,14 @@ import json
 import shutil
 import tempfile
 from mlflow_fun.export_import import utils, export_run
+from mlflow_fun.common import mlflow_utils
 
-def export_experiment(exp_id, output, log_source_info=False):
-    print("Exporting experiment '{}' to '{}'".format(exp_id,output),flush=True)
+client = mlflow.tracking.MlflowClient()
+
+def export_experiment(exp_id_or_name, output, log_source_info=False):
+    exp = mlflow_utils.get_experiment(client, exp_id_or_name)
+    exp_id = exp.experiment_id
+    print("Exporting experiment '{}' ({}) to '{}'".format(exp.name,exp.experiment_id,output),flush=True)
     if output.endswith(".zip"):
         export_experiment_from_zip(exp_id, output, log_source_info)
     else:
@@ -18,7 +23,6 @@ def export_experiment(exp_id, output, log_source_info=False):
         export_experiment_from_dir(exp_id, output, log_source_info)
 
 def export_experiment_from_dir(exp_id, exp_dir, log_source_info=False):
-    client = mlflow.tracking.MlflowClient()
     infos = client.list_run_infos(exp_id)
 
     exp = client.get_experiment(exp_id)
@@ -45,10 +49,9 @@ def export_experiment_from_zip(exp_id, zip_file, log_source_info=False):
 if __name__ == "__main__":
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument("--experiment_id", dest="experiment_id", help="Source exp_id", required=True)
+    parser.add_argument("--experiment", dest="experiment", help="Source experiment ID or name", required=True)
     parser.add_argument("--output", dest="output", help="Output path", required=True)
     parser.add_argument("--log_source_info", dest="log_source_info", help="Set tags with import information", default=False, action='store_true')
     args = parser.parse_args()
     print("args:",args)
-    export_experiment(args.experiment_id, args.output, args.log_source_info)
-
+    export_experiment(args.experiment, args.output, args.log_source_info)
