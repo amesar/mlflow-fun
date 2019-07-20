@@ -4,7 +4,17 @@ import time
 
 prefix = "mlflow_tools.export"
 
-def add_log_source_info(client, tags, run):
+# Databricks tags that cannot be set
+dbx_skip_tags = set([ "mlflow.user" ])
+
+def create_tags(client, run, log_source_info):
+    tags = run.data.tags.copy()
+    for tag_key in dbx_skip_tags:
+        tags.pop(tag_key, None)
+
+    if not log_source_info:
+        return tags
+
     uri = mlflow.tracking.get_tracking_uri()
     tags[prefix+".tracking_uri"] = uri
     dbx_host = os.environ.get("DATABRICKS_HOST",None)
@@ -19,6 +29,9 @@ def add_log_source_info(client, tags, run):
     tags[prefix+".experiment_id"] = run.info.experiment_id
     exp = client.get_experiment(run.info.experiment_id)
     tags[prefix+".experiment_name"] = exp.name
+    tags[prefix+".user_id"] = run.info.user_id
+
+    return tags
 
 def get_now_nice():
     now = int(time.time()+.5)
