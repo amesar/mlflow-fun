@@ -183,7 +183,7 @@ Run [export_import_run.py](export_import_run.py).
 ```
 export MLFLOW_TRACKING_URI=http://localhost:5000
 
-python export_import_run.py \
+python copy_run.py \
   --src_run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --dst_experiment_id_name my_experiment \
   --dst_uri http://localhost:5001
