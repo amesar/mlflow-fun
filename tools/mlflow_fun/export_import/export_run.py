@@ -4,18 +4,32 @@ Exports a run to a directory of zip file.
 
 import os
 import shutil
+import tempfile
 import json
 import mlflow
 from mlflow_fun.export_import import utils
 
 client = mlflow.tracking.MlflowClient()
 
-def export_run(run, run_dir, log_source_info):
-    run_id = run.info.run_id
-    print("run_id:",run_id)
-    print("run_dir:",run_dir)
-    print("log_source_info:",log_source_info)
+def export_run(run_id, output, log_source_info=False):
+    run = client.get_run(run_id)
+    if output.endswith(".zip"):
+        export_run_to_zip(run, output, log_source_info)
+    else:
+        os.makedirs(output)
+        export_run_to_dir(run, output, log_source_info)
 
+def export_run_to_zip(run, zip_file, log_source_info=False):
+    zip_file,_ = zip_file.split(".")
+    tdir = tempfile.mkdtemp()
+    try:
+        export_run_to_dir(run, tdir, log_source_info)
+        shutil.make_archive(zip_file, "zip", tdir)
+    finally:
+        shutil.rmtree(tdir)
+
+def export_run_to_dir(run, run_dir, log_source_info=False):
+    run_id = run.info.run_id
     tags = run.data.tags.copy()
     if log_source_info:
         utils.add_log_source_info(client, tags, run)
@@ -32,9 +46,11 @@ def export_run(run, run_dir, log_source_info):
 
     # copy artifacts
     src_path = client.download_artifacts(run_id,"")
-    print("src_path:",src_path)
-    path = os.path.join(run_dir,"artifacts")
-    shutil.copytree(src_path,path)
+    src_path = src_path.replace("dbfs:","/dbfs")
+    dst_path = os.path.join(run_dir,"artifacts")
+    #print("src_path:",src_path)
+    #print("dst_path:",dst_path)
+    shutil.copytree(src_path, dst_path)
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -43,5 +59,5 @@ if __name__ == "__main__":
     parser.add_argument("--output", dest="output", help="Output directory or zip file", required=True)
     parser.add_argument("--log_source_info", dest="log_source_info", help="Set tags with import information", default=False, action='store_true')
     args = parser.parse_args()
-    run = client.get_run(args.run_id)
-    export_run(run, args.output, args.log_source_info)
+    print("args:",args)
+    export_run(args.run_id, args.output, args.log_source_info)

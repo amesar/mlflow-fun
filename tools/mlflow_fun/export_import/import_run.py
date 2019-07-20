@@ -4,15 +4,33 @@ Imports a run from a directory of zip file.
 
 import os
 import json
+import tempfile
+import shutil
+import zipfile
 import mlflow
 
-def import_run(run_dir):
+def import_run(exp_name, input):
+    if input.endswith(".zip"):
+        import_run_from_zip(exp_name, input)
+    else:
+        import_run_from_dir(exp_name, input)
+
+def import_run_from_zip(exp_name, zip_file):
+    tdir = tempfile.mkdtemp()
+    try:
+        with zipfile.ZipFile(zip_file, "r") as zf:
+            zf.extractall(tdir)
+        import_run_from_dir(exp_name, tdir)
+    finally:
+        shutil.rmtree(tdir)
+
+def import_run_from_dir(exp_name, run_dir):
+    mlflow.set_experiment(exp_name)
     path = os.path.join(run_dir,"run.json")
     with open(path, "r") as f:
         run_dct = json.loads(f.read())
 
     # TODO: use batch API methods
-    # TODO: import info too
     with mlflow.start_run() as run:
         for k,v in run_dct['params'].items():
             mlflow.log_param(k,v)
@@ -29,5 +47,5 @@ if __name__ == "__main__":
     parser.add_argument("--input", dest="input", help="Input path - directory or zip file", required=True)
     parser.add_argument("--experiment_name", dest="experiment_name", help="Destination experiment_name", required=True)
     args = parser.parse_args()
-    mlflow.set_experiment(args.experiment_name)
-    import_run(args.input)
+    print("args:",args)
+    import_run(args.experiment_name, args.input)

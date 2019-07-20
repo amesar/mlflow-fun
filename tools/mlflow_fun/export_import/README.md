@@ -5,26 +5,27 @@ Utilities to export and import MLflow experiments and runs.
 ## Overview
 
 * Experiments
-  * Export an experiment and all its runs to file system - directory or zip file
-  * Import an experiment from file system - directory or zip file
+  * Export an experiment and all its runs to a directory or zip file
+  * Import an experiment from directory or zip file
   * Copies an experiment directly from one tracking server to another
 * Runs
-  * Export a run to file system - directory or zip file
-  * Import a run from file system directory or zip file
+  * Export a run to directory or zip file
+  * Import a run from directory or zip file
   * Copies a run directly from one tracking server to another
 
 ### Common arguments 
 
 `output` - can either be a directory or zip file (determined if `output` has a zip extension).
 
-`log_source_info` creates metadata tags with expert information.  Example:
+`log_source_info` creates metadata tags (starting with `mlflow_tools.export`) containing export information. Example:
 ```
-Name                         Value
-mlflow_tools.timestamp       1551037752
-mlflow_tools.timestamp_nice  2019-02-24 19:49:12
-mlflow_tools.experiment_id   2368826
-mlflow_tools.run_id          50fa90e751eb4b3f9ba9cef0efe8ea30
-mlflow_tools.tracking_uri    http://localhost:5000
+Name                                Value
+mlflow_tools.export.timestamp       1551037752
+mlflow_tools.export.timestamp_nice  2019-02-24 19:49:12
+mlflow_tools.export.experiment_id   2
+mlflow_tools.export.experiment_name sklearn_wine
+mlflow_tools.export.run_id          50fa90e751eb4b3f9ba9cef0efe8ea30
+mlflow_tools.export.tracking_uri    http://localhost:5000
 ```
 
 ## Experiments
@@ -35,7 +36,7 @@ Coming soon.
 
 ### Export run
 
-Exports a run to file system.
+Exports a run to directory or zip file.
 
 ```
 python export_run.py \
@@ -43,8 +44,13 @@ python export_run.py \
   --output=out
   --log_source_info
 ```
+```
+python export_run.py \
+  --run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
+  --output=run.zip
+```
 
-Produces a directory with following structure:
+Produces a directory with the following structure:
 ```
 run.json
 artifacts
@@ -87,7 +93,7 @@ Sample run.json
 
 ### Import run
 
-Imports a run from a file system directory or zip file.
+Imports a run from a directory or zip file.
 ```
 python import_run.py \
   --run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
