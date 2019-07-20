@@ -10,6 +10,7 @@ import zipfile
 import mlflow
 
 def import_run(exp_name, input):
+    print("Importing into {} from {}".format(exp_name, input),flush=True)
     if input.endswith(".zip"):
         import_run_from_zip(exp_name, input)
     else:

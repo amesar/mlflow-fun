@@ -1,6 +1,6 @@
 # mlflow-fun/tools/export_import
 
-Utilities to export and import MLflow experiments and runs.
+Tools to export and import MLflow experiments or runs.
 
 ## Overview
 
@@ -15,9 +15,11 @@ Utilities to export and import MLflow experiments and runs.
 
 ### Common arguments 
 
-`output` - can either be a directory or zip file (determined if `output` has a zip extension).
+`output` - can either be a directory or zip file (`output` has a zip extension).
 
-`log_source_info` creates metadata tags (starting with `mlflow_tools.export`) containing export information. Example:
+`intput` - can either be a directory or zip file (if `output` has a zip extension).
+
+`log_source_info` creates metadata tags (starting with `mlflow_tools.export`) containing export information.
 ```
 Name                                Value
 mlflow_tools.export.timestamp       1551037752
@@ -30,14 +32,52 @@ mlflow_tools.export.tracking_uri    http://localhost:5000
 
 ## Experiments
 
-Coming soon.
+### Export experiment
+
+Export an experiment to a directory or zip file.
+```
+python export_run.py --experiment_id 2 --output=out --log_source_info
+```
+```
+python export_run.py --experiment_id 2 --output=exp.zip
+```
+
+Output export directory example
+```
+manifest.json
+130bca8d75e54febb2bfa46875a03d59/
+5a22839d66154001882e0632581fbf02/
+```
+manifest.json example - source information
+```
+{
+  "experiment_id": "2",
+  "name": "sklearn_wine",
+  "artifact_location": "/opt/mlflow/server/mlruns/2",
+  "lifecycle_stage": "active",
+  "export_time": "2019-07-20 17:06:44"
+}
+```
+
+### Import experiment
+
+Import an experiment from a directory or zip file.
+```
+python import_experiment.py \
+  --experiment_name sklearn_wine \
+  --input=out 
+```
+```
+python import_experiment.py \
+  --experiment_name sklearn_wine \
+  --input=exp.zip 
+```
 
 ## Runs
 
 ### Export run
 
-Exports a run to directory or zip file.
-
+Export run to directory or zip file
 ```
 python export_run.py \
   --run_id 50fa90e751eb4b3f9ba9cef0efe8ea30 \
