@@ -3,19 +3,22 @@
 ## Overview
 * Data -  Wine Quality
 * Model -  DecisionTreeRegressor
-* This example demonstrates many features of MLflow training and prediction
-* Saves model in pickle format
-* Saves plot artifact
+* Synopsis
+  * This example demonstrates many features of MLflow training and prediction
+  * Source: [train.py](wine_quality/train.py) and [predict.py](predict.py)
+  * Saves model in pickle format
+  * Saves plot artifact
+  * Package structure so egg can be deployed an run in Databricks environment
 * Shows several ways to run training:
   * _mlflow run_ CLI 
-  * run against Databricks cluster
+  * run against Databricks cluster using REST API
   * call egg from notebook
-* Shows several ways to run prediction  
+* Shows several ways to run predictions
   * web server
   * mlflow.sklearn.load_model()
   * mlflow.pyfunc.load_pyfunc()
   * mlflow.pyfunc.spark_udf 
-* Data: ../../data/wine-quality - wine-quality-white.csv and wine-quality-red.csv.
+* Data sets: ../../data/wine-quality - wine-quality-white.csv and wine-quality-red.csv.
 
 ## Setup
 
@@ -35,7 +38,7 @@ Source: [main.py](main.py) and [train.py](wine_quality/train.py).
 
 To run with standard main function:
 ```
-python main.py --experiment_name WineQualityExperiment \
+python main.py --experiment_name sklearn_wine \
   --max_depth 2 --max_leaf_nodes 32 \
   --data_path ../../data/wine-quality/wine-quality-white.csv 
 ```
