@@ -5,7 +5,6 @@ Exports a run to a directory of zip file.
 import os
 import shutil
 import tempfile
-import json
 import mlflow
 from mlflow_fun.export_import import utils
 print("MLflow Version:", mlflow.version.VERSION)
@@ -15,6 +14,9 @@ client = mlflow.tracking.MlflowClient()
 
 def export_run(run_id, output, log_source_info=False):
     run = client.get_run(run_id)
+    export_run2(run, output, log_source_info=False)
+
+def export_run2(run, output, log_source_info=False):
     if output.endswith(".zip"):
         export_run_to_zip(run, output, log_source_info)
     else:
@@ -36,17 +38,14 @@ def export_run_to_dir(run, run_dir, log_source_info=False):
             "metrics": run.data.metrics,
             "tags": utils.create_tags(client, run, log_source_info)
           }
-
     path = os.path.join(run_dir,"run.json")
-    with open(path, 'w') as f:
-      f.write(json.dumps(dct,indent=2)+'\n')
+    utils.write_json_file(path, dct)
 
     # copy artifacts
-    src_path = client.download_artifacts(run.info.run_id,"")
-    src_path = src_path.replace("dbfs:","/dbfs")
     dst_path = os.path.join(run_dir,"artifacts")
-    #print("src_path:",src_path)
     #print("dst_path:",dst_path)
+    src_path = client.download_artifacts(run.info.run_id,"")
+    #print("src_path:",src_path)
     shutil.copytree(src_path, dst_path)
 
 if __name__ == "__main__":

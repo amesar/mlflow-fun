@@ -3,16 +3,16 @@ Imports a run from a directory of zip file.
 """
 
 import os
-import json
 import tempfile
 import shutil
 import zipfile
 import mlflow
+from mlflow_fun.export_import import utils
 
 client = mlflow.tracking.MlflowClient()
 
 def import_run(exp_name, input, log_batch=False):
-    print("Importing into {} from {}".format(exp_name, input),flush=True)
+    print("Importing into experiment '{}' from '{}'".format(exp_name, input),flush=True)
     if input.endswith(".zip"):
         import_run_from_zip(exp_name, input, log_batch)
     else:
@@ -33,9 +33,7 @@ def import_run_from_dir(exp_name, run_dir, log_batch):
     print("Experiment name:",exp_name)
     print("Experiment ID:",exp.experiment_id)
     path = os.path.join(run_dir,"run.json")
-    with open(path, "r") as f:
-        run_dct = json.loads(f.read())
-
+    run_dct = utils.read_json_file(path)
     with mlflow.start_run() as run:
         if log_batch:
             import_run_data_batch(run_dct,run.info.run_id)
@@ -54,10 +52,10 @@ def import_run_data(run_dct):
 
 def import_run_data_batch(run_dct, run_id):
     import time
-    now = int(time.time()+.5)
     from mlflow.entities import Metric, Param, RunTag
+    now = int(time.time()+.5)
     params = [ Param(k,v) for k,v in run_dct['params'].items() ]
-    metrics = [ Metric(k,v,now,0) for k,v in run_dct['metrics'].items() ] #TODO: timestamp and step?
+    metrics = [ Metric(k,v,now,0) for k,v in run_dct['metrics'].items() ] # TODO: check timestamp and step semantics
     tags = [ RunTag(k,v) for k,v in run_dct['tags'].items() ]
     client.log_batch(run_id, metrics, params, tags)
 

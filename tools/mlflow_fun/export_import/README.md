@@ -13,6 +13,9 @@ Tools to export and import MLflow experiments or runs.
   * Import a run from directory or zip file
   * Copies a run directly from one tracking server to another
 
+* TODO
+  * Make work for nested runs
+
 ### Common arguments 
 
 `output` - can either be a directory or zip file (`output` has a zip extension).
@@ -54,7 +57,7 @@ manifest.json
 130bca8d75e54febb2bfa46875a03d59/
 5a22839d66154001882e0632581fbf02/
 ```
-manifest.json example - source information
+manifest.json example - source experiment information
 ```
 {
   "experiment_id": "2",
@@ -84,6 +87,32 @@ python import_experiment.py \
 python import_experiment.py \
   --experiment_name=sklearn_wine \
   --input=exp.zip 
+```
+
+### Copy experiment from one tracking server to another
+
+Copies an experiment from one MLflow tracking server to another.
+
+Source: [copy_experiment.py](copy_experiment.py)
+
+In this example we use
+* Source tracking server runs on port 5000 
+* Destination tracking server runs on 5001
+
+Arguments
+* src_experiment - Source experiment name or ID
+* dst_experiment_name - Destination experiment name  - will be created if it does not exist
+* dst_uri - Destination server URI
+
+Run example
+```
+export MLFLOW_TRACKING_URI=http://localhost:5000
+
+python copy_experiment.py \
+  --src_experiment=sklearn_win \
+  --dst_experiment_name sklearn_wine \
+  --dst_uri http://localhost:5001
+  --log_source_info
 ```
 
 ## Runs
@@ -168,35 +197,26 @@ python import_run.py \
 
 ### Copy run from one tracking server to another
 
-Exports a run from one MLflow tracking server and imports it into another server.
+Copies a run from one MLflow tracking server to another.
 
-In this example we use:
+Source: [copy_run.py](copy_run.py)
 
-* Experiment [../../../examples/sklearn/wine-quality](../../../examples/sklearn/wine-quality)
+In this example we use
 * Source tracking server runs on port 5000 
 * Destination tracking server runs on 5001
 
-**Export and import the run**
+Arguments
+* src_run_id - Source run ID
+* dst_experiment_name - Destination experiment name  - will be created if it does not exist
+* dst_uri - Destination server URI
 
-Run [export_import_run.py](export_import_run.py). 
-
+Run example
 ```
 export MLFLOW_TRACKING_URI=http://localhost:5000
 
 python copy_run.py \
   --src_run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
-  --dst_experiment_id_name my_experiment \
+  --dst_experiment_name sklearn_wine \
   --dst_uri http://localhost:5001
   --log_source_info
-```
-
-
-**Check predictions from new run**
-
-Check the predictions from the new run in the destination server.
-
-```
-export MLFLOW_TRACKING_URI=http://localhost:5001
-cd ../../../examples/sklearn/wine-quality
-python scikit_predict.py bf3890a927fb4c82be37221eed8069d7
 ```

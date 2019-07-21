@@ -1,6 +1,7 @@
-import mlflow
 import os
+import json
 import time
+import mlflow
 
 prefix = "mlflow_tools.export"
 
@@ -39,3 +40,11 @@ def get_now_nice():
 
 def strip_underscores(obj):
     return { k[1:]:v for (k,v) in obj.__dict__.items() }
+
+def write_json_file(path, dct):
+    with open(path, 'w') as f:
+        f.write(json.dumps(dct,indent=2)+"\n")
+
+def read_json_file(path):
+    with open(path, "r") as f:
+        return json.loads(f.read())

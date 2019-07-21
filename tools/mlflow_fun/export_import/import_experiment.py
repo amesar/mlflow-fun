@@ -1,11 +1,9 @@
-
 import os
-import json
 import zipfile
 import tempfile
 import shutil
 import mlflow
-from mlflow_fun.export_import import import_run
+from mlflow_fun.export_import import import_run, utils
 
 def import_experiment(exp_name, input):
     if input.endswith(".zip"):
@@ -16,9 +14,7 @@ def import_experiment(exp_name, input):
 def import_experiment_from_dir(exp_name, exp_dir):
     mlflow.set_experiment(exp_name)
     path = os.path.join(exp_dir,"manifest.json")
-    with open(path, "r") as f:
-        dct = json.loads(f.read())
-    #print("dct:",dct)
+    dct = utils.read_json_file(path)
     run_dirs = next(os.walk(exp_dir))[1]
     print("Importing {} runs into experiment {} from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
     for run_dir in run_dirs:
