@@ -30,7 +30,7 @@ class HttpClient(object):
         :param data: Post request payload
         """
         uri = self._mk_uri(resource)
-        rsp = requests.get(uri, headers=self._mk_headers(), data=data)
+        rsp = requests.post(uri, headers=self._mk_headers(), data=data)
         self._check_response(rsp,uri)
         return json.loads(rsp.text)
 
