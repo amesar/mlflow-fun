@@ -60,11 +60,20 @@ manifest.json
 manifest.json example - source experiment information
 ```
 {
-  "experiment_id": "2",
-  "name": "sklearn_wine",
-  "artifact_location": "/opt/mlflow/server/mlruns/2",
-  "lifecycle_stage": "active",
-  "export_time": "2019-07-20 17:06:44"
+  "experiment": {
+    "experiment_id": "2",
+    "name": "sklearn_wine",
+    "artifact_location": "/opt/mlflow/server/mlruns/2",
+    "lifecycle_stage": "active"
+  },
+  "export_info": {
+    "export_time": "2019-07-21 13:36:28",
+    "num_runs": 2
+  },
+  "run_ids": [
+    "130bca8d75e54febb2bfa46875a03d59",
+    "5a22839d66154001882e0632581fbf02"
+  ]
 }
 ```
 
