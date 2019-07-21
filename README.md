@@ -8,7 +8,7 @@ Exploring MLflow in depth for Python and Scala.
 * [Python Scikit-learn](examples/sklearn/wine-quality/README.md) - most advanced example.
 * [PySpark ML](examples/pyspark/README.md).
 * [PyTorch ML](examples/pytorch/README.md).
-* [Tools](tools) - Useful MLflow tools: dump run, dump experiment, dump runs to CSV files, etc.
+* [Tools](tools) - dump run, dump experiment, save runs to CSV files, export run/experiment, copy run/experiment to another tracking server, etc.
 
 #### Scala with Java client
 * [Scala Spark ML examples](examples/scala/README.md) - uses MLFlow Java client.

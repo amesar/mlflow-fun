@@ -1,4 +1,4 @@
-# mlflow-fun/tools/export_import
+# mlflow-fun/tools - Export/Import Experiments or Runs
 
 Tools to export and import MLflow experiments or runs.
 
@@ -7,11 +7,11 @@ Tools to export and import MLflow experiments or runs.
 * Experiments
   * Export an experiment and all its runs to a directory or zip file
   * Import an experiment from directory or zip file
-  * Copies an experiment directly from one tracking server to another
+  * Copy an experiment from one tracking server to another
 * Runs
   * Export a run to directory or zip file
   * Import a run from directory or zip file
-  * Copies a run directly from one tracking server to another
+  * Copy a run from one tracking server to another
 
 * TODO
   * Make work for nested runs
