@@ -183,44 +183,22 @@ See MLflow documentation:
 * [mlflow.pyfunc.spark_udf](https://www.mlflow.org/docs/latest/python_api/mlflow.pyfunc.html#mlflow.pyfunc.spark_udf)
 
 
-### Data for predictions
-[data/wine-quality-red.csv](../../data/wine-quality/wine-quality-red.csv):
-```
-[
-  {
-    "fixed acidity": 7,
-    "volatile acidity": 0.27,
-    "citric acid": 0.36,
-    "residual sugar": 20.7,
-    "chlorides": 0.045,
-    "free sulfur dioxide": 45,
-    "total sulfur dioxide": 170,
-    "density": 1.001,
-    "pH": 3,
-    "sulphates": 0.45,
-    "alcohol": 8.8
-  }, 
-  . . . . .
-]
-```
-
 ### 1. Serving Models from MLflow Web Server
 
 In one window run the server.
 ```
-mlflow pyfunc serve -p 5001 -r 7e674524514846799310c41f10d6b99d -m model
+mlflow models serve -p 5001 -m runs:/7e674524514846799310c41f10d6b99d/sklearn-model
 ```
 
-In another window, submit a prediction.
+In another window, submit a prediction from [predict-wine-quality.json](../../data/wine-quality/predict-wine-quality.json).
 ```
-curl -X POST -H "Content-Type:application/json" -d @data/wine-quality-red.csv http://localhost:5001/invocations
-
+curl -X POST -H "Content-Type:application/json" \
+  -d @../../data/wine-quality/predict-wine-quality.json \
+  http://localhost:5001/invocations
+```
+```
 [
-    5.551096337521979,
-    5.297727513113797,
-    5.427572126267637,
-    5.562886443251915,
-    5.562886443251915
+    5.915754923413567
 ]
 ```
 
@@ -234,7 +212,7 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 From [scikit_predict.py](scikit_predict.py):
 ```
 model = mlflow.sklearn.load_model("sklearn-model",run_id="7e674524514846799310c41f10d6b99d")
-df = pd.read_csv("../../data/wine-quality/wine-quality-red.csv")
+df = pd.read_csv("../../data/wine-quality/wine-quality-white.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -250,7 +228,7 @@ From [pyfunc_predict.py](pyfunc_predict.py):
 ```
 model_uri = mlflow.start_run("7e674524514846799310c41f10d6b99d").info.artifact_uri +  "/sklearn-model"
 model = mlflow.pyfunc.load_pyfunc(model_uri)
-df = pd.read_csv("../../data/wine-quality/wine-quality-red.csv")
+df = pd.read_csv("../../data/wine-quality/wine-quality-white.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
@@ -277,12 +255,12 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 From [spark_udf_predict.py](spark_udf_predict.py):
 ```
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv("../../data/wine-quality/wine-quality-red.csv")
+df = spark.read.option("inferSchema",True).option("header", True).csv("../../data/wine-quality/wine-quality-white.csv")
 df = df.drop("quality")
 
 udf = mlflow.pyfunc.spark_udf(spark, "sklearn-model", run_id="7e674524514846799310c41f10d6b99d")
-df2 = df.withColumn("prediction", udf(*df.columns))
-df2.show(10)
+df = df.withColumn("prediction", udf(*df.columns))
+df.show(10)
 ```
 
 ### 5. Unpickle model artifact file without MLflow and predict
@@ -292,7 +270,7 @@ From [pickle_predict.py](pickle_predict.py):
 pickle_path = "/opt/mlflow/mlruns/3/11df004981b443908d9286d54d24dc27/artifacts/sklearn-model/model.pkl"
 with open(pickle_path, 'rb') as f:
     model = pickle.load(f)
-df = pd.read_csv("../../data/wine-quality/wine-quality-red.csv")
+df = pd.read_csv("../../data/wine-quality/wine-quality-white.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
