@@ -347,8 +347,9 @@ spark-submit --master local[2] \
 
 Source snippet from [PredictUtils.scala](src/main/scala/org/andre/mlflow/examples/wine/PredictUtils.scala).
 ```
-val data = spark.read.format("libsvm").load(opts.dataPath) // TODO
-val model = PipelineModel.load(opts.modelPath)
+val data = spark.read.format("libsvm").load(opts.dataPath) 
+val modelPath = client.downloadArtifacts(runId,"spark-model").getAbsolutePath
+val model = PipelineModel.load(modelPath)
 val predictions = model.transform(data)
 println("Prediction:")
 predictions.select("prediction", "label", "features").show(10,false)

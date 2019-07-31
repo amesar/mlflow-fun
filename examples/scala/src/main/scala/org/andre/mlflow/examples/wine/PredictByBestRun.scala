@@ -19,7 +19,7 @@ object PredictByBestRun {
     val best = BestRunUtils.getBestRun(client, opts.experimentId, opts.metric, opts.ascending)
     println(s"best.runId: ${best.run.getInfo.getRunUuid}")
     println(s"best.value: ${best.value}")
-    PredictUtils.predict(best.run.getInfo, opts.dataPath)
+    PredictUtils.predict(client, best.run.getInfo.getRunId, opts.dataPath)
   }
 
   object opts {
