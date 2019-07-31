@@ -15,7 +15,7 @@ object ResilientHelloWorld {
     println("doThrowException: "+doThrowException)
 
     val expName = "scala_ResilientHelloWorld"
-    val experimentId = MLflowUtils.setExperiment(client, expName)
+    val experimentId = MLflowUtils.getOrCreateExperimentId(client, expName)
     println("Experiment name: "+expName)
     println("Experiment ID: "+experimentId)
 

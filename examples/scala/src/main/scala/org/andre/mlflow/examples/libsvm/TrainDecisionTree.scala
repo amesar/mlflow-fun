@@ -32,7 +32,7 @@ object TrainDecisionTree {
     // MLflow - create or get existing experiment
     val client = MLflowUtils.createMlflowClient(opts.trackingUri, opts.token)
 
-    val experimentId = MLflowUtils.setExperiment(client, opts.experimentName)
+    val experimentId = MLflowUtils.getOrCreateExperimentId(client, opts.experimentName)
     println("Experiment ID: "+experimentId)
 
     // Read data

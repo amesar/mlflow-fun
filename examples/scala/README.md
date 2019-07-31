@@ -45,7 +45,7 @@ val mlflowClient = new MlflowClient(trackingUri)
 
 // Create or get existing experiment
 val expName = "scala/HelloWorld"
-val expId = MLflowUtils.setExperiment(mlflowClient, expName)
+val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 println("Experiment name: "+expName)
 println("Experiment ID: "+expId)
 
@@ -124,7 +124,7 @@ val mlflowClient = new MlflowClient("http://localhost:5000")
 
 // MLflow - create or get existing experiment
 val expName = "scala/TrainDecisionTreeRegressor"
-val expId = MLflowUtils.setExperiment(mlflowClient, expName)
+val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 
 // MLflow - create run
 val runInfo = mlflowClient.createRun(expId)

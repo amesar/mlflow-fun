@@ -14,7 +14,7 @@ object HelloWorld {
 
     // Create or get existing experiment
     val expName = "scala_HelloWorld"
-    val expId = MLflowUtils.setExperiment(client, expName)
+    val expId = MLflowUtils.getOrCreateExperimentId(client, expName)
     println("Experiment name: "+expName)
     println("Experiment ID: "+expId)
 
@@ -24,8 +24,8 @@ object HelloWorld {
     println("Run ID: "+runId)
 
     // Log params and metrics
-    client.logParam(runId, "p1","hi")
-    client.logMetric(runId, "m1",0.123)
+    client.logParam(runId, "alpha","0.5")
+    client.logMetric(runId, "rmse",0.876)
     client.setTag(runId, "origin","laptop")
     client.setTag(runId, "mlflow.source.name",MLflowUtils.getSourceName(getClass())) // populates "Source" field in UI
     client.setTag(runId, "mlflow.runName","myRun") // populates "Run Name" field in UI

@@ -2,16 +2,22 @@ package org.andre.mlflow.util
 
 import scala.collection.JavaConversions._
 import org.mlflow.tracking.MlflowClient
+import org.mlflow.tracking.MlflowHttpException
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.Run
+import org.mlflow.api.proto.Service.Experiment
 
 object MLflowUtils {
 
-  def setExperiment(client: MlflowClient, experimentName: String) : String = {
-    val expOpt = client.listExperiments() find (_.getName == experimentName)
-    expOpt match {
-      case Some(exp) => exp.getExperimentId
-      case None => client.createExperiment(experimentName)
+  def getOrCreateExperimentId(client: MlflowClient, experimentName: String) : String = {
+    try {
+      val experimentId = client.createExperiment(experimentName)
+      println(s"Created new experiment: $experimentName")
+      experimentId
+    } catch {
+      case e: org.mlflow.tracking.MlflowHttpException => { // statusCode 400
+        client.getExperimentByName(experimentName).get.getExperimentId
+      }
     }
   }
 
