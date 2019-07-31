@@ -22,6 +22,7 @@ mvn clean package
 ```
 
 ## Examples
+
 ### Hello World
 #### Run
 ```
@@ -44,7 +45,7 @@ val trackingUri = args(0)
 val mlflowClient = new MlflowClient(trackingUri)
 
 // Create or get existing experiment
-val expName = "scala/HelloWorld"
+val expName = "scala_HelloWorld"
 val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 println("Experiment name: "+expName)
 println("Experiment ID: "+expId)
@@ -61,9 +62,53 @@ mlflowClient.logMetric(runId, "m1",0.123F)
 mlflowClient.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
 ```
 
+### Hello World Context
+
+Uses new MLflow 1.1.0 [MlflowContext](https://mlflow.org/docs/latest/java_api/org/mlflow/tracking/MlflowContext.html).
+
+#### Run
+```
+spark-submit --master local[2] \
+  --class org.andre.mlflow.examples.hello.HelloWorldContext \
+  target/mlflow-scala-examples-1.0-SNAPSHOT.jar \
+  http://localhost:5000
+```
+```
+Experiment name: scala_HelloWorld_Context
+Experiment ID: 3
+Run ID: 81cc7941adae4860899ad5449df52802
+```
+
+### Source
+Source snippet from [HelloWorld.scala](src/main/scala/org/andre/mlflow/examples/hello/HelloWorld.scala).
+```
+// Create context and client
+val mlflow = new MlflowContext()
+val client = mlflow.getClient()
+
+// Create and set experiment
+val expName = "scala_HelloWorld_Context"
+val expId = MLflowUtils.getOrCreateExperimentId(client, expName)
+println("Experiment name: "+expName)
+println("Experiment ID: "+expId)
+mlflow.setExperimentName(expName)
+
+// Create run
+val run = mlflow.startRun("HelloWorld Run")
+println("Run ID: "+run.getId)
+
+// Log params and metrics
+run.logParam("alpha","0.5")
+run.logMetric("rmse",0.876)
+run.setTag("origin","laptop")
+
+// End run
+run.endRun();
+```
+
 ### Resilient Hello World
 
-Shows how to set run status if failure occurs during run. 
+Shows how to set run status if a failure occurs during run. 
 
 #### Run
 
@@ -123,7 +168,7 @@ import org.mlflow.api.proto.Service.RunStatus
 val mlflowClient = new MlflowClient("http://localhost:5000")
 
 // MLflow - create or get existing experiment
-val expName = "scala/TrainDecisionTreeRegressor"
+val expName = "scala_TrainDecisionTreeRegressor"
 val expId = MLflowUtils.getOrCreateExperimentId(mlflowClient, expName)
 
 // MLflow - create run
