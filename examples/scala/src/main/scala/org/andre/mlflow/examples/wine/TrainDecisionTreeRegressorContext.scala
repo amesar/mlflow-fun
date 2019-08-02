@@ -75,7 +75,6 @@ object TrainDecisionTreeRegressorContext {
 
     // Make predictions
     val predictions = model.transform(dataHolder.testData)
-    println("Predictions Schema:")
 
     // MLflow - log metrics
     println("Metrics:")
