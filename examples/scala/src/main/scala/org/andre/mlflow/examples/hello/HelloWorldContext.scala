@@ -1,14 +1,12 @@
 package org.andre.mlflow.examples.hello
 
-import java.io.PrintWriter
 import java.nio.file.{Paths,Files}
-import org.mlflow.tracking.MlflowClient
-import org.mlflow.api.proto.Service.{RunStatus,CreateRun}
-import scala.collection.JavaConversions._
+import org.mlflow.tracking.{MlflowClient,MlflowContext}
 import org.andre.mlflow.util.MLflowUtils
-import org.mlflow.tracking.MlflowContext
 
-
+/**
+ * Scala Hello World using MLflow Java client with MlflowContext.
+ */
 object HelloWorldContext {
   val now = new java.util.Date()
 
@@ -34,21 +32,18 @@ object HelloWorldContext {
     run.setTag("mlflow.source.name",MLflowUtils.getSourceName(getClass())) // populates "Source" field in UI
 
     // Log file artifact
-    val tdir = "tmp"
-    val filePath = Paths.get(tdir,"info.txt")
-    Files.write(filePath, s"File artifact: $now".getBytes)
-    run.logArtifact(filePath)
+    val odir = Paths.get("tmp")
+    Files.createDirectories(odir)
+    val file = Paths.get(odir.toString,"info.txt")
+    Files.write(file, s"File artifact: $now".getBytes)
+    run.logArtifact(file)
 
-    // Log directory artifact
-    val dirPath = Paths.get(tdir)
-    if (!Files.exists(dirPath)) {
-        Files.createDirectory(dirPath)
-    }
-    val modelPath = Paths.get(tdir,"model.txt")
-    Files.write(modelPath, s"My model: $now".getBytes)
+    // Log directory artifact - mock model
+    val modelPath = Paths.get(odir.toString,"model.txt")
+    Files.write(modelPath, s"Directory artifact: $now".getBytes)
     run.logArtifact(modelPath,"model")
 
-    // Bye bye
-    run.endRun();
+    // Close run
+    run.endRun()
   }
 }
