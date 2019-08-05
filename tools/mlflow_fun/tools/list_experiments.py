@@ -15,7 +15,8 @@ if __name__ == "__main__":
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument("--sort", dest="sort", help="sort", default="name", required=False)
-    parser.add_argument("--verbose", dest="verbose", help="verbose", default=False, action='store_true')
+    parser.add_argument("--verbose", dest="verbose", help="Show XX ", default=False, action='store_true')
+    parser.add_argument("--csv_file", dest="csv_file", default="experiments.csv", help="Output CSV file")
     args = parser.parse_args()
 
     exps = client.list_experiments()
@@ -36,5 +37,9 @@ if __name__ == "__main__":
     else:
         list = [(exp.experiment_id, exp.name) for exp in exps ]
         df = pd.DataFrame(list,columns=["experiment_id","name"])
+
+    #print("Output CSV file:",path)
+    with open(args.csv_file, 'w') as f:
+        df.to_csv(f, index=False)
 
     print(tabulate(df, headers='keys', tablefmt='psql'))

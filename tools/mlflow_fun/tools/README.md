@@ -13,7 +13,7 @@ Some useful tools for MLflow.
 List all experiments. See [list_experiments.py](list_experiments.py).
 ```
 export PYTHONPATH=../..
-python list_experiments.py
+python list_experiments.py --csv_file my_experiments.csv
 ```
 ```
 +----+-----------------+------------------+
