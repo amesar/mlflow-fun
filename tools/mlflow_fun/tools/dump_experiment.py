@@ -9,6 +9,7 @@ from mlflow_fun.tools import dump_run
 
 client = mlflow.tracking.MlflowClient()
 print("MLflow Version:", mlflow.version.VERSION)
+print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
 def dump_experiment(exp_id_or_name, artifact_max_level, show_info, show_data):
     print("Options:")
