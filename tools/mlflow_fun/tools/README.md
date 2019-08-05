@@ -3,10 +3,31 @@
 ## Overview
 
 Some useful tools for MLflow.
-* Dump as text
+* List all experiments
+* Dump experiment or runs as text
   * Dump Run
   * Dump Experiment
 * Dump experiment runs as CSV
+
+## List all experiments
+List all experiments. See [list_experiments.py](list_experiments.py).
+```
+export PYTHONPATH=../..
+python list_experiments.py
+```
+```
++----+-----------------+------------------+
+|    |   experiment_id | name             |
+|----+-----------------+------------------|
+|  0 |               0 | Default          |
+|  1 |               1 | hello_world      |
+|  2 |               4 | keras_tensorflow |
+|  3 |               3 | pyspark_wine     |
+|  4 |               6 | scala_HelloWorld |
+|  5 |               5 | scala_wine       |
+|  6 |               2 | sklearn_wine     |
++----+-----------------+------------------+
+```
 
 ## Dump experiment or run as text
 Dumps all experiment or run information recursively.

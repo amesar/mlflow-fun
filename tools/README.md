@@ -1,9 +1,10 @@
 # mlflow-fun/tools
 
-Some tools for MLflow.
+Tools for MLflow.
 
 ## Basic Tools
-* [Tools](mlflow_fun/tools) - Basic tools
+* [Tools](mlflow_fun/tools) - Simple tools
+  * List all experiments.
   * Dumps experiment or run information recursively.
 * [Export/import run or experiment](mlflow_fun/export_import)
   * Exports run/experiment to directory or zip file.
