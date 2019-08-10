@@ -1,9 +1,7 @@
 
 def read_data(spark, data_path):
-    return spark.read.format("csv") \
-      .option("header", "true") \
-      .option("inferSchema", "true") \
-      .load(data_path.replace("/dbfs","dbfs:"))
+    data_path = data_path.replace("/dbfs","dbfs:")
+    return spark.read.csv(data_path, header="true", inferSchema="true")
 
 colLabel = "quality"
 colPrediction = "prediction"
