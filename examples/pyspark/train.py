@@ -57,13 +57,18 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", dest="data_path", help="data_path", required=True)
     parser.add_argument("--max_depth", dest="max_depth", help="max_depth", default=2, type=int)
     parser.add_argument("--max_bins", dest="max_bins", help="max_bins", default=32, type=int)
+    parser.add_argument("--describe", dest="describe", help="Describe data", default=False, action='store_true')
     args = parser.parse_args()
 
     client = mlflow.tracking.MlflowClient()
     print("experiment_name:",args.experiment_name)
     mlflow.set_experiment(args.experiment_name)
     print("experiment_id:",client.get_experiment_by_name(args.experiment_name).experiment_id)
+
     data = read_data(spark, args.data_path)
+    if (args.describe):
+        print("==== Data")
+        data.describe().show()
 
     with mlflow.start_run() as run:
         print("MLflow:")
