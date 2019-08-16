@@ -8,6 +8,7 @@ Some useful tools for MLflow.
   * Dump Run
   * Dump Experiment
 * Dump experiment runs as CSV
+* Find best run for an experiment
 
 ## List all experiments
 List all experiments. See [list_experiments.py](list_experiments.py).
@@ -154,4 +155,18 @@ pythom runs_to_pandas_converter.py \
   --nan_to_blank \
   --csv_file output.csv
 
+```
+
+## Find best run for an experiment
+
+You specify a metric for an experiment and find its best run. Default order is descending (max).
+
+The run ID and metric value are returned.
+
+```
+export PYTHONPATH=../..
+python best_run.py --experiment_id 2 --metric=rmse  --ascending 
+```
+```
+Best: ('5ac384a850dd4c078ad2a219cfc4f4ef', 0.747225794954636)
 ```
