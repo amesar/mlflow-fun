@@ -41,10 +41,10 @@ def create_nested_runs():
 
 def test_descending_nested():
     exp,run0,run1 = create_nested_runs()
-    best = get_best_run(exp.experiment_id, "m1", ascending=False, nested=True)
+    best = get_best_run(exp.experiment_id, "m1", ascending=False, ignore_nested_runs=True)
     assert run1.info.run_id == best[0]
 
 def test_ascending_nested():
     exp,run0,run1 = create_nested_runs()
-    best = get_best_run(exp.experiment_id, "m1", ascending=True, nested=True)
+    best = get_best_run(exp.experiment_id, "m1", ascending=True, ignore_nested_runs=True)
     assert run0.info.run_id == best[0]
