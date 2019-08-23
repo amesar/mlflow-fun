@@ -24,7 +24,6 @@ class Trainer(object):
         self.experiment_name = experiment_name
         self.data_path = data_path
         self.run_origin = run_origin
-        np.random.seed(40)
 
         print("experiment_name:",self.experiment_name)
         print("run_origin:",run_origin)
@@ -32,7 +31,7 @@ class Trainer(object):
         # Read and prepare data
         print("data_path:",data_path)
         data = pd.read_csv(data_path)
-        train, test = train_test_split(data)
+        train, test = train_test_split(data, test_size=0.30, random_state=2019)
     
         # The predicted column is "quality" which is a scalar from [3, 9]
         self.train_x = train.drop([colLabel], axis=1)
