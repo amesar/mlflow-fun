@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_me(y_test_set, y_predicted, plot_file):
+def create_plot_file(y_test_set, y_predicted, plot_file):
     global image
     fig, ax = plt.subplots()
     ax.scatter(y_test_set, y_predicted, edgecolors=(0, 0, 0))

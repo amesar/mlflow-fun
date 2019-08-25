@@ -60,7 +60,7 @@ class Trainer(object):
 
             # Create model
             dt = DecisionTreeRegressor(max_depth=max_depth, max_leaf_nodes=max_leaf_nodes)
-            print("Model:",dt)
+            print("Model:\n ",dt)
 
             # Fit and predict
             dt.fit(self.train_x, self.train_y)
@@ -98,7 +98,7 @@ class Trainer(object):
     
             # MLflow artifact - plot file
             plot_file = "plot.png"
-            plot_utils.plot_me(self.test_y, predictions, plot_file)
+            plot_utils.create_plot_file(self.test_y, predictions, plot_file)
             mlflow.log_artifact(plot_file)
     
         return (experiment_id,run_id)
