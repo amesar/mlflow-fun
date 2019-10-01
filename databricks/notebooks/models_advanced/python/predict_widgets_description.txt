@@ -1,0 +1,14 @@
+# Databricks notebook source
+# MAGIC %md
+# MAGIC 
+# MAGIC Widgets
+# MAGIC * Run Mode - Several different ways to get the run ID
+# MAGIC   * Run ID - Explicitly enter run ID in `Run ID` widget
+# MAGIC   * Last Run - Get the last run of experiment
+# MAGIC   * Best Run - Get the best run of experiment using `Metric Name` and `Metric Sort` widgets
+# MAGIC * Experiment - Name or ID of experiment
+# MAGIC * If Run Mode is `Best Run`
+# MAGIC   * Metric Name - Name of best metric
+# MAGIC   * Metric Sort - `min` get the smallest value, `max` gets the largest value (isLargerBetter)
+# MAGIC * If Run Mode is `Run ID`
+# MAGIC   * Run ID - Run ID to score
