@@ -73,7 +73,8 @@ manifest.json example - source experiment information
   "run_ids": [
     "130bca8d75e54febb2bfa46875a03d59",
     "5a22839d66154001882e0632581fbf02"
-  ]
+  ],
+  "failed_run_ids": []
 }
 ```
 

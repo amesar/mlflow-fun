@@ -12,7 +12,7 @@ from mlflow_fun.export_import import utils
 client = mlflow.tracking.MlflowClient()
 
 def import_run(exp_name, input, log_batch=False):
-    print("Importing into experiment '{}' from '{}'".format(exp_name, input),flush=True)
+    print("Importing run into experiment '{}' from '{}'".format(exp_name, input),flush=True)
     if input.endswith(".zip"):
         import_run_from_zip(exp_name, input, log_batch)
     else:
@@ -30,8 +30,8 @@ def import_run_from_zip(exp_name, zip_file, log_batch):
 def import_run_from_dir(exp_name, run_dir, log_batch):
     mlflow.set_experiment(exp_name)
     exp = client.get_experiment_by_name(exp_name)
-    print("Experiment name:",exp_name)
-    print("Experiment ID:",exp.experiment_id)
+    #print("Experiment name:",exp_name)
+    #print("Experiment ID:",exp.experiment_id)
     path = os.path.join(run_dir,"run.json")
     run_dct = utils.read_json_file(path)
     with mlflow.start_run() as run:
@@ -66,5 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("--experiment_name", dest="experiment_name", help="Destination experiment_name", required=True)
     parser.add_argument("--log_batch", dest="log_batch", help="Use log_batch ", default=False, action='store_true')
     args = parser.parse_args()
-    print("args:",args)
+    print("Options:")
+    for arg in vars(args):
+        print("  {}: {}".format(arg,getattr(args, arg)))
     import_run(args.experiment_name, args.input, args.log_batch)

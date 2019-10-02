@@ -15,10 +15,14 @@ def import_experiment_from_dir(exp_name, exp_dir):
     mlflow.set_experiment(exp_name)
     path = os.path.join(exp_dir,"manifest.json")
     dct = utils.read_json_file(path)
-    run_dirs = next(os.walk(exp_dir))[1]
-    print("Importing {} runs into experiment {} from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
+    #run_dirs = next(os.walk(exp_dir))[1]
+    run_dirs = dct['run_ids']
+    failed_run_dirs = dct['failed_run_ids']
+    print("Importing {} runs into experiment '{}' from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
     for run_dir in run_dirs:
         import_run.import_run(exp_name, os.path.join(exp_dir,run_dir))
+    print("Imported {} runs into experiment '{}' from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
+    print("Warning: {} failed runs were not imported - see {}".format(len(failed_run_dirs),path))
 
 def import_experiment_from_zip(exp_name, zip_file):
     tdir = tempfile.mkdtemp()
@@ -35,5 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("--input", dest="input", help="input path", required=True)
     parser.add_argument("--experiment_name", dest="experiment_name", help="Destination experiment_name", required=True)
     args = parser.parse_args()
-    print("args:",args)
+    print("Options:")
+    for arg in vars(args):
+        print("  {}: {}".format(arg,getattr(args, arg)))
     import_experiment(args.experiment_name, args.input)
