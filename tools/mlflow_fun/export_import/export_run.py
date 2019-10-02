@@ -15,7 +15,7 @@ client = mlflow.tracking.MlflowClient()
 
 def export_run(run_id, output, log_source_info=False):
     run = client.get_run(run_id)
-    return export_run2(run, output, log_source_info=False)
+    return export_run2(run, output, log_source_info)
 
 def export_run2(run, output, log_source_info=False):
     if output.endswith(".zip"):
