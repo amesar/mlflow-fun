@@ -35,12 +35,10 @@ def get_mlflow_host_token(tracking_uri):
 Gets an experiment either by ID or name.
 '''
 def get_experiment(client, exp_id_or_name):
-    if exp_id_or_name.isdigit():
+    try:
         exp = client.get_experiment(exp_id_or_name)
-        which = "ID"
-    else:
+    except Exception as e:
         exp = client.get_experiment_by_name(exp_id_or_name)
-        which = "name"
     if exp is None:
-         raise Exception("Cannot find experiment {} '{}'".format(which,exp_id_or_name))
+         raise Exception("Cannot find experiment ID or name '{}'".format(exp_id_or_name))
     return exp
