@@ -6,7 +6,7 @@ from mlflow_fun.common import MlflowFunException
 API_PATH = "api/2.0/preview/mlflow"
 
 ''' Wrapper for get and post methods for MLflow REST API. '''
-class HttpClient(object):
+class MlflowHttpClient(object):
     def __init__(self, base_uri=None, token=None):
         (host,token) = mlflow_utils.get_mlflow_host_token(base_uri)
         if host is None:
@@ -17,7 +17,7 @@ class HttpClient(object):
 
     def get(self, resource):
         """ Executes an HTTP GET call
-        :param resource: Relative path name of resource such as runs/search
+        :param resource: Relative path name of resource such as experiments/list
         """
         uri = self._mk_uri(resource)
         rsp = requests.get(uri, headers=self._mk_headers())
