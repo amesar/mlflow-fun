@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import mlflow
 
@@ -13,11 +12,11 @@ def dump_mlflow_info():
     print("  DATABRICKS_TOKEN:", os.environ.get("DATABRICKS_TOKEN",""))
 
 ''' Returns the host (tracking URI) and token '''
-def get_mlflow_host(tracking_uri):
-    return get_mlflow_host_token(tracking_uri)[0]
+def get_mlflow_host():
+    return get_mlflow_host_token()
 
 ''' Returns the host (tracking URI) and token '''
-def get_mlflow_host_token(tracking_uri):
+def get_mlflow_host_token():
     uri = os.environ.get('MLFLOW_TRACKING_URI',None)
     if uri is not None and uri != "databricks":
         return (uri,None)

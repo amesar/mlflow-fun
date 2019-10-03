@@ -1,23 +1,20 @@
-from __future__ import print_function
 import os, json, requests
 from mlflow_fun.common import mlflow_utils
 from mlflow_fun.common import MlflowFunException
 
-API_PATH = "api/2.0/preview/mlflow"
-
-''' Wrapper for get and post methods for MLflow REST API. '''
-class MlflowHttpClient(object):
-    def __init__(self, base_uri=None, token=None):
-        (host,token) = mlflow_utils.get_mlflow_host_token(base_uri)
+''' Wrapper for get and post methods for Databricks REST APIs. '''
+class HttpClient(object):
+    def __init__(self, api_name, host=None, token=None):
         if host is None:
-            raise MlflowFunException("MLflow host or token is not configured correctly")
-        base_uri = os.path.join(host,API_PATH)
-        self.base_uri = base_uri
+            (host,token) = mlflow_utils.get_mlflow_host_token()
+            if host is None:
+                raise MlflowFunException("MLflow host or token is not configured correctly")
+        self.api_uri = os.path.join(host,api_name)
         self.token = token
 
     def get(self, resource):
         """ Executes an HTTP GET call
-        :param resource: Relative path name of resource such as experiments/list
+        :param resource: Relative path name of resource such as cluster/list
         """
         uri = self._mk_uri(resource)
         rsp = requests.get(uri, headers=self._mk_headers())
@@ -39,8 +36,21 @@ class MlflowHttpClient(object):
         return {} if self.token is None else {'Authorization': 'Bearer '+self.token}
 
     def _mk_uri(self, resource):
-        return self.base_uri + "/" + resource
+        return self.api_uri + "/" + resource
 
     def _check_response(self, rsp, uri):
         if rsp.status_code < 200 or rsp.status_code > 299:
             raise MlflowFunException("HTTP status code: {} Reason: {} URL: {}".format(str(rsp.status_code),rsp.reason,uri))
+
+    def __repr__(self): 
+        return self.api_uri + " - "+ self.token
+
+class DatabricksHttpClient(HttpClient):
+    def __init__(self, api_uri=None, token=None):
+        super().__init__("api/2.0", api_uri, token)
+
+class MlflowHttpClient(HttpClient):
+    def __init__(self, api_uri=None, token=None):
+        super().__init__("api/2.0/mlflow", api_uri, token)
+
+
