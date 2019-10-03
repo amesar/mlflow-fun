@@ -69,3 +69,8 @@ def unzip_directory(zip_file, exp_name, funk):
         funk(exp_name, temp_dir)
     finally:
         shutil.rmtree(temp_dir)
+
+def string_to_list(list_as_string):
+    lst = list_as_string.split(",")
+    if "" in lst: list.remove("")
+    return lst

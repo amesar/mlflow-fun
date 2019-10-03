@@ -14,15 +14,18 @@ Tools to export and import MLflow experiments or runs.
   * Copy a run from one tracking server to another
 
 * TODO
-  * Make work for nested runs
+  * Account for nested runs
+  * Implement Databricks notebook imports
 
 ### Common arguments 
 
-`output` - can either be a directory or zip file (`output` has a zip extension).
+`output` - Can either be a directory or zip file (`output` has a zip extension).
 
-`intput` - can either be a directory or zip file (if `output` has a zip extension).
+`intput` - Can either be a directory or zip file (if `output` has a zip extension).
 
-`log_source_info` creates metadata tags (starting with `mlflow_tools.export`) containing export information.
+`notebook_formats` - If exporting a Databricks experiment, the run's notebook can be saved in the specified formats (comma-delimited argument). Each format is saved as `notebook.{format}`. Supported formats are  SOURCE, HTML, JUPYTER, DBC. See [Export Format](https://docs.databricks.com/dev-tools/api/latest/workspace.html#notebookexportformat) documentation.
+
+`log_source_info` - Creates metadata tags (starting with `mlflow_tools.export`) containing export information.
 ```
 Name                                Value
 mlflow_tools.export.timestamp       1551037752
@@ -43,7 +46,7 @@ Arguments
 * experiment - Source experiment name or ID
 * output - Destination directory or zip file
 
-Run examples
+#### Run example
 ```
 python export_run.py --experiment=2 --output=out --log_source_info
 ```
@@ -51,13 +54,26 @@ python export_run.py --experiment=2 --output=out --log_source_info
 python export_run.py --experiment=sklearn_wine --output=exp.zip
 ```
 
+#### Databricks export example
+See the [root REAMDE.md Databricks section](../../../README.md#Databricks) for detailed Databricks configuration information.
+```
+export MLFLOW_TRACKING_URI=databricks
+export DATABRICKS_HOST=https://acme.cloud.databricks.com
+export DATABRICKS_TOKEN=MY_TOKEN
+
+python export_run.py --experiment=sklearn_wine --notebook_formats=DBC,SOURCE
+```
+
+#### Output 
+
 Output export directory example
 ```
 manifest.json
 130bca8d75e54febb2bfa46875a03d59/
 5a22839d66154001882e0632581fbf02/
 ```
-manifest.json example - source experiment information
+
+manifest.json - source experiment information
 ```
 {
   "experiment": {
