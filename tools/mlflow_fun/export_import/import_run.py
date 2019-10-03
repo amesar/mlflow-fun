@@ -33,14 +33,6 @@ def import_run_from_dir(dst_exp_name, src_run_id):
         mlflow.log_artifacts(path)
     return run_id
 
-def _import_run_data(run_dct):
-    for k,v in run_dct['params'].items():
-        mlflow.log_param(k,v)
-    for k,v in run_dct['metrics'].items():
-        mlflow.log_metric(k,v)
-    for k,v in run_dct['tags'].items():
-        mlflow.set_tag(k,v)
-
 def import_run_data_batch(run_dct, run_id):
     import time
     from mlflow.entities import Metric, Param, RunTag
