@@ -13,14 +13,14 @@ def import_experiment_from_dir(exp_name, exp_dir):
     manifest_path = os.path.join(exp_dir,"manifest.json")
     dct = utils.read_json_file(manifest_path)
     #run_dirs = next(os.walk(exp_dir))[1]
-    run_dirs = dct['run_ids']
-    failed_run_dirs = dct['failed_run_ids']
-    print("Importing {} runs into experiment '{}' from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
-    for run_dir in run_dirs:
-        import_run.import_run(exp_name, os.path.join(exp_dir,run_dir))
-    print("Imported {} runs into experiment '{}' from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
-    if len(failed_run_dirs) > 0:
-        print("Warning: {} failed runs were not imported - see {}".format(len(failed_run_dirs),manifest_path))
+    run_ids = dct['run_ids']
+    failed_run_ids = dct['failed_run_ids']
+    print("Importing {} runs into experiment '{}' from {}".format(len(run_ids),exp_name,exp_dir),flush=True)
+    for src_run_id in run_ids:
+        dst_run_id = import_run.import_run(exp_name, os.path.join(exp_dir,src_run_id))
+    print("Imported {} runs into experiment '{}' from {}".format(len(run_ids),exp_name,exp_dir),flush=True)
+    if len(failed_run_ids) > 0:
+        print("Warning: {} failed runs were not imported - see {}".format(len(failed_run_ids),manifest_path))
 
 def import_experiment_from_zip(exp_name, zip_file):
     utils.unzip_directory(zip_file, exp_name, import_experiment_from_dir)

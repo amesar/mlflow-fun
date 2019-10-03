@@ -30,19 +30,16 @@ def get_experiment(client, exp_name):
         exp = client.get_experiment(exp_id)
     return exp
 
-def copy_run(src_run_id, dst_exp_name, dst_uri, log_source_info=False, log_batch=False):
+def copy_run(src_run_id, dst_exp_name, dst_uri, log_source_info=False):
     print("src_run_id:",src_run_id)
     src_client, dst_client, dst_exp = setup(dst_exp_name, dst_uri, log_source_info)
-    copy_run2(src_client, src_run_id, dst_client, dst_exp.experiment_id, log_source_info, log_batch)
+    copy_run2(src_client, src_run_id, dst_client, dst_exp.experiment_id, log_source_info)
 
-def copy_run2(src_client, src_run_id, dst_client, dst_experiment_id, log_source_info=False, log_batch=False):
+def copy_run2(src_client, src_run_id, dst_client, dst_experiment_id, log_source_info=False):
     src_run = src_client.get_run(src_run_id)
     with mlflow.start_run(experiment_id=dst_experiment_id) as dst_run:
         #print("dst_run_id:",dst_run.info.run_uuid)
-        if log_batch:
-            copy_run_data_batch(src_client, src_run, log_source_info, dst_client, dst_run.info.run_id)
-        else:
-            copy_run_data(src_client, src_run, log_source_info)
+        copy_run_data_batch(src_client, src_run, log_source_info, dst_client, dst_run.info.run_id)
         local_path = src_client.download_artifacts(src_run_id,"")
         #print("local_path:",local_path)
         mlflow.log_artifacts(local_path)
@@ -73,7 +70,6 @@ if __name__ == "__main__":
     parser.add_argument("--dst_uri", dest="dst_uri", help="Destination MLFLOW API URL", required=True)
     parser.add_argument("--dst_experiment_name", dest="dst_experiment_name", help="Destination experiment_name", required=True)
     parser.add_argument("--log_source_info", dest="log_source_info", help="Set tags with import information", default=False, action='store_true')
-    parser.add_argument("--log_batch", dest="log_batch", help="Use log_batch ", default=False, action='store_true')
     args = parser.parse_args()
     print("args:",args)
-    copy_run(args.src_run_id, args.dst_experiment_name, args.dst_uri, args.log_source_info, args.log_batch)
+    copy_run(args.src_run_id, args.dst_experiment_name, args.dst_uri, args.log_source_info)
