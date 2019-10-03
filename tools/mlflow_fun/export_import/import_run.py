@@ -28,12 +28,12 @@ def import_run_from_dir(dst_exp_name, src_run_id):
     run_dct = utils.read_json_file(src_run_path)
     with mlflow.start_run() as run:
         run_id = run.info.run_id
-        import_run_data_batch(run_dct,run.info.run_id)
+        import_run_data(run_dct,run.info.run_id)
         path = os.path.join(src_run_id,"artifacts")
         mlflow.log_artifacts(path)
     return run_id
 
-def import_run_data_batch(run_dct, run_id):
+def import_run_data(run_dct, run_id):
     import time
     from mlflow.entities import Metric, Param, RunTag
     now = int(time.time()+.5)
