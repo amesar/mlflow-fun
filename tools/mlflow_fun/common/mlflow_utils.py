@@ -5,7 +5,7 @@ def dump_mlflow_info():
     print("MLflow Info:")
     print("  MLflow Version:", mlflow.version.VERSION)
     print("  Tracking URI:", mlflow.tracking.get_tracking_uri())
-    mlflow_host = get_mlflow_host(mlflow.tracking.get_tracking_uri())
+    mlflow_host = get_mlflow_host()
     print("  Real MLflow host:", mlflow_host)
     print("  MLFLOW_TRACKING_URI:", os.environ.get("MLFLOW_TRACKING_URI",""))
     print("  DATABRICKS_HOST:", os.environ.get("DATABRICKS_HOST",""))
