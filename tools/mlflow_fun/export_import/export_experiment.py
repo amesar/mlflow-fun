@@ -47,13 +47,12 @@ def export_experiment_to_dir(exp_id, exp_dir, log_source_info=False):
         print("{}/{} runs failed".format(len(failed_run_ids),len(infos)))
 
 def export_experiment_to_zip(exp_id, zip_file, log_source_info=False):
-    zip_file,_ = zip_file.split(".")
-    tdir = tempfile.mkdtemp()
+    temp_dir = tempfile.mkdtemp()
     try:
-        export_experiment_to_dir(exp_id, tdir, log_source_info)
-        shutil.make_archive(zip_file, "zip", tdir)
+        export_experiment_to_dir(exp_id, temp_dir, log_source_info)
+        utils.zip_directory(zip_file, temp_dir)
     finally:
-        shutil.rmtree(tdir)
+        shutil.rmtree(temp_dir)
 
 if __name__ == "__main__":
     from argparse import ArgumentParser

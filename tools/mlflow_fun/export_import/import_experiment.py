@@ -1,7 +1,4 @@
 import os
-import zipfile
-import tempfile
-import shutil
 import mlflow
 from mlflow_fun.export_import import import_run, utils
 
@@ -13,8 +10,8 @@ def import_experiment(exp_name, input):
 
 def import_experiment_from_dir(exp_name, exp_dir):
     mlflow.set_experiment(exp_name)
-    path = os.path.join(exp_dir,"manifest.json")
-    dct = utils.read_json_file(path)
+    manifest_path = os.path.join(exp_dir,"manifest.json")
+    dct = utils.read_json_file(manifest_path)
     #run_dirs = next(os.walk(exp_dir))[1]
     run_dirs = dct['run_ids']
     failed_run_dirs = dct['failed_run_ids']
@@ -22,16 +19,11 @@ def import_experiment_from_dir(exp_name, exp_dir):
     for run_dir in run_dirs:
         import_run.import_run(exp_name, os.path.join(exp_dir,run_dir))
     print("Imported {} runs into experiment '{}' from {}".format(len(run_dirs),exp_name,exp_dir),flush=True)
-    print("Warning: {} failed runs were not imported - see {}".format(len(failed_run_dirs),path))
+    if len(failed_run_dirs) > 0:
+        print("Warning: {} failed runs were not imported - see {}".format(len(failed_run_dirs),manifest_path))
 
 def import_experiment_from_zip(exp_name, zip_file):
-    tdir = tempfile.mkdtemp()
-    try:
-        with zipfile.ZipFile(zip_file, "r") as zf:
-            zf.extractall(tdir)
-        import_experiment_from_dir(exp_name, tdir)
-    finally:
-        shutil.rmtree(tdir)
+    utils.unzip_directory(zip_file, exp_name, import_experiment_from_dir)
 
 if __name__ == "__main__":
     from argparse import ArgumentParser

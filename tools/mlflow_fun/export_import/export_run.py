@@ -25,13 +25,12 @@ def export_run2(run, output, log_source_info=False):
         return export_run_to_dir(run, output, log_source_info)
 
 def export_run_to_zip(run, zip_file, log_source_info=False):
-    zip_file,_ = zip_file.split(".")
-    tdir = tempfile.mkdtemp()
+    temp_dir = tempfile.mkdtemp()
     try:
-        res = export_run_to_dir(run, tdir, log_source_info)
-        shutil.make_archive(zip_file, "zip", tdir)
+        res = export_run_to_dir(run, temp_dir, log_source_info)
+        utils.zip_directory(zip_file, temp_dir)
     finally:
-        shutil.rmtree(tdir)
+        shutil.rmtree(temp_dir)
 
 def export_run_to_dir(run, run_dir, log_source_info=False):
     dct = { "info": utils.strip_underscores(run.info) , 

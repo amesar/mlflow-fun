@@ -1,4 +1,6 @@
 import os
+import shutil
+import zipfile
 import json
 import time
 import mlflow
@@ -48,3 +50,22 @@ def write_json_file(path, dct):
 def read_json_file(path):
     with open(path, "r") as f:
         return json.loads(f.read())
+
+def zip_directory(zip_file, dir):
+    zipf = zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk(dir):
+        for file in files:
+            full_path = os.path.join(root, file)
+            relative_path = full_path.replace(dir+"/","")
+            zipf.write(full_path,relative_path)
+    zipf.close()
+
+def unzip_directory(zip_file, exp_name, funk):
+    import tempfile
+    temp_dir = tempfile.mkdtemp()
+    try:
+        with zipfile.ZipFile(zip_file, "r") as f:
+            f.extractall(temp_dir)
+        funk(exp_name, temp_dir)
+    finally:
+        shutil.rmtree(temp_dir)

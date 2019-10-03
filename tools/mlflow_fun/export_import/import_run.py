@@ -3,9 +3,6 @@ Imports a run from a directory of zip file.
 """
 
 import os
-import tempfile
-import shutil
-import zipfile
 import mlflow
 from mlflow_fun.export_import import utils
 
@@ -14,20 +11,14 @@ client = mlflow.tracking.MlflowClient()
 def import_run(exp_name, input, log_batch=False):
     print("Importing run into experiment '{}' from '{}'".format(exp_name, input),flush=True)
     if input.endswith(".zip"):
-        import_run_from_zip(exp_name, input, log_batch)
+        import_run_from_zip(exp_name, input)
     else:
         import_run_from_dir(exp_name, input, log_batch)
 
-def import_run_from_zip(exp_name, zip_file, log_batch):
-    tdir = tempfile.mkdtemp()
-    try:
-        with zipfile.ZipFile(zip_file, "r") as zf:
-            zf.extractall(tdir)
-        import_run_from_dir(exp_name, tdir)
-    finally:
-        shutil.rmtree(tdir)
+def import_run_from_zip(exp_name, zip_file):
+    utils.unzip_directory(zip_file, exp_name, import_run_from_dir)
 
-def import_run_from_dir(exp_name, run_dir, log_batch):
+def import_run_from_dir(exp_name, run_dir, log_batch=False):
     mlflow.set_experiment(exp_name)
     exp = client.get_experiment_by_name(exp_name)
     #print("Experiment name:",exp_name)
