@@ -46,7 +46,7 @@ class HttpClient(object):
             raise MlflowFunException("HTTP status code: {} Reason: {} URL: {}".format(str(rsp.status_code),rsp.reason,uri))
 
     def __repr__(self): 
-        return self.api_uri + " - "+ self.token
+        return self.api_uri
 
 class DatabricksHttpClient(HttpClient):
     def __init__(self, api_uri=None, token=None):
