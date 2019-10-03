@@ -16,7 +16,7 @@ def export_experiment(exp_id_or_name, output, log_source_info=False, notebook_fo
     exp_id = exp.experiment_id
     print("Exporting experiment '{}' (ID {}) to '{}'".format(exp.name,exp.experiment_id,output),flush=True)
     if output.endswith(".zip"):
-        export_experiment_to_zip(exp_id, output, log_source_info)
+        export_experiment_to_zip(exp_id, output, log_source_info, notebook_formats)
     else:
         os.makedirs(output)
         export_experiment_to_dir(exp_id, output, log_source_info, notebook_formats)
@@ -46,10 +46,10 @@ def export_experiment_to_dir(exp_id, exp_dir, log_source_info, notebook_formats)
         print("{}/{} runs succesfully exported".format(len(run_ids),len(infos)))
         print("{}/{} runs failed".format(len(failed_run_ids),len(infos)))
 
-def export_experiment_to_zip(exp_id, zip_file, log_source_info):
+def export_experiment_to_zip(exp_id, zip_file, log_source_info, notebook_formats):
     temp_dir = tempfile.mkdtemp()
     try:
-        export_experiment_to_dir(exp_id, temp_dir, log_source_info)
+        export_experiment_to_dir(exp_id, temp_dir, log_source_info, notebook_formats)
         utils.zip_directory(zip_file, temp_dir)
     finally:
         shutil.rmtree(temp_dir)

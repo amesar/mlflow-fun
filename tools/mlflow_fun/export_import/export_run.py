@@ -25,15 +25,15 @@ def export_run(run_id, output, log_source_info=False, notebook_formats=["SOURCE"
 
 def export_run2(run, output, log_source_info, notebook_formats):
     if output.endswith(".zip"):
-        return export_run_to_zip(run, output, log_source_info)
+        return export_run_to_zip(run, output, log_source_info, notebook_formats)
     else:
         os.makedirs(output)
         return export_run_to_dir(run, output, log_source_info, notebook_formats)
 
-def export_run_to_zip(run, zip_file, log_source_info=False):
+def export_run_to_zip(run, zip_file, log_source_info, notebook_formats):
     temp_dir = tempfile.mkdtemp()
     try:
-        res = export_run_to_dir(run, temp_dir, log_source_info)
+        res = export_run_to_dir(run, temp_dir, log_source_info, notebook_formats)
         utils.zip_directory(zip_file, temp_dir)
     finally:
         shutil.rmtree(temp_dir)
