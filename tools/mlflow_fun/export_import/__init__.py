@@ -1,0 +1,38 @@
+
+import os
+import json
+import mlflow
+
+class BaseCopier(object):
+    def __init__(self, src_client, dst_client, log_source_info=False):
+        self.src_client = src_client
+        self.dst_client = dst_client
+        self.log_source_info = log_source_info
+
+    def get_experiment(self, client, exp_name):
+        exp = client.get_experiment_by_name(exp_name)
+        if exp is None:
+            exp_id = client.create_experiment(exp_name)
+            exp = client.get_experiment(exp_id)
+        return exp
+
+def peek_at_experiment(exp_dir):
+    manifest_path = os.path.join(exp_dir,"manifest.json")
+    with open(manifest_path, "r") as f:
+        content = f.read()
+    print("manifest path:",manifest_path)
+    print(content)
+
+def  create_client(uri):
+    return mlflow.tracking.MlflowClient() if uri is None else mlflow.tracking.MlflowClient(uri)
+
+# monkey patch mlflow.tracking.MlflowClient
+def add_repr_to_MlflowClient():
+    def custom_repr(self): 
+        try:
+            return self.tracking_uri
+        except AttributeError as e:
+            return "Ouch: "+str(e)
+    mlflow.tracking.MlflowClient.__repr__ = custom_repr
+
+add_repr_to_MlflowClient()

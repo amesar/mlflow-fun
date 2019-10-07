@@ -25,10 +25,10 @@ def create_tags(client, run, log_source_info):
         tags[prefix+".DATABRICKS_HOST"] = dbx_host
     now = int(time.time()+.5)
     snow = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now))
-    tags[prefix+".timestamp"] = now
+    tags[prefix+".timestamp"] = str(now)
     tags[prefix+".timestamp_nice"] = snow
 
-    tags[prefix+".run_id"] =  run.info.run_id
+    tags[prefix+".run_id"] =  str(run.info.run_id)
     tags[prefix+".experiment_id"] = run.info.experiment_id
     exp = client.get_experiment(run.info.experiment_id)
     tags[prefix+".experiment_name"] = exp.name

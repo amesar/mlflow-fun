@@ -13,6 +13,11 @@ Tools to export and import MLflow experiments or runs.
   * Import a run from directory or zip file
   * Copy a run from one tracking server to another
 
+* Copy Notes
+  * Copy logic is still under development
+  * It works pretty well with open-source MLflow
+  * Does not yet work for Databricks MLflow
+
 * TODO
   * Account for nested runs
   * Implement Databricks notebook imports
@@ -46,12 +51,12 @@ Arguments
 * experiment - Source experiment name or ID
 * output - Destination directory or zip file
 
-#### Run example
+#### Export example
 ```
-python export_run.py --experiment=2 --output=out --log_source_info
+python export_experiment.py --experiment=2 --output=out --log_source_info
 ```
 ```
-python export_run.py --experiment=sklearn_wine --output=exp.zip
+python export_experiment.py --experiment=sklearn_wine --output=exp.zip
 ```
 
 #### Databricks export example
@@ -61,7 +66,7 @@ export MLFLOW_TRACKING_URI=databricks
 export DATABRICKS_HOST=https://acme.cloud.databricks.com
 export DATABRICKS_TOKEN=MY_TOKEN
 
-python export_run.py --experiment=sklearn_wine --notebook_formats=DBC,SOURCE
+python export_experiment.py --experiment=sklearn_wine --notebook_formats=DBC,SOURCE
 ```
 
 #### Output 
@@ -128,6 +133,7 @@ In this example we use
 Arguments
 * src_experiment - Source experiment name or ID
 * dst_experiment_name - Destination experiment name  - will be created if it does not exist
+* src_uri - Source server URI
 * dst_uri - Destination server URI
 
 Run example
@@ -135,8 +141,9 @@ Run example
 export MLFLOW_TRACKING_URI=http://localhost:5000
 
 python copy_experiment.py \
-  --src_experiment=sklearn_win \
-  --dst_experiment_name sklearn_wine \
+  --src_experiment=sklearn_wine \
+  --dst_experiment_name sklearn_wine_imported \
+  --src_uri http://localhost:5000
   --dst_uri http://localhost:5001
   --log_source_info
 ```
@@ -234,6 +241,7 @@ In this example we use
 Arguments
 * src_run_id - Source run ID
 * dst_experiment_name - Destination experiment name  - will be created if it does not exist
+* src_uri - Source server URI
 * dst_uri - Destination server URI
 
 Run example
@@ -243,6 +251,7 @@ export MLFLOW_TRACKING_URI=http://localhost:5000
 python copy_run.py \
   --src_run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --dst_experiment_name sklearn_wine \
+  --src_uri http://localhost:5000
   --dst_uri http://localhost:5001
   --log_source_info
 ```

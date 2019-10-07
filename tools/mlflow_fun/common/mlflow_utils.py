@@ -39,5 +39,5 @@ def get_experiment(client, exp_id_or_name):
     except Exception as e:
         exp = client.get_experiment_by_name(exp_id_or_name)
     if exp is None:
-         raise Exception("Cannot find experiment ID or name '{}'".format(exp_id_or_name))
+         raise Exception("Cannot find experiment ID or name '{}. Client: {}'".format(exp_id_or_name,client)) 
     return exp
