@@ -6,16 +6,19 @@ import os
 import mlflow
 import shutil
 import tempfile
+from mlflow_fun.common import filesystem as _filesystem
+from mlflow_fun.common import mlflow_utils
 from mlflow_fun.export_import import utils
 from mlflow_fun.export_import.export_run import RunExporter
-from mlflow_fun.common import mlflow_utils
 
 class ExperimentExporter(object):
-    def __init__(self, client=None, log_source_info=False, notebook_formats=["SOURCE"]):
+    def __init__(self, client=None, log_source_info=False, notebook_formats=["SOURCE"], filesystem=None):
         self.client = client or mlflow.tracking.MlflowClient()
         self.log_source_info = log_source_info
         self.notebook_formats = notebook_formats
-        self.run_exporter = RunExporter(self.client, log_source_info, notebook_formats)
+        self.fs = filesystem or _filesystem.get_filesystem()
+        print("Filesystem:",type(self.fs).__name__)
+        self.run_exporter = RunExporter(self.client, log_source_info, notebook_formats, self.fs)
 
     def export_experiment(self, exp_id_or_name, output, log_source_info=False, notebook_formats=["SOURCE"]):
         exp = mlflow_utils.get_experiment(self.client, exp_id_or_name)
@@ -24,7 +27,7 @@ class ExperimentExporter(object):
         if output.endswith(".zip"):
             self.export_experiment_to_zip(exp_id, output, log_source_info)
         else:
-            os.makedirs(output)
+            self.fs.mkdirs(output)
             self.export_experiment_to_dir(exp_id, output)
 
     def export_experiment_to_dir(self, exp_id, exp_dir):
@@ -45,7 +48,7 @@ class ExperimentExporter(object):
         dct['run_ids'] = run_ids
         dct['failed_run_ids'] = failed_run_ids
         path = os.path.join(exp_dir,"manifest.json")
-        utils.write_json_file(path, dct)
+        utils.write_json_file(self.fs, path, dct)
         if len(failed_run_ids) == 0:
             print("All {} runs succesfully exported".format(len(run_ids)))
         else:

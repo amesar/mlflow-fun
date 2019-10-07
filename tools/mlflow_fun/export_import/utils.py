@@ -4,6 +4,7 @@ import zipfile
 import json
 import time
 import mlflow
+from . import mk_local_path
 
 prefix = "mlflow_tools.export"
 
@@ -43,12 +44,15 @@ def get_now_nice():
 def strip_underscores(obj):
     return { k[1:]:v for (k,v) in obj.__dict__.items() }
 
-def write_json_file(path, dct):
-    with open(path, 'w') as f:
-        f.write(json.dumps(dct,indent=2)+"\n")
+def write_json_file(fs, path, dct):
+    fs.write(path, json.dumps(dct,indent=2)+"\n")
+
+def write_file(path, content):
+    with open(mk_local_path(path), 'wb') as f:
+        f.write(content)
 
 def read_json_file(path):
-    with open(path, "r") as f:
+    with open(mk_local_path(path), "r") as f:
         return json.loads(f.read())
 
 def zip_directory(zip_file, dir):

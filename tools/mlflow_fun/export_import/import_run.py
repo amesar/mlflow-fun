@@ -6,6 +6,7 @@ import os
 import time
 import mlflow
 from mlflow_fun.export_import import utils
+from . import mk_local_path
 
 class RunImporter(object):
     def __init__(self, mlflow_client=None):
@@ -33,7 +34,7 @@ class RunImporter(object):
             run_id = run.info.run_id
             self.import_run_data(run_dct,run.info.run_id)
             path = os.path.join(src_run_id,"artifacts")
-            mlflow.log_artifacts(path)
+            mlflow.log_artifacts(mk_local_path(path))
         return run_id
 
     def import_run_data(self, run_dct, run_id):

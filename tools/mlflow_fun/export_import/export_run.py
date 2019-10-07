@@ -7,7 +7,7 @@ import shutil
 import traceback
 import tempfile
 import mlflow
-from mlflow_fun.common import filesystem
+from mlflow_fun.common import filesystem as _filesystem
 from mlflow_fun.common.http_client import DatabricksHttpClient
 from mlflow_fun.common import MlflowFunException
 from mlflow_fun.export_import import utils
@@ -16,12 +16,12 @@ print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
 class RunExporter(object):
-    def __init__(self, client=None, log_source_info=False, notebook_formats=["SOURCE"]):
+    def __init__(self, client=None, log_source_info=False, notebook_formats=["SOURCE"], filesystem=None):
         self.client = client or mlflow.tracking.MlflowClient()
         self.dbx_client = DatabricksHttpClient()
         print("Databricks REST client:",self.dbx_client)
-        self.fs = filesystem.get_filesystem()
-        print("filesystem:",type(self.fs))
+        self.fs = filesystem or _filesystem.get_filesystem()
+        print("Filesystem:",type(self.fs).__name__)
         self.log_source_info = log_source_info
         self.notebook_formats = notebook_formats
 
@@ -31,7 +31,7 @@ class RunExporter(object):
         if output.endswith(".zip"):
             return self.export_run_to_zip(run, output)
         else:
-            os.makedirs(output)
+            self.fs.mkdirs(output)
             return self.export_run_to_dir(run, output)
 
     def export_run_to_zip(self, run, zip_file):
@@ -51,7 +51,7 @@ class RunExporter(object):
                 "tags": tags,
               }
         path = os.path.join(run_dir,"run.json")
-        utils.write_json_file(path, dct)
+        utils.write_json_file(self.fs, path, dct)
 
         # copy artifacts
         dst_path = os.path.join(run_dir,"artifacts")
@@ -68,7 +68,6 @@ class RunExporter(object):
             traceback.print_exc()
             return False
 
-
     def export_notebook(self, run_dir, notebook):
         for format in self.notebook_formats:
             self.export_notebook_format(run_dir, notebook, format, format.lower())
@@ -79,8 +78,8 @@ class RunExporter(object):
             rsp = self.dbx_client._get(resource)
             nb_name = "notebook."+extension
             nb_path = os.path.join(run_dir,nb_name)
-            with open(nb_path, 'wb') as f:
-                f.write(rsp.content)
+            utils.write_file(nb_path, rsp.content)
+            #self.fs.write(nb_path, rsp.content) # Bombs for DBC because dbutils.fs.put only writes strings!
         except MlflowFunException as e:
             print(f"WARNING: Cannot save notebook '{notebook}'. {e}")
 
