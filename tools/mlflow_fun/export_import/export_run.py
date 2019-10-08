@@ -26,7 +26,6 @@ class RunExporter(object):
         self.notebook_formats = notebook_formats
 
     def export_run(self, run_id, output):
-        #output = output.replace("file:","") # TODO
         run = self.client.get_run(run_id)
         if output.endswith(".zip"):
             return self.export_run_to_zip(run, output)
@@ -41,7 +40,7 @@ class RunExporter(object):
             utils.zip_directory(zip_file, temp_dir)
         finally:
             shutil.rmtree(temp_dir)
-            #fs.rm(temp_dir,True) # TODO XX
+            #fs.rm(temp_dir,True) # TODO
 
     def export_run_to_dir(self, run, run_dir):
         tags =  utils.create_tags(self.client, run, self.log_source_info)
@@ -57,14 +56,13 @@ class RunExporter(object):
         dst_path = os.path.join(run_dir,"artifacts")
         try:
             src_path = self.client.download_artifacts(run.info.run_id,"")
-            self.fs.cp(src_path,dst_path,True) # XX
+            self.fs.cp(src_path,dst_path,True)
             notebook = tags.get("mlflow.databricks.notebookPath",None)
             if notebook is not None:
                 self.export_notebook(run_dir, notebook)
             return True
         except Exception as e: # NOTE: Fails for certain runs in Databricks
             print("ERROR: run_id:",run.info.run_id,"Exception:",e)
-            print("ERROR: type:",type(e))
             traceback.print_exc()
             return False
 
