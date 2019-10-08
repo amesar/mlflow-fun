@@ -13,7 +13,7 @@ def dump_mlflow_info():
 
 ''' Returns the host (tracking URI) and token '''
 def get_mlflow_host():
-    return get_mlflow_host_token()
+    return get_mlflow_host_token()[0]
 
 ''' Returns the host (tracking URI) and token '''
 def get_mlflow_host_token():
