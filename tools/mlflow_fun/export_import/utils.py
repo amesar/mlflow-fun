@@ -11,7 +11,8 @@ prefix = "mlflow_tools.export"
 # Databricks tags that cannot be set
 dbx_skip_tags = set([ "mlflow.user" ])
 
-def create_tags(client, run, log_source_info):
+def create_tags(src_client, run, log_source_info):
+    """ Create destination tags from source run """
     tags = run.data.tags.copy()
     for tag_key in dbx_skip_tags:
         tags.pop(tag_key, None)
@@ -29,12 +30,13 @@ def create_tags(client, run, log_source_info):
     tags[prefix+".timestamp"] = str(now)
     tags[prefix+".timestamp_nice"] = snow
 
+    tags[prefix+".user_id"] = run.info.user_id
     tags[prefix+".run_id"] =  str(run.info.run_id)
     tags[prefix+".experiment_id"] = run.info.experiment_id
-    exp = client.get_experiment(run.info.experiment_id)
+    exp = src_client.get_experiment(run.info.experiment_id)
     tags[prefix+".experiment_name"] = exp.name
-    tags[prefix+".user_id"] = run.info.user_id
 
+    tags = { k:v for k,v in sorted(tags.items()) }
     return tags
 
 def get_now_nice():
