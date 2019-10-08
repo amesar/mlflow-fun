@@ -8,7 +8,6 @@ from mlflow_fun.export_import import utils
 from mlflow_fun.export_import import BaseCopier, create_client, add_repr_to_MlflowClient
 print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
-#add_repr_to_MlflowClient()
 
 class RunCopier(BaseCopier):
     def __init__(self, src_client, dst_client, log_source_info=False):
@@ -19,31 +18,23 @@ class RunCopier(BaseCopier):
         dst_exp = self.get_experiment(self.dst_client,dst_exp_name)
         print("  dst_exp.name:",dst_exp.name)
         print("  dst_exp.id:",dst_exp.experiment_id)
-        self.copy_run2(src_run_id, dst_exp.experiment_id)
+        self._copy_run(src_run_id, dst_exp.experiment_id)
 
-    def copy_run2(self, src_run_id, dst_experiment_id):
+    def _copy_run(self, src_run_id, dst_experiment_id):
         src_run = self.src_client.get_run(src_run_id)
-        dst_run = self.dst_client.create_run(dst_experiment_id) # does not set user_id; is 'unknown'
-        dst_run.info.__dict__['_user_id'] = src_run.info.user_id # so we set it to src_run user_id
-        self.copy_run_data_batch(src_run, dst_run.info.run_id)
+        dst_run = self.dst_client.create_run(dst_experiment_id) # NOTE: does not set user_id; is 'unknown'
+        self._copy_run_data(src_run, dst_run.info.run_id)
         local_path = self.src_client.download_artifacts(src_run_id,"")
         self.dst_client.log_artifacts(dst_run.info.run_id,local_path)
 
-    def _copy_run2(self, src_run_id, dst_experiment_id):
-        src_run = self.src_client.get_run(src_run_id)
-        with mlflow.start_run(experiment_id=dst_experiment_id) as dst_run:
-            self.copy_run_data_batch(src_run, dst_run.info.run_id)
-            local_path = self.src_client.download_artifacts(src_run_id,"")
-            #print("local_path:",local_path)
-            mlflow.log_artifacts(local_path)
-
-    def copy_run_data_batch(self, src_run, dst_run_id):
+    def _copy_run_data(self, src_run, dst_run_id):
         from mlflow.entities import Metric, Param, RunTag
         now = int(time.time()+.5)
         params = [ Param(k,v) for k,v in src_run.data.params.items() ]
         metrics = [ Metric(k,v,now,0) for k,v in src_run.data.metrics.items() ] # TODO: check timestamp and step semantics
         tags = utils.create_tags(self.src_client, src_run, self.log_source_info)
-        tags = [ RunTag(k,v) for k,v in tags.items() ]
+        tags = [ RunTag(k,v) for k,v in tags.items() ] # NOTE: set dst user to src user. 
+        tags.append(RunTag("mlflow.user",src_run.info.user_id ))
         self.dst_client.log_batch(dst_run_id, metrics, params, tags)
 
 if __name__ == "__main__":
