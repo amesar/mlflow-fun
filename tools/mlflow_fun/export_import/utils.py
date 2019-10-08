@@ -78,3 +78,7 @@ def string_to_list(list_as_string):
     lst = list_as_string.split(",")
     if "" in lst: list.remove("")
     return lst
+
+def get_user_id():
+    from mlflow.tracking.context.default_context import _get_user
+    return _get_user()

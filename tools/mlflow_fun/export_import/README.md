@@ -13,14 +13,17 @@ Tools to export and import MLflow experiments or runs.
   * Import a run from directory or zip file
   * Copy a run from one tracking server to another
 
-* Copy Notes
-  * Copy logic is still under development
-  * It works pretty well with open-source MLflow
-  * Does not yet work for Databricks MLflow
-
 * TODO
   * Account for nested runs
   * Implement Databricks notebook imports
+
+### Databricks MLflow Tracking Server Notes for `Copy` Feature
+  * The functionality as described here works quite well for open source MLflow.
+  * Things get more complicated for the `copy` feature when you are using a a Databricks tracking server, either as source or destination .
+  * This is primarily because [MLflow client](https://github.com/mlflow/mlflow/blob/master/mlflow/tracking/client.py) constructor only accepts a tracking_uri. 
+    * For open source MLflow this works fine and you can have the two clients (source and destination) in the same program.
+    * For Databricks MLflow, the constructor is not used since several environment variables are used to initialize the client, so only one client can exist.
+  * So, to copy experiments when a Databricks server is involved, you have to use the more manual process of exporting and then importing the experiment.
 
 ### Common arguments 
 
@@ -135,6 +138,7 @@ Arguments
 * dst_experiment_name - Destination experiment name  - will be created if it does not exist
 * src_uri - Source server URI
 * dst_uri - Destination server URI
+* use_src_user_id - Set the destination user ID to the source user ID or the current user ID
 
 Run example
 ```
@@ -243,6 +247,7 @@ Arguments
 * dst_experiment_name - Destination experiment name  - will be created if it does not exist
 * src_uri - Source server URI
 * dst_uri - Destination server URI
+* use_src_user_id - Set the destination user ID to the source user ID or the current user ID
 
 Run example
 ```

@@ -10,10 +10,10 @@ from mlflow_fun.export_import import BaseCopier, create_client
 
 class ExperimentCopier(BaseCopier):
 
-    def __init__(self, src_client, dst_client, log_source_info=False):
+    def __init__(self, src_client, dst_client, log_source_info=False, use_src_user_id=False):
         self.log_source_info = log_source_info
         super().__init__(src_client, dst_client, log_source_info)
-        self.run_copier = RunCopier(src_client, dst_client, log_source_info)
+        self.run_copier = RunCopier(src_client, dst_client, log_source_info, use_src_user_id)
 
     def copy_experiment(self, src_exp_id_or_name, dst_exp_name):
         src_exp = mlflow_utils.get_experiment(self.src_client, src_exp_id_or_name)
@@ -33,6 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("--src_experiment_id_or_name", dest="src_experiment_id_or_name", help="Source experiment ID or name", required=True)
     parser.add_argument("--dst_experiment_name", dest="dst_experiment_name", help="Destination experiment_name", required=True)
     parser.add_argument("--log_source_info", dest="log_source_info", help="Set tags with import information", default=False, action='store_true')
+    parser.add_argument("--use_src_user_id", dest="use_src_user_id", help="Use source user ID", default=False, action='store_true')
+
     args = parser.parse_args()
     print("Options:")
     for arg in vars(args):
@@ -42,5 +44,5 @@ if __name__ == "__main__":
     dst_client = create_client(args.dst_uri)
     print("src_client:",src_client)
     print("dst_client:",dst_client)
-    copier = ExperimentCopier(src_client, dst_client, args.log_source_info)
+    copier = ExperimentCopier(src_client, dst_client, args.log_source_info, args.use_src_user_id)
     copier.copy_experiment(args.src_experiment_id_or_name, args.dst_experiment_name)
