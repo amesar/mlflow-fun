@@ -23,7 +23,7 @@ class ExperimentCopier(BaseCopier):
         infos = self.src_client.list_run_infos(src_exp.experiment_id)
         for j,info in enumerate(infos):
             print("Copying run {}/{}: {}".format((j+1),len(infos),info.run_id),flush=True)
-            self.run_copier.copy_run2(info.run_id, dst_exp.experiment_id)
+            self.run_copier._copy_run(info.run_id, dst_exp.experiment_id)
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
