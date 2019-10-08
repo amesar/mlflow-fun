@@ -33,8 +33,8 @@ class RunCopier(BaseCopier):
         params = [ Param(k,v) for k,v in src_run.data.params.items() ]
         metrics = [ Metric(k,v,now,0) for k,v in src_run.data.metrics.items() ] # TODO: check timestamp and step semantics
         tags = utils.create_tags(self.src_client, src_run, self.log_source_info)
-        tags = [ RunTag(k,v) for k,v in tags.items() ] # NOTE: set dst user to src user. 
-        tags.append(RunTag("mlflow.user",src_run.info.user_id ))
+        tags = [ RunTag(k,v) for k,v in tags.items() ] 
+        tags.append(RunTag("mlflow.user",src_run.info.user_id )) # NOTE: set dst user to src user
         self.dst_client.log_batch(dst_run_id, metrics, params, tags)
 
 if __name__ == "__main__":
