@@ -7,6 +7,7 @@ import scala.collection.JavaConversions._
 import org.andre.mlflow.util.MLflowUtils
 
 object HelloWorld {
+  MLflowUtils.showVersions
   def main(args: Array[String]) {
 
     // Create MLflow client

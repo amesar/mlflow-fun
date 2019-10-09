@@ -6,8 +6,20 @@ import org.mlflow.tracking.MlflowHttpException
 import org.mlflow.tracking.creds.BasicMlflowHostCreds
 import org.mlflow.api.proto.Service.Run
 import org.mlflow.api.proto.Service.Experiment
+import org.apache.spark.sql.SparkSession
+import org.mlflow.tracking.MlflowClientVersion
 
 object MLflowUtils {
+
+  def showVersions() {
+    println("MLflow version: "+MlflowClientVersion.getClientVersion())
+  }
+
+  def showVersions(spark: SparkSession) {
+    println("Versions:")
+    println("  Spark version: "+spark.version)
+    println("  MLflow version: "+MlflowClientVersion.getClientVersion())
+  }
 
   def getOrCreateExperimentId(client: MlflowClient, experimentName: String) : String = {
     try {
@@ -43,7 +55,7 @@ object MLflowUtils {
   def isNumeric(input: String) = input.forall(_.isDigit)
 
   def createMlflowClient(args: Array[String]) = {
-    println("args: "+args)
+    println("args: "+args.toList)
     if (args.length == 0) {
         val env = System.getenv("MLFLOW_TRACKING_URI")
         println(s"MLFLOW_TRACKING_URI: $env")

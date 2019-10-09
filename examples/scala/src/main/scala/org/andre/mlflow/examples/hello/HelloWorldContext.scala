@@ -8,6 +8,7 @@ import org.andre.mlflow.util.MLflowUtils
  * Scala Hello World using MLflow Java client with MlflowContext.
  */
 object HelloWorldContext {
+  MLflowUtils.showVersions
   val now = new java.util.Date()
 
   def main(args: Array[String]) {

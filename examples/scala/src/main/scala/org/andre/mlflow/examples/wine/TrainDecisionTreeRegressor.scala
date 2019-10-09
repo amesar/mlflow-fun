@@ -15,6 +15,7 @@ import org.andre.mlflow.util.MLflowUtils
  */
 object TrainDecisionTreeRegressor {
   val spark = SparkSession.builder.appName("DecisionTreeRegressionExample").getOrCreate()
+  MLflowUtils.showVersions(spark)
   val metrics = Seq("rmse","r2", "mae")
 
   def main(args: Array[String]) {
