@@ -4,10 +4,9 @@ import json
 import mlflow
 
 class BaseCopier(object):
-    def __init__(self, src_client, dst_client, log_source_info=False):
+    def __init__(self, src_client, dst_client):
         self.src_client = src_client
         self.dst_client = dst_client
-        self.log_source_info = log_source_info
 
     def get_experiment(self, client, exp_name):
         exp = client.get_experiment_by_name(exp_name)

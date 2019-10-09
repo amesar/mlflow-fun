@@ -6,36 +6,32 @@ import time
 import mlflow
 from . import mk_local_path
 
-prefix = "mlflow_tools.export"
+prefix = "mlflow_tools.metadata"
 
 # Databricks tags that cannot be set
 dbx_skip_tags = set([ "mlflow.user" ])
 
-def create_tags(src_client, run, log_source_info):
+def create_tags(src_client, run, export_metadata_tags):
     """ Create destination tags from source run """
     tags = run.data.tags.copy()
     for k in dbx_skip_tags:
         tags.pop(k, None)
+    if export_metadata_tags:
+        uri = mlflow.tracking.get_tracking_uri()
+        tags[prefix+".tracking_uri"] = uri
+        dbx_host = os.environ.get("DATABRICKS_HOST",None)
+        if dbx_host is not None:
+            tags[prefix+".DATABRICKS_HOST"] = dbx_host
+        now = int(time.time()+.5)
+        snow = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now))
+        tags[prefix+".timestamp"] = str(now)
+        tags[prefix+".timestamp_nice"] = snow
 
-    if not log_source_info:
-        return tags
-
-    uri = mlflow.tracking.get_tracking_uri()
-    tags[prefix+".tracking_uri"] = uri
-    dbx_host = os.environ.get("DATABRICKS_HOST",None)
-    if dbx_host is not None:
-        tags[prefix+".DATABRICKS_HOST"] = dbx_host
-    now = int(time.time()+.5)
-    snow = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now))
-    tags[prefix+".timestamp"] = str(now)
-    tags[prefix+".timestamp_nice"] = snow
-
-    tags[prefix+".user_id"] = run.info.user_id
-    tags[prefix+".run_id"] =  str(run.info.run_id)
-    tags[prefix+".experiment_id"] = run.info.experiment_id
-    exp = src_client.get_experiment(run.info.experiment_id)
-    tags[prefix+".experiment_name"] = exp.name
-
+        tags[prefix+".user_id"] = run.info.user_id
+        tags[prefix+".run_id"] =  str(run.info.run_id)
+        tags[prefix+".experiment_id"] = run.info.experiment_id
+        exp = src_client.get_experiment(run.info.experiment_id)
+        tags[prefix+".experiment_name"] = exp.name
     tags = { k:v for k,v in sorted(tags.items()) }
     return tags
 

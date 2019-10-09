@@ -16,13 +16,13 @@ print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
 class RunExporter(object):
-    def __init__(self, client=None, log_source_info=False, notebook_formats=["SOURCE"], filesystem=None):
+    def __init__(self, client=None, export_metadata_tags=False, notebook_formats=["SOURCE"], filesystem=None):
         self.client = client or mlflow.tracking.MlflowClient()
         self.dbx_client = DatabricksHttpClient()
         print("Databricks REST client:",self.dbx_client)
         self.fs = filesystem or _filesystem.get_filesystem()
         print("Filesystem:",type(self.fs).__name__)
-        self.log_source_info = log_source_info
+        self.export_metadata_tags = export_metadata_tags
         self.notebook_formats = notebook_formats
 
     def export_run(self, run_id, output):
@@ -43,7 +43,7 @@ class RunExporter(object):
             #fs.rm(temp_dir,True) # TODO
 
     def export_run_to_dir(self, run, run_dir):
-        tags =  utils.create_tags(self.client, run, self.log_source_info)
+        tags =  utils.create_tags(self.client, run, self.export_metadata_tags)
         dct = { "info": utils.strip_underscores(run.info) , 
                 "params": run.data.params,
                 "metrics": run.data.metrics,
@@ -86,11 +86,11 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--run_id", dest="run_id", help="Source run_id", required=True)
     parser.add_argument("--output", dest="output", help="Output directory or zip file", required=True)
-    parser.add_argument("--log_source_info", dest="log_source_info", help="Set tags with import information", default=False, action='store_true')
+    parser.add_argument("--export_metadata_tags", dest="export_metadata_tags", help="Export source run metadata tags", default=False, action='store_true')
     parser.add_argument("--notebook_formats", dest="notebook_formats", default="SOURCE", help="Notebook formats. Values are SOURCE, HTML, JUPYTER, DBC", required=False)
     args = parser.parse_args()
     print("Options:")
     for arg in vars(args):
         print("  {}: {}".format(arg,getattr(args, arg)))
-    exporter = RunExporter(None, args.log_source_info, utils.string_to_list(args.notebook_formats))
+    exporter = RunExporter(None, args.export_metadata_tags, utils.string_to_list(args.notebook_formats))
     exporter.export_run(args.run_id, args.output)

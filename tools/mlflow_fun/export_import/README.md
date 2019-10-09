@@ -33,15 +33,15 @@ Tools to export and import MLflow experiments or runs.
 
 `notebook_formats` - If exporting a Databricks experiment, the run's notebook can be saved in the specified formats (comma-delimited argument). Each format is saved as `notebook.{format}`. Supported formats are  SOURCE, HTML, JUPYTER, DBC. See [Export Format](https://docs.databricks.com/dev-tools/api/latest/workspace.html#notebookexportformat) documentation.
 
-`log_source_info` - Creates metadata tags (starting with `mlflow_tools.export`) containing export information.
+`export_metadata_tags` - Creates metadata tags (starting with `mlflow_tools.metadata`) containing export information.
 ```
 Name                                Value
-mlflow_tools.export.timestamp       1551037752
-mlflow_tools.export.timestamp_nice  2019-02-24 19:49:12
-mlflow_tools.export.experiment_id   2
-mlflow_tools.export.experiment_name sklearn_wine
-mlflow_tools.export.run_id          50fa90e751eb4b3f9ba9cef0efe8ea30
-mlflow_tools.export.tracking_uri    http://localhost:5000
+mlflow_tools.metadata.timestamp       1551037752
+mlflow_tools.metadata.timestamp_nice  2019-02-24 19:49:12
+mlflow_tools.metadata.experiment_id   2
+mlflow_tools.metadata.experiment_name sklearn_wine
+mlflow_tools.metadata.run_id          50fa90e751eb4b3f9ba9cef0efe8ea30
+mlflow_tools.metadata.tracking_uri    http://localhost:5000
 ```
 
 ## Experiments
@@ -56,7 +56,7 @@ Arguments
 
 #### Export example
 ```
-python export_experiment.py --experiment=2 --output=out --log_source_info
+python export_experiment.py --experiment=2 --output=out --export_metadata_tags
 ```
 ```
 python export_experiment.py --experiment=sklearn_wine --output=exp.zip
@@ -109,7 +109,7 @@ Import an experiment from a directory or zip file.
 Arguments
 * experiment_name - Destination experiment name  - will be created if it does not exist
 * input - Source directory or zip file produced by export_experiment.py
-* use_src_user_id - Set the destination user ID to the source user ID or the current user ID
+* use_src_user_id - Set the destination user ID to the source user ID
 
 Run examples
 
@@ -139,7 +139,7 @@ Arguments
 * dst_experiment_name - Destination experiment name  - will be created if it does not exist
 * src_uri - Source server URI
 * dst_uri - Destination server URI
-* use_src_user_id - Set the destination user ID to the source user ID or the current user ID
+* use_src_user_id - Set the destination user ID to the source user ID
 
 Run example
 ```
@@ -150,7 +150,7 @@ python copy_experiment.py \
   --dst_experiment_name sklearn_wine_imported \
   --src_uri http://localhost:5000
   --dst_uri http://localhost:5001
-  --log_source_info
+  --export_metadata_tags
 ```
 
 ## Runs
@@ -168,7 +168,7 @@ Run examples
 python export_run.py \
   --run_id=50fa90e751eb4b3f9ba9cef0efe8ea30 \
   --output=out
-  --log_source_info
+  --export_metadata_tags
 ```
 ```
 python export_run.py \
@@ -207,12 +207,12 @@ Sample run.json
     "mlflow.runName": "demo.sh",
     "run_origin": "demo.sh",
     "mlflow.source.type": "LOCAL",
-    "mlflow_tools.export.tracking_uri": "http://localhost:5000",
-    "mlflow_tools.export.timestamp": 1563572639,
-    "mlflow_tools.export.timestamp_nice": "2019-07-19 21:43:59",
-    "mlflow_tools.export.run_id": "130bca8d75e54febb2bfa46875a03d59",
-    "mlflow_tools.export.experiment_id": "2",
-    "mlflow_tools.export.experiment_name": "sklearn_wine"
+    "mlflow_tools.metadata.tracking_uri": "http://localhost:5000",
+    "mlflow_tools.metadata.timestamp": 1563572639,
+    "mlflow_tools.metadata.timestamp_nice": "2019-07-19 21:43:59",
+    "mlflow_tools.metadata.run_id": "130bca8d75e54febb2bfa46875a03d59",
+    "mlflow_tools.metadata.experiment_id": "2",
+    "mlflow_tools.metadata.experiment_name": "sklearn_wine"
   }
 }
 ```
@@ -224,7 +224,7 @@ Imports a run from a directory or zip file.
 Arguments
 * experiment_name - Destination experiment name  - will be created if it does not exist
 * input - Source directory or zip file produced by export_run.py
-* use_src_user_id - Set the destination user ID to the source user ID or the current user ID
+* use_src_user_id - Set the destination user ID to the source user ID
 
 Run examples
 ```
@@ -249,7 +249,7 @@ Arguments
 * dst_experiment_name - Destination experiment name  - will be created if it does not exist
 * src_uri - Source server URI
 * dst_uri - Destination server URI
-* use_src_user_id - Set the destination user ID to the source user ID or the current user ID
+* use_src_user_id - Set the destination user ID to the source user ID
 
 Run example
 ```
@@ -260,5 +260,5 @@ python copy_run.py \
   --dst_experiment_name sklearn_wine \
   --src_uri http://localhost:5000
   --dst_uri http://localhost:5001
-  --log_source_info
+  --export_metadata_tags
 ```
