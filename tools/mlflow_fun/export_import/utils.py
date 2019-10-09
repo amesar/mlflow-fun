@@ -14,8 +14,8 @@ dbx_skip_tags = set([ "mlflow.user" ])
 def create_tags(src_client, run, log_source_info):
     """ Create destination tags from source run """
     tags = run.data.tags.copy()
-    for tag_key in dbx_skip_tags:
-        tags.pop(tag_key, None)
+    for k in dbx_skip_tags:
+        tags.pop(k, None)
 
     if not log_source_info:
         return tags
@@ -38,6 +38,12 @@ def create_tags(src_client, run, log_source_info):
 
     tags = { k:v for k,v in sorted(tags.items()) }
     return tags
+
+def set_dst_user_id(tags,user_id, use_src_user_id):
+    from mlflow.entities import RunTag
+    from mlflow.utils.mlflow_tags import MLFLOW_USER
+    user_id = user_id if use_src_user_id else get_user_id()
+    tags.append(RunTag(MLFLOW_USER,user_id ))
 
 def get_now_nice():
     now = int(time.time()+.5)

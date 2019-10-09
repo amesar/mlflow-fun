@@ -8,7 +8,6 @@ from mlflow_fun.export_import import utils
 from mlflow_fun.export_import import BaseCopier, create_client, add_repr_to_MlflowClient
 print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
-from mlflow.utils.mlflow_tags import MLFLOW_USER
 
 class RunCopier(BaseCopier):
     def __init__(self, src_client, dst_client, log_source_info=False, use_src_user_id=False):
@@ -33,11 +32,10 @@ class RunCopier(BaseCopier):
         from mlflow.entities import Metric, Param, RunTag
         now = int(time.time()+.5)
         params = [ Param(k,v) for k,v in src_run.data.params.items() ]
-        metrics = [ Metric(k,v,now,0) for k,v in src_run.data.metrics.items() ] # TODO: check timestamp and step semantics
+        metrics = [ Metric(k,v,now,0) for k,v in src_run.data.metrics.items() ] # TODO: timestamp and step semantics?
         tags = utils.create_tags(self.src_client, src_run, self.log_source_info)
         tags = [ RunTag(k,v) for k,v in tags.items() ]
-        user_id = src_run.info.user_id if self.use_src_user_id else utils.get_user_id()
-        tags.append(RunTag(MLFLOW_USER,user_id )) 
+        utils.set_dst_user_id(tags, src_run.info.user_id, self.use_src_user_id)
         self.dst_client.log_batch(dst_run_id, metrics, params, tags)
 
 if __name__ == "__main__":
