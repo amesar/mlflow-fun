@@ -22,7 +22,9 @@ def dump_run(run, max_level=1, indent=""):
     for k,v in sorted(run.data.tags.items()):
         print(indent+"  {}: {}".format(k,v))
     print("{}Artifacts:".format(indent))
-    dump_artifacts(run.info.run_id, "", 0, max_level, indent+INDENT)
+    num_bytes,num_artifacts = dump_artifacts(run.info.run_id, "", 0, max_level, indent+INDENT)
+    print(f"{indent}Total: bytes: {num_bytes} artifacts: {num_artifacts}")
+    #print("{}Total:  bytes:",num_bytes,"artifacts:",num_artifacts)
     return run
         
 def dump_run_id(run_id, max_level=1, indent=""):
@@ -52,11 +54,21 @@ def _dump_time(info, k, indent=""):
 def dump_artifacts(run_id, path, level, max_level, indent):
     if level+1 > max_level: return
     artifacts = client.list_artifacts(run_id,path)
+    num_bytes, num_artifacts = (0,0)
     for j,art in enumerate(artifacts):
         print("{}Artifact {}/{} - level {}:".format(indent,j+1,len(artifacts),level))
-        for k,v in art.__dict__.items(): print("  {}{}: {}".format(indent,k[1:],v))
+        num_bytes += art.file_size or 0
+        #for k,v in art.__dict__.items(): 
+           #print("  {}{}: {}".format(indent,k[1:],v))
+        print(f"  {indent}path: {art.path}")
         if art.is_dir:
-            dump_artifacts(run_id, art.path, level+1, max_level, indent+INDENT)
+            b,a = dump_artifacts(run_id, art.path, level+1, max_level, indent+INDENT)
+            num_bytes += b
+            num_artifacts += a
+        else:
+            print(f"  {indent}bytes: {art.file_size}")
+            num_artifacts += 1
+    return num_bytes,num_artifacts
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
