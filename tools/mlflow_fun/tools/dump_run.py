@@ -22,10 +22,9 @@ def dump_run(run, max_level=1, indent=""):
     for k,v in sorted(run.data.tags.items()):
         print(indent+"  {}: {}".format(k,v))
     print("{}Artifacts:".format(indent))
-    num_bytes,num_artifacts = dump_artifacts(run.info.run_id, "", 0, max_level, indent+INDENT)
+    num_bytes, num_artifacts = dump_artifacts(run.info.run_id, "", 0, max_level, indent+INDENT)
     print(f"{indent}Total: bytes: {num_bytes} artifacts: {num_artifacts}")
-    #print("{}Total:  bytes:",num_bytes,"artifacts:",num_artifacts)
-    return run
+    return run, num_bytes, num_artifacts
         
 def dump_run_id(run_id, max_level=1, indent=""):
     run = client.get_run(run_id)
