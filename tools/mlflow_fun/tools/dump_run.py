@@ -32,6 +32,8 @@ def dump_run_id(run_id, max_level=1, indent=""):
 
 def dump_run_info(info, indent=""):
     print("{}RunInfo:".format(indent))
+    exp = client.get_experiment(info.experiment_id)
+    print("{}  experiment_name: {}".format(indent,exp.name))
     for k,v in sorted(info.__dict__.items()):
         if not k.endswith("_time"):
             print("{}  {}: {}".format(indent,k[1:],v))
