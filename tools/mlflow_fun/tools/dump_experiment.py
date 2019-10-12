@@ -5,14 +5,14 @@ Note that this can be expensive. Adjust your artifact_max_level.
 """
 
 import mlflow
-from mlflow_fun.tools import dump_run
+from mlflow_fun.tools.dump_run import dump_run_id, dump_run_info
 
 client = mlflow.tracking.MlflowClient()
 print("MLflow Version:", mlflow.version.VERSION)
 print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 
 def dump_experiment(exp_id_or_name, artifact_max_level, show_info, show_data):
-    print("Options:")
+    print("Arguments:")
     print("  exp_id_or_name:",exp_id_or_name)
     print("  artifact_max_level:",artifact_max_level)
     print("  show_info:",show_info)
@@ -38,9 +38,9 @@ def dump_experiment(exp_id_or_name, artifact_max_level, show_info, show_data):
         for j,info in enumerate(infos):
             print("  Run {}/{}:".format(j+1,len(infos)))
             if show_data:
-                dump_run.dump_run_id(info.run_uuid, artifact_max_level, indent="    ")
+                dump_run_id(info.run_uuid, artifact_max_level, indent="    ")
             else:
-                dump_run.dump_run_info(info, indent="    ")
+                dump_run_info(info, indent="    ")
 
 def dump_experiment_details(exp):
     print("Experiment Details:")
@@ -50,7 +50,7 @@ def dump_runs(infos, artifact_max_level):
     print("Runs:")
     for j,info in enumerate(infos):
         print("  Run {}/{}:".format(j+1,len(infos)))
-        dump_run.dump_run_id(info.run_uuid, artifact_max_level, indent="    ")
+        dump_run_id(info.run_uuid, artifact_max_level, indent="    ")
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
