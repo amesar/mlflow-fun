@@ -187,7 +187,7 @@ See MLflow documentation:
 
 In one window run the server.
 ```
-mlflow models serve -p 5001 -m runs:/7e674524514846799310c41f10d6b99d/sklearn-model
+mlflow models serve --port 5001 --model-uri runs:/7e674524514846799310c41f10d6b99d/sklearn-model
 ```
 
 In another window, submit a prediction from [predict-wine-quality.json](../../data/wine-quality/predict-wine-quality.json).
@@ -206,18 +206,35 @@ curl -X POST -H "Content-Type:application/json" \
 
 First build the docker image.
 ```
-mlflow models build-docker -m runs:/7e674524514846799310c41f10d6b99d/sklearn-model -n sklearn-wine-server
+mlflow models build-docker \
+  --model-uri runs:/7e674524514846799310c41f10d6b99d/sklearn-model \
+  --name sklearn-wine-server
 ```
 
 Then launch the server as a  docker container.
 ```
-docker run -p 5001:8000 sklearn-wine-server
+docker run --p 5001:8000 sklearn-wine-server
 ```
 
-Make predictions as in the step above.
+Make predictions with curl as in the step above.
 
+### 3. Serving Models from Sagemaker Docker Container
 
-### 3. Predict with mlflow.sklearn.load_model()
+First build the docker image.
+```
+mlflow sagemaker build-and-push-container --build --no-push --container sm-sklearn-wine-server
+```
+
+Then launch the server as a  docker container.
+```
+mlflow sagemaker run-local \
+  --model-uri runs:/7e674524514846799310c41f10d6b99d/sklearn-model \
+  --port 5001 --image sm-sklearn-wine-server
+```
+
+Make predictions with curl as in the step above.
+
+### 4. Predict with mlflow.sklearn.load_model()
 
 ```
 python scikit_predict.py 7e674524514846799310c41f10d6b99d
@@ -226,13 +243,13 @@ predictions: [5.55109634 5.29772751 5.42757213 5.56288644 5.56288644]
 ```
 From [scikit_predict.py](scikit_predict.py):
 ```
-model = mlflow.sklearn.load_model("sklearn-model",run_id="7e674524514846799310c41f10d6b99d")
+model = mlflow.sklearn.load_model(f"runs:/7e674524514846799310c41f10d6b99d/sklearn-model")
 df = pd.read_csv("../../data/wine-quality/wine-quality-white.csv")
 predicted = model.predict(df)
 print("predicted:",predicted)
 ```
 
-### 4. Predict with mlflow.pyfunc.load_pyfunc()
+### 5. Predict with mlflow.pyfunc.load_pyfunc()
 
 ```
 python pyfunc_predict.py 7e674524514846799310c41f10d6b99d
@@ -248,7 +265,7 @@ predicted = model.predict(df)
 print("predicted:",predicted)
 ```
 
-### 5. UDF Predict with  mlflow.pyfunc.spark_udf()
+### 6. UDF Predict with  mlflow.pyfunc.spark_udf()
 
 From [spark_udf_predict.py](spark_udf_predict.py).
 
@@ -270,15 +287,16 @@ spark-submit --master local[2] spark_udf_predict.py 7e674524514846799310c41f10d6
 From [spark_udf_predict.py](spark_udf_predict.py):
 ```
 spark = SparkSession.builder.appName("ServePredictions").getOrCreate()
-df = spark.read.option("inferSchema",True).option("header", True).csv("../../data/wine-quality/wine-quality-white.csv")
+df = spark.read.option("inferSchema",True).option("header", True).\
+    csv("../../data/wine-quality/wine-quality-white.csv")
 df = df.drop("quality")
 
-udf = mlflow.pyfunc.spark_udf(spark, "sklearn-model", run_id="7e674524514846799310c41f10d6b99d")
+udf = mlflow.pyfunc.spark_udf(spark, f"runs:/{run_id}/sklearn-model")
 df = df.withColumn("prediction", udf(*df.columns))
 df.show(10)
 ```
 
-### 5. Unpickle model artifact file without MLflow and predict
+### 7. Unpickle model artifact file without MLflow and predict
 You can directly read the model pickle file and then make predictions.
 From [pickle_predict.py](pickle_predict.py):
 ```
