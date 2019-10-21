@@ -202,7 +202,22 @@ curl -X POST -H "Content-Type:application/json" \
 ]
 ```
 
-### 2. Predict with mlflow.sklearn.load_model()
+### 2. Serving Models from Docker Container
+
+First build the docker image.
+```
+mlflow models build-docker -m runs:/7e674524514846799310c41f10d6b99d/sklearn-model -n sklearn-wine-server
+```
+
+Then launch the server as a  docker container.
+```
+docker run -p 5001:8000 sklearn-wine-server
+```
+
+Make predictions as in the step above.
+
+
+### 3. Predict with mlflow.sklearn.load_model()
 
 ```
 python scikit_predict.py 7e674524514846799310c41f10d6b99d
@@ -217,7 +232,7 @@ predicted = model.predict(df)
 print("predicted:",predicted)
 ```
 
-### 3. Predict with mlflow.pyfunc.load_pyfunc()
+### 4. Predict with mlflow.pyfunc.load_pyfunc()
 
 ```
 python pyfunc_predict.py 7e674524514846799310c41f10d6b99d
@@ -233,7 +248,7 @@ predicted = model.predict(df)
 print("predicted:",predicted)
 ```
 
-### 4. UDF Predict with  mlflow.pyfunc.spark_udf()
+### 5. UDF Predict with  mlflow.pyfunc.spark_udf()
 
 From [spark_udf_predict.py](spark_udf_predict.py).
 
