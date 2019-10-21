@@ -10,6 +10,7 @@ from pyspark.ml.feature import VectorAssembler
 import mlflow
 import mlflow.spark
 from common import *
+from pyspark_udf_workaround import log_udf_model
 
 spark = SparkSession.builder.appName("App").getOrCreate()
 
@@ -18,7 +19,7 @@ print("Tracking URI:", mlflow.tracking.get_tracking_uri())
 
 metrics = ["rmse","r2", "mae"]
 
-def train(data, maxDepth, maxBins):
+def train(data, maxDepth, maxBins, run_id):
     (trainingData, testData) = data.randomSplit([0.7, 0.3], 2019)
 
     # MLflow - log parameters
@@ -48,6 +49,10 @@ def train(data, maxDepth, maxBins):
 
     # MLflow - log model
     mlflow.spark.log_model(model, "spark-model")
+
+    # MLflow - log model with UDF wrapper for workaround
+    log_udf_model("spark-model", data.columns, run_id)
+
     #mlflow.mleap.log_model(spark_model=model, sample_input=testData, artifact_path="mleap-model")
 
 if __name__ == "__main__":
@@ -72,6 +77,6 @@ if __name__ == "__main__":
 
     with mlflow.start_run() as run:
         print("MLflow:")
-        print("  run_id:",run.info.run_uuid)
+        print("  run_id:",run.info.run_id)
         print("  experiment_id:",run.info.experiment_id)
-        train(data, args.max_depth,args.max_bins)
+        train(data, args.max_depth, args.max_bins, run.info.run_id)

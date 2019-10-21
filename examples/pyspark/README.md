@@ -51,12 +51,13 @@ See [predict.py](predict.py).
 
 ```
 run_id=7b951173284249f7a3b27746450ac7b0
-spark-submit --master local[2] predict.py --run_id $run_id \
+spark-submit --master local[2] predict.py \
+  --run_id $run_id \
   --data_path ../../examples/data/wine-quality/wine-quality-white.csv
 ```
 
 ```
-Predictions:
+Spark ML Predictions
 +----------------+-------+--------------------------------------------------------+
 |prediction      |quality|features                                                |
 +----------------+-------+--------------------------------------------------------+
@@ -66,4 +67,12 @@ Predictions:
 |5.88032931490738|6      |[7.2,0.23,0.32,8.5,0.058,47.0,186.0,0.9956,3.19,0.4,9.9]|
 |5.88032931490738|6      |[7.2,0.23,0.32,8.5,0.058,47.0,186.0,0.9956,3.19,0.4,9.9]|
 +----------------+-------+--------------------------------------------------------+
+```
+
+If you want to also predict with a UDF, then pass the `--udf_predict` option.
+
+If you do not specify `--udf_workaround` you will get the following error.
+```
+: java.lang.IllegalArgumentException: Field "fixed acidity" does not exist.
+Available fields: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 ```
