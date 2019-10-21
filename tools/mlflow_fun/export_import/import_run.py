@@ -9,9 +9,10 @@ from mlflow_fun.export_import import utils
 from mlflow_fun.export_import import mk_local_path
 
 class RunImporter(object):
-    def __init__(self, mlflow_client=None, use_src_user_id=False):
+    def __init__(self, mlflow_client=None, use_src_user_id=False, import_mlflow_tags=False):
         self.client = mlflow_client or mlflow.tracking.MlflowClient()
         self.use_src_user_id = use_src_user_id
+        self.import_mlflow_tags = import_mlflow_tags
 
     def import_run(self, exp_name, input):
         print("Importing run into experiment '{}' from '{}'".format(exp_name, input),flush=True)
@@ -43,7 +44,8 @@ class RunImporter(object):
         now = int(time.time()+.5)
         params = [ Param(k,v) for k,v in run_dct['params'].items() ]
         metrics = [ Metric(k,v,now,0) for k,v in run_dct['metrics'].items() ] # TODO: missing timestamp and step semantics?
-        tags = [ RunTag(k,str(v)) for k,v in run_dct['tags'].items() ]
+        #tags = [ RunTag(k,str(v)) for k,v in run_dct['tags'].items() ]
+        tags = utils.create_tags_for_mlflow_tags(tags, self.import_mlflow_tags) # XX
         utils.set_dst_user_id(tags, src_user_id, self.use_src_user_id)
         self.client.log_batch(run_id, metrics, params, tags)
 
@@ -53,9 +55,10 @@ if __name__ == "__main__":
     parser.add_argument("--input", dest="input", help="Input path - directory or zip file", required=True)
     parser.add_argument("--experiment_name", dest="experiment_name", help="Destination experiment_name", required=True)
     parser.add_argument("--use_src_user_id", dest="use_src_user_id", help="Use source user ID", default=False, action='store_true')
+    parser.add_argument("--import_mlflow_tags", dest="import_mlflow_tags", help="Import mlflow tags", default=False, action='store_true')
     args = parser.parse_args()
     print("Options:")
     for arg in vars(args):
         print("  {}: {}".format(arg,getattr(args, arg)))
-    importer = RunImporter(None,args.use_src_user_id)
+    importer = RunImporter(None,args.use_src_user_id, import_mlflow_tags)
     importer.import_run(args.experiment_name, args.input)

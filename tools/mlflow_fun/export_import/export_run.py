@@ -43,7 +43,7 @@ class RunExporter(object):
             #fs.rm(temp_dir,True) # TODO
 
     def export_run_to_dir(self, run, run_dir):
-        tags =  utils.create_tags(self.client, run, self.export_metadata_tags)
+        tags =  utils.create_tags_for_metadata(self.client, run, self.export_metadata_tags)
         dct = { "info": utils.strip_underscores(run.info) , 
                 "params": run.data.params,
                 "metrics": run.data.metrics,

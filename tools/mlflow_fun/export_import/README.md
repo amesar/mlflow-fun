@@ -1,16 +1,16 @@
 # mlflow-fun/tools - Export/Import Experiments or Runs
 
-Tools to export and import MLflow experiments or runs.
+Tools to export and import MLflow experiments or runs from one tracking server to another.
 
 ## Overview
 
 * Experiments
   * Export an experiment and all its runs to a directory or zip file
-  * Import an experiment from directory or zip file
+  * Import an experiment from a directory or zip file
   * Copy an experiment from one tracking server to another
 * Runs
-  * Export a run to directory or zip file
-  * Import a run from directory or zip file
+  * Export a run to  a directory or zip file
+  * Import a run from a directory or zip file
   * Copy a run from one tracking server to another
 
 * TODO
@@ -18,7 +18,7 @@ Tools to export and import MLflow experiments or runs.
   * Implement Databricks notebook imports
 
 ### Databricks MLflow Tracking Server Notes for `Copy` Feature
-  * The functionality as described here works quite well for open source MLflow.
+  * The functionality described here works quite well for open source MLflow.
   * Things get more complicated for the `copy` feature when you are using a a Databricks tracking server, either as source or destination .
   * This is primarily because [MLflow client](https://github.com/mlflow/mlflow/blob/master/mlflow/tracking/client.py) constructor only accepts a tracking_uri. 
     * For open source MLflow this works fine and you can have the two clients (source and destination) in the same program.
@@ -27,15 +27,15 @@ Tools to export and import MLflow experiments or runs.
 
 ### Common arguments 
 
-`output` - Can either be a directory or zip file (`output` has a zip extension).
+`output` - Either be a directory or zip file (`output` has a zip extension).
 
-`intput` - Can either be a directory or zip file (if `output` has a zip extension).
+`intput` - Either be a directory or zip file (if `output` has a zip extension).
 
-`notebook_formats` - If exporting a Databricks experiment, the run's notebook can be saved in the specified formats (comma-delimited argument). Each format is saved as `notebook.{format}`. Supported formats are  SOURCE, HTML, JUPYTER, DBC. See [Export Format](https://docs.databricks.com/dev-tools/api/latest/workspace.html#notebookexportformat) documentation.
+`notebook_formats` - If exporting a Databricks experiment, the run's notebook can be saved in the specified formats (comma-delimited argument). Each format is saved as `notebook.{format}`. Supported formats are  SOURCE, HTML, JUPYTER, DBC. See Databricks [Export Format](https://docs.databricks.com/dev-tools/api/latest/workspace.html#notebookexportformat) documentation.
 
 `export_metadata_tags` - Creates metadata tags (starting with `mlflow_tools.metadata`) containing export information.
 ```
-Name                                Value
+Name                                  Value
 mlflow_tools.metadata.timestamp       1551037752
 mlflow_tools.metadata.timestamp_nice  2019-02-24 19:49:12
 mlflow_tools.metadata.experiment_id   2

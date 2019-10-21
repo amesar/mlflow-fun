@@ -6,33 +6,41 @@ import time
 import mlflow
 from . import mk_local_path
 
-prefix = "mlflow_tools.metadata"
+PREFIX_METADATA = "mlflow_tools.metadata"
+PREFIX_SRC_RUN = "mlflow_tools.source_run"
 
 # Databricks tags that cannot be set
 dbx_skip_tags = set([ "mlflow.user" ])
 
-def create_tags(src_client, run, export_metadata_tags):
+def create_tags_for_metadata(src_client, run, export_metadata_tags):
     """ Create destination tags from source run """
     tags = run.data.tags.copy()
     for k in dbx_skip_tags:
         tags.pop(k, None)
     if export_metadata_tags:
         uri = mlflow.tracking.get_tracking_uri()
-        tags[prefix+".tracking_uri"] = uri
+        tags[PREFIX_METADATA+".tracking_uri"] = uri
         dbx_host = os.environ.get("DATABRICKS_HOST",None)
         if dbx_host is not None:
-            tags[prefix+".DATABRICKS_HOST"] = dbx_host
+            tags[PREFIX_METADATA+".DATABRICKS_HOST"] = dbx_host
         now = int(time.time()+.5)
         snow = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(now))
-        tags[prefix+".timestamp"] = str(now)
-        tags[prefix+".timestamp_nice"] = snow
-
-        tags[prefix+".user_id"] = run.info.user_id
-        tags[prefix+".run_id"] =  str(run.info.run_id)
-        tags[prefix+".experiment_id"] = run.info.experiment_id
+        tags[PREFIX_METADATA+".timestamp"] = str(now)
+        tags[PREFIX_METADATA+".timestamp_nice"] = snow
+        tags[PREFIX_METADATA+".user_id"] = run.info.user_id
+        tags[PREFIX_METADATA+".run_id"] =  str(run.info.run_id)
+        tags[PREFIX_METADATA+".experiment_id"] = run.info.experiment_id
         exp = src_client.get_experiment(run.info.experiment_id)
-        tags[prefix+".experiment_name"] = exp.name
+        tags[PREFIX_METADATA+".experiment_name"] = exp.name
     tags = { k:v for k,v in sorted(tags.items()) }
+    return tags
+
+def create_tags_for_mlflow_tags(tags_dct, import_mlflow_tags):
+    from mlflow.entities import RunTag
+    tags = []
+    for k,v in tags_dct.items() :
+        if not import_mlflow_tags and k.startswith("mlflow."): k = PREFIX_SRC_RUN + "."+k
+        tags.append(RunTag(k,str(v)))
     return tags
 
 def set_dst_user_id(tags,user_id, use_src_user_id):
