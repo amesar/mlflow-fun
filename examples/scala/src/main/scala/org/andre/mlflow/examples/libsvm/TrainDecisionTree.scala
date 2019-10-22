@@ -128,7 +128,7 @@ object TrainDecisionTree {
   def saveModelAsMLeap(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
-    MLeapUtils.saveModel(model, predictions, "file:"+modelPath.getAbsolutePath)
+    MLeapUtils.saveModel("file:"+modelPath.getAbsolutePath, model, predictions)
     client.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 

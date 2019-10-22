@@ -2,8 +2,8 @@ package org.andre.mlflow.examples.wine
 
 import org.apache.spark.sql.{SparkSession,DataFrame}
 import org.apache.spark.ml.{PipelineModel,Transformer}
-import org.andre.mlflow.util.MLeapUtils
 import org.mlflow.tracking.MlflowClient
+import org.andre.mlflow.util.MLeapUtils
 
 object PredictUtils {
 
