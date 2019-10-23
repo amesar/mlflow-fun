@@ -31,7 +31,7 @@ object MLeapUtils {
       case None => throw new Exception(s"Internal MLeap NPE error: $bundlePath")
     }
   }
-
+  
   def readModelAsMLeapBundle(bundlePath: String) = {
     val obundle = (for(bundle <- managed(BundleFile(bundlePath))) yield {
       bundle.loadMleapBundle().get
@@ -40,5 +40,18 @@ object MLeapUtils {
       case Some(b) => b.root
       case None => throw new Exception(s"Internal MLeap NPE error: $bundlePath")
     }
+  }
+  
+  import ml.combust.mleap.runtime.frame.{DefaultLeapFrame, Row}
+  import ml.combust.mleap.core.types._
+
+  def makeLeapFrame(data: DataFrame) = {
+    val schema = org.apache.spark.sql.mleap.TypeConverters.sparkSchemaToMleapSchema(data)
+    val transformedData = data.limit(1)
+      .collect
+      .map { sparkRow: org.apache.spark.sql.Row =>
+        ml.combust.mleap.runtime.frame.Row(org.apache.spark.sql.Row.unapplySeq(sparkRow).get: _*)
+      }
+    DefaultLeapFrame(schema, transformedData)
   }
 }
