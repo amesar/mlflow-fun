@@ -51,6 +51,9 @@ object TrainDecisionTreeRegressor {
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
 
+    // MLflow - set tag
+    client.setTag(runId, "dataPath",dataHolder.dataPath)
+
     // MLflow - log parameters
     val params = Seq(("maxDepth",maxDepth),("maxBins",maxBins),("runOrigin",runOrigin))
     println(s"Params:")
