@@ -24,26 +24,26 @@ object TrainUtils {
     DataHolder(data, trainingData, testData, assembler, dataPath)
   }
 
-  def saveModelAsSparkML(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
+  def logModelAsSparkML(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
     val modelPath = s"$baseModelDir/spark-model"
     model.write.overwrite().save(modelPath)
     client.logArtifacts(runId, new File(modelPath), "spark-model")
   }
 
-  def saveModelAsMLeap(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
+  def logModelAsMLeap(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
     MLeapUtils.saveModelAsSparkBundle("file:"+modelPath.getAbsolutePath, model, predictions)
     client.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 
-  def saveModelAsSparkMLContext(run: ActiveRun, baseModelDir: String, model: PipelineModel) = {
+  def logModelAsSparkMLContext(run: ActiveRun, baseModelDir: String, model: PipelineModel) = {
     val modelPath = s"$baseModelDir/spark-model"
     model.write.overwrite().save(modelPath)
     run.logArtifacts(Paths.get(modelPath), "spark-model")
   }
 
-  def saveModelAsMLeapContext(run: ActiveRun, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
+  def logModelAsMLeapContext(run: ActiveRun, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelDir = Paths.get(s"$baseModelDir/mleap-model")
     Files.createDirectories(modelDir)
     MLeapUtils.saveModelAsSparkBundle("file:"+modelDir.toAbsolutePath.toString, model, predictions)

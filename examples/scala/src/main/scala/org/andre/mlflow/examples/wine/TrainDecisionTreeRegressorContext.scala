@@ -100,8 +100,8 @@ object TrainDecisionTreeRegressorContext {
     run.logArtifact(path,"details")
 
     // MLflow - Save model in Spark ML and MLeap formats
-    TrainUtils.saveModelAsSparkMLContext(run, s"$outputDir/models", model)
-    TrainUtils.saveModelAsMLeapContext(run, s"$outputDir/models", model, predictions)
+    TrainUtils.logModelAsSparkMLContext(run, s"$outputDir/models", model)
+    TrainUtils.logModelAsMLeapContext(run, s"$outputDir/models", model, predictions)
 
     // MLflow - close run
     run.endRun()

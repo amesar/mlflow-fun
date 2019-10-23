@@ -98,8 +98,8 @@ object TrainDecisionTreeRegressor {
     client.logArtifact(runId,new File(path),"details")
 
     // MLflow - Save model in Spark ML and MLeap formats
-    TrainUtils.saveModelAsSparkML(client, runId, modelPath, model)
-    TrainUtils.saveModelAsMLeap(client, runId, modelPath, model, predictions)
+    TrainUtils.logModelAsSparkML(client, runId, modelPath, model)
+    TrainUtils.logModelAsMLeap(client, runId, modelPath, model, predictions)
 
     // MLflow - close run
     client.setTerminated(runId, RunStatus.FINISHED, System.currentTimeMillis())
