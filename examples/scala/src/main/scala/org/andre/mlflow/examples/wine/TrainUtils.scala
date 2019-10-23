@@ -32,7 +32,7 @@ object TrainUtils {
   def saveModelAsMLeap(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelPath = new File(s"$baseModelDir/mleap-model")
     modelPath.mkdir
-    MLeapUtils.saveModel("file:"+modelPath.getAbsolutePath, model, predictions)
+    MLeapUtils.saveModelAsSparkBundle("file:"+modelPath.getAbsolutePath, model, predictions)
     client.logArtifacts(runId, modelPath, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 
@@ -45,7 +45,7 @@ object TrainUtils {
   def saveModelAsMLeapContext(run: ActiveRun, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelDir = Paths.get(s"$baseModelDir/mleap-model")
     Files.createDirectories(modelDir)
-    MLeapUtils.saveModel("file:"+modelDir.toAbsolutePath.toString, model, predictions)
+    MLeapUtils.saveModelAsSparkBundle("file:"+modelDir.toAbsolutePath.toString, model, predictions)
     run.logArtifacts(modelDir, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
   }
 }

@@ -24,7 +24,7 @@ object PredictUtils {
   def predictMLeap(client: MlflowClient, runId: String, data: DataFrame) {
     println("==== MLeap")
     val modelPath = "file:" + client.downloadArtifacts(runId,"mleap-model/mleap/model").getAbsolutePath
-    val model = MLeapUtils.readModel(modelPath)
+    val model = MLeapUtils.readModelAsSparkBundle(modelPath)
     showPredictions(model, data)
   } 
 

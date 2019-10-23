@@ -26,7 +26,7 @@ object PredictUtils {
   def predictMLeap(uri: String, data: DataFrame) {
     println("==== MLeap")
     val modelPath = s"file:${uri}/mleap-model/mleap/model"
-    val model = MLeapUtils.readModel(modelPath)
+    val model = MLeapUtils.readModelAsSparkBundle(modelPath)
     showPredictions(model, data)
   } 
 
