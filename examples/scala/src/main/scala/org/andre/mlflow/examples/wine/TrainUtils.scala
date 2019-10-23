@@ -9,18 +9,19 @@ import org.mlflow.tracking.{MlflowClient,ActiveRun}
 import org.andre.mlflow.util.MLeapUtils
 
 object TrainUtils {
-  case class DataHolder(data: DataFrame, trainingData: DataFrame, testData: DataFrame, assembler: VectorAssembler)
+  case class DataHolder(data: DataFrame, trainingData: DataFrame, testData: DataFrame, assembler: VectorAssembler, dataPath: String)
   val seed = 2019
   val columnLabel = "quality"
 
   def readData(spark: SparkSession, dataPath: String) : DataHolder = {
     val data = CommonUtils.readData(spark, dataPath)
+    println("Input data count: "+data.count())
     val columns = data.columns.toList.filter(_ != columnLabel)
     val assembler = new VectorAssembler()
       .setInputCols(columns.toArray)
       .setOutputCol("features")
     val Array(trainingData, testData) = data.randomSplit(Array(0.7, 0.3), seed)
-    DataHolder(data, trainingData, testData, assembler)
+    DataHolder(data, trainingData, testData, assembler, dataPath)
   }
 
   def saveModelAsSparkML(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {

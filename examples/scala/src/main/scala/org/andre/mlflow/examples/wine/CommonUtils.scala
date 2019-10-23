@@ -8,9 +8,15 @@ object CommonUtils {
   val colFeatures = "features"
 
   def readData(spark: SparkSession, dataPath: String) = {
-    spark.read.format("csv")
-      .option("header", "true")
-      .option("inferSchema", "true")
-      .load(dataPath)
+    if (dataPath.endsWith(".csv")) {
+      spark.read.format("csv")
+        .option("header", "true")
+        .option("inferSchema", "true")
+        .load(dataPath)
+    } else if (dataPath.endsWith(".parquet")) {
+      spark.read.format("parquet").load(dataPath)
+    } else {
+      throw new Exception("Input data format not supported: $dataPath")
+    }
   }
 }
