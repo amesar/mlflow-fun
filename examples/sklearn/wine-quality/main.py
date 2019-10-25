@@ -9,6 +9,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_depth", dest="max_depth", help="max_depth", default=None, type=int)
     parser.add_argument("--max_leaf_nodes", dest="max_leaf_nodes", help="max_leaf_nodes", default=None, type=int)
     parser.add_argument("--run_origin", dest="run_origin", help="run_origin", default="none")
+    parser.add_argument("--registered_model", dest="registered_model", help="Registered model name")
     args = parser.parse_args()
-    trainer = Trainer(args.experiment_name, args.data_path,args.run_origin)
+    trainer = Trainer(args.experiment_name, args.data_path,args.run_origin, args.registered_model)
     trainer.train( args.max_depth, args.max_leaf_nodes)

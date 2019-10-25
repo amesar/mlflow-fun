@@ -20,10 +20,11 @@ print("MLflow Tracking URI:", mlflow.get_tracking_uri())
 colLabel = "quality"
 
 class Trainer(object):
-    def __init__(self, experiment_name, data_path, run_origin="none"):
+    def __init__(self, experiment_name, data_path, run_origin="none", registered_model_name=None):
         self.experiment_name = experiment_name
         self.data_path = data_path
         self.run_origin = run_origin
+        self.registered_model_name = registered_model_name
 
         print("experiment_name:",self.experiment_name)
         print("run_origin:",run_origin)
@@ -95,6 +96,10 @@ class Trainer(object):
     
             # MLflow log model
             mlflow.sklearn.log_model(dt, "sklearn-model")
+            if self.registered_model_name is None:
+                mlflow.sklearn.log_model(dt, "sklearn-model")
+            else:
+                mlflow.sklearn.log_model(dt, "sklearn-model", registered_model_name=self.registered_model_name)
     
             # MLflow artifact - plot file
             plot_file = "plot.png"
