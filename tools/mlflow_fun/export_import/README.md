@@ -13,6 +13,9 @@ Tools to export and import MLflow experiments or runs from one tracking server t
   * Import a run from a directory or zip file
   * Copy a run from one tracking server to another
 
+* Registered Models
+  * Saves registered model data as registered_models.json.
+
 * TODO
   * Account for nested runs
   * Implement Databricks notebook imports
@@ -261,4 +264,31 @@ python copy_run.py \
   --src_uri http://localhost:5000
   --dst_uri http://localhost:5001
   --export_metadata_tags
+```
+
+## Registered Models
+
+Produces `registered_models.json`.
+```
+python export_registered_models.py
+```
+
+cat registered_models.json
+```
+  "registered_models_detailed": [
+    {
+      "registered_model": {
+        "name": "sklearn_wine"
+      },
+      "creation_timestamp": "1571948394155",
+      "last_updated_timestamp": "1571948394155"
+      "latest_versions": [
+        {
+          "model_version": {
+            "registered_model": {
+              "name": "sklearn_wine"
+            },
+            "version": "2"
+          },
+    },
 ```
