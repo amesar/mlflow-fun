@@ -1,13 +1,13 @@
 package org.andre.mlflow.examples.wine
 
 import java.io.{File,PrintWriter}
+import com.beust.jcommander.{JCommander, Parameter}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.regression.{DecisionTreeRegressor,DecisionTreeRegressionModel}
 import org.apache.spark.ml.evaluation.RegressionEvaluator
-import org.mlflow.tracking.MlflowClient
+import org.mlflow.tracking.{MlflowClient,MlflowClientVersion}
 import org.mlflow.api.proto.Service.RunStatus
-import com.beust.jcommander.{JCommander, Parameter}
 import org.andre.mlflow.util.MLflowUtils
 
 /**
@@ -51,8 +51,10 @@ object TrainDecisionTreeRegressor {
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
 
-    // MLflow - set tag
+    // MLflow - set tags
     client.setTag(runId, "dataPath",dataHolder.dataPath)
+    client.setTag(runId, "mlflowVersion",MlflowClientVersion.getClientVersion())
+    client.setTag(runId, "mlflow.source.name",MLflowUtils.getSourceName(getClass()))
 
     // MLflow - log parameters
     val params = Seq(("maxDepth",maxDepth),("maxBins",maxBins),("runOrigin",runOrigin))
@@ -128,6 +130,6 @@ object TrainDecisionTreeRegressor {
     var runOrigin = "None"
 
     @Parameter(names = Array("--experimentName" ), description = "Experiment name", required=false)
-    var experimentName = "scala"
+    var experimentName = "scala_classic"
   }
 }

@@ -1,12 +1,12 @@
 package org.andre.mlflow.examples.wine
 
 import java.nio.file.{Paths,Files}
+import com.beust.jcommander.{JCommander, Parameter}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.regression.{DecisionTreeRegressor,DecisionTreeRegressionModel}
 import org.apache.spark.ml.evaluation.RegressionEvaluator
-import org.mlflow.tracking.{MlflowClient,MlflowContext}
-import com.beust.jcommander.{JCommander, Parameter}
+import org.mlflow.tracking.{MlflowClient,MlflowContext,MlflowClientVersion}
 import org.andre.mlflow.util.MLflowUtils
 
 /**
@@ -52,8 +52,10 @@ object TrainDecisionTreeRegressorContext {
     println(s"Run ID: $runId")
     println(s"runOrigin: $runOrigin")
 
-    // MLflow - set tag
+    // MLflow - set tags
     run.setTag("dataPath",dataHolder.dataPath)
+    run.setTag("mlflowVersion",MlflowClientVersion.getClientVersion())
+    run.setTag("mlflow.source.name",MLflowUtils.getSourceName(getClass()))
 
     // MLflow - log parameters
     val params = Seq(("maxDepth",maxDepth),("maxBins",maxBins),("runOrigin",runOrigin))
