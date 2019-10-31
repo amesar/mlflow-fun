@@ -14,7 +14,8 @@ Scala training and prediction examples using the MLflow Java client
 
 ## Setup
 
-Note: You must install Python MLflow for MLflow Java client to work: `pip install mlflow`.
+* Uses MLflow 1.4.0 Java client.
+* You must install Python MLflow for MLflow Java client to work: `pip install mlflow==1.4.0`.
 
 ## Build
 ```
