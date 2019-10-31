@@ -26,20 +26,14 @@ object MLeapUtils {
     val obundle = (for(bundle <- managed(BundleFile(bundlePath))) yield {
       bundle.loadSparkBundle().get
     }).opt
-    obundle match {
-      case Some(b) => b.root
-      case None => throw new Exception(s"Internal MLeap NPE error: $bundlePath")
-    }
+    obundle.get.root
   }
   
   def readModelAsMLeapBundle(bundlePath: String) = {
     val obundle = (for(bundle <- managed(BundleFile(bundlePath))) yield {
       bundle.loadMleapBundle().get
     }).opt
-    obundle match {
-      case Some(b) => b.root
-      case None => throw new Exception(s"Internal MLeap NPE error: $bundlePath")
-    }
+    obundle.get.root
   }
   
   import ml.combust.mleap.runtime.frame.{DefaultLeapFrame, Row}
