@@ -11,5 +11,8 @@ if __name__ == "__main__":
     parser.add_argument("--run_origin", dest="run_origin", help="run_origin", default="none")
     parser.add_argument("--registered_model", dest="registered_model", help="Registered model name")
     args = parser.parse_args()
+    print("Arguments:")
+    for arg in vars(args):
+        print("  {}: {}".format(arg,getattr(args, arg)))
     trainer = Trainer(args.experiment_name, args.data_path,args.run_origin, args.registered_model)
     trainer.train( args.max_depth, args.max_leaf_nodes)
