@@ -1,4 +1,4 @@
-name: wine_quality_elastic_net
+name: wine_quality_sklearn
 
 conda_env: conda.yaml
 
