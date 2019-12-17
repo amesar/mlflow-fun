@@ -41,11 +41,11 @@ class RunImporter(object):
 
     def import_run_data(self, run_dct, run_id, src_user_id):
         from mlflow.entities import Metric, Param, RunTag
-        now = int(time.time()+.5)
+        now = round(time.time())
         params = [ Param(k,v) for k,v in run_dct['params'].items() ]
         metrics = [ Metric(k,v,now,0) for k,v in run_dct['metrics'].items() ] # TODO: missing timestamp and step semantics?
-        #tags = [ RunTag(k,str(v)) for k,v in run_dct['tags'].items() ]
-        tags = utils.create_tags_for_mlflow_tags(tags, self.import_mlflow_tags) # XX
+        tags = [ RunTag(k,str(v)) for k,v in run_dct['tags'].items() ]
+        #tags = utils.create_tags_for_mlflow_tags(tags, self.import_mlflow_tags) # XX
         utils.set_dst_user_id(tags, src_user_id, self.use_src_user_id)
         self.client.log_batch(run_id, metrics, params, tags)
 
