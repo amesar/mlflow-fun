@@ -32,22 +32,38 @@ class RunImporter(object):
         #print("Experiment ID:",dst_exp.experiment_id)
         src_run_path = os.path.join(src_run_id,"run.json")
         run_dct = utils.read_json_file(src_run_path)
+        #utils.dump_tags("RunImporter.import_run_from_dir: run_dct.tags",run_dct['tags'])
         with mlflow.start_run() as run:
             run_id = run.info.run_id
-            self.import_run_data(run_dct,run.info.run_id, run_dct['info']['user_id'])
+            self.import_run_data(run_dct, run, run_dct['info']['user_id'])
             path = os.path.join(src_run_id,"artifacts")
             mlflow.log_artifacts(mk_local_path(path))
         return run_id
 
-    def import_run_data(self, run_dct, run_id, src_user_id):
+    def _create_tags_for_metadata(self, tags_dct):
+        """ 
+        Create destination tags from source run tags.
+        """
+        tags = {}
+        for k,v in tags_dct.items():
+            if k.startswith("mlflow.databricks"):
+                k2 = k.replace("mlflow.databricks","mlflow_tools.source_run.mlflow")
+                tags[k2] = v
+            else:
+                tags[k] = v
+        tags = { k:v for k,v in sorted(tags.items()) }
+        return tags
+
+    def import_run_data(self, run_dct, run, src_user_id):
         from mlflow.entities import Metric, Param, RunTag
         now = round(time.time())
         params = [ Param(k,v) for k,v in run_dct['params'].items() ]
         metrics = [ Metric(k,v,now,0) for k,v in run_dct['metrics'].items() ] # TODO: missing timestamp and step semantics?
-        tags = [ RunTag(k,str(v)) for k,v in run_dct['tags'].items() ]
-        #tags = utils.create_tags_for_mlflow_tags(tags, self.import_mlflow_tags) # XX
-        utils.set_dst_user_id(tags, src_user_id, self.use_src_user_id)
-        self.client.log_batch(run_id, metrics, params, tags)
+        tags = self._create_tags_for_metadata(run_dct['tags'])
+        tags = utils.create_tags_for_mlflow_tags(tags, self.import_mlflow_tags)
+        #utils.dump_tags("RunImporter.import_run_data",tags)
+        #utils.set_dst_user_id(tags, src_user_id, self.use_src_user_id)
+        self.client.log_batch(run.info.run_id, metrics, params, tags)
 
 if __name__ == "__main__":
     from argparse import ArgumentParser

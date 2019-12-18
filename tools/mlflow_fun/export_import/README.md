@@ -22,7 +22,7 @@ Tools to export and import MLflow experiments or runs from one tracking server t
 
 ### Databricks MLflow Tracking Server Notes for `Copy` Feature
   * The functionality described here works quite well for open source MLflow.
-  * Things get more complicated for the `copy` feature when you are using a a Databricks tracking server, either as source or destination .
+  * Things get more complicated for the `copy` feature when you are using a Databricks tracking server, either as source or destination .
   * This is primarily because [MLflow client](https://github.com/mlflow/mlflow/blob/master/mlflow/tracking/client.py) constructor only accepts a tracking_uri. 
     * For open source MLflow this works fine and you can have the two clients (source and destination) in the same program.
     * For Databricks MLflow, the constructor is not used to initialize target servers. Environment variables are used to initialize the client, so only one client can exist.
