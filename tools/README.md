@@ -2,6 +2,10 @@
 
 Tools for MLflow.
 
+<span style="color:red ; font-weight:bold">
+Deprecated: see <a href="https://github.com/amesar/mlflow-tools">https://github.com/amesar/mlflow-tools</a>.
+</span>
+
 ## Basic Tools
 * [Tools](mlflow_fun/tools) - Simple tools
   * List all experiments.
