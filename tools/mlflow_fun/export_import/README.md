@@ -1,5 +1,7 @@
 # mlflow-fun/tools - Export/Import Experiments or Runs
 
+## <span style="color:red">Deprecated</font>. See https://github.com/amesar/mlflow-tools/tree/master/mlflow_tools/export_import.
+
 Tools to export and import MLflow experiments or runs from one tracking server to another.
 
 ## Overview
