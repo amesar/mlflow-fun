@@ -35,3 +35,6 @@ def display_run_uri(experiment_id, run_id):
 # COMMAND ----------
 
 display_run_uri(run.info.experiment_id, run.info.run_id)
+
+# COMMAND ----------
+
