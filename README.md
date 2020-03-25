@@ -2,6 +2,12 @@
 
 Exploring MLflow in depth for Python and Scala.
 
+## _Deprecated_
+
+See instead:
+* https://github.com/amesar/mlflow-examples
+* https://github.com/amesar/mlflow-tools
+
 ## Examples
 #### Python
 * [Hello World](examples/hello_world) and [Hello World Nested Runs](examples/hello_world_nested_runs).
