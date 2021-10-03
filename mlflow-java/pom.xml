@@ -9,7 +9,7 @@
   <properties>
     <scala.version>2.11.8</scala.version>
     <scala.binary.version>2.11</scala.binary.version>
-    <spark.version>2.3.0</spark.version>
+    <spark.version>2.4.8</spark.version>
     <mlflow.version>1.0.0</mlflow.version>
     <testng.version>6.14.3</testng.version>
     <maven.compiler.source>1.8</maven.compiler.source>
