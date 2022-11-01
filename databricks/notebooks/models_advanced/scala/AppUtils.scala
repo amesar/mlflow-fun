@@ -27,16 +27,32 @@ def downloadFile(uri: String, filename: String) = {
 
 // COMMAND ----------
 
+val user = dbutils.notebook.getContext().tags("user")
+
+val baseDirDbfs = s"dbfs:/tmp/${user}/mlflow_demo"
+val baseDirFuse = baseDirDbfs.replace("dbfs:","/dbfs")
+
+val tmpDirDbfs = s"${baseDirDbfs}/scala_advanced"
+val tmpDirFuse = tmpDirDbfs.replace("dbfs:","/dbfs")
+dbutils.fs.mkdirs(tmpDirDbfs)
+
+val notebook = dbutils.notebook.getContext.notebookPath.get.split("/").last
+val modelScratchDirFuse = s"${tmpDirFuse}/${notebook}/spark-model"
+val modelScratchDirDbfs = modelScratchDirFuse.replace("/dbfs","dbfs:")
+
+// COMMAND ----------
+
+val dataPath = s"${baseDirFuse}/wine-quality.csv"
+val dataUri = "https://raw.githubusercontent.com/mlflow/mlflow/master/examples/sklearn_elasticnet_wine/wine-quality.csv"
+
 def downloadWineFile() = {
-  val dataPath = "/dbfs/tmp/mlflow_wine-quality3.csv"
-  val dataUri = "https://raw.githubusercontent.com/mlflow/mlflow/master/examples/sklearn_elasticnet_wine/wine-quality.csv"
   downloadFile(dataUri, dataPath)
   dataPath
 }
 
 // COMMAND ----------
 
-def readData(dataPath: String) = {
+def readCsvData(dataPath: String) = {
   spark.read.format("csv")
     .option("header", "true")
     .option("inferSchema", "true")
@@ -45,9 +61,18 @@ def readData(dataPath: String) = {
 
 // COMMAND ----------
 
-def readWineData() = {
-  val dataPath = downloadWineFile()
-  readData(dataPath)
+def readWineData(dataType: String = "csv") = {
+  if (dataType == "csv") {
+    val dataPath = downloadWineFile()
+    println(s"Loading $dataPath")
+    (readCsvData(dataPath),dataPath)
+  } else if (dataType == "parquet") {
+    val dataPath = "dbfs:/mnt/training/wine.parquet"
+    println(s"Loading $dataPath")
+    (spark.read.format("parquet").load(dataPath),dataPath)
+  } else {
+    throw new Exception("Input data format not supported: $dataPath")
+  }
 }
 
 // COMMAND ----------
@@ -69,8 +94,8 @@ def readWineData() = {
 import org.apache.spark.ml.PipelineModel
 import org.mlflow.tracking.MlflowClient
 
-def saveModelAsSparkMLClassic(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel) = {
-    val modelDir = s"$baseModelDir/spark-model"
+def saveModelAsSparkMLClassic(client: MlflowClient, runId: String, baseModelDirDbfs: String, model: PipelineModel) = {
+    val modelDir = s"$baseModelDirDbfs/spark-model"
     model.write.overwrite().save(modelDir) // hangs if we pass a Fuse path
     client.logArtifacts(runId, new java.io.File(MlflowUtils.mkFusePath(modelDir)), "spark-model")
 }
@@ -80,8 +105,8 @@ def saveModelAsSparkMLClassic(client: MlflowClient, runId: String, baseModelDir:
 import org.mlflow.tracking.{MlflowClient,ActiveRun}
 import java.nio.file.{Paths,Files}
   
-def saveModelAsSparkMLContext(run: ActiveRun, baseModelDir: String, model: PipelineModel) = {
-    val modelDir = s"$baseModelDir/spark-model"
+def saveModelAsSparkMLContext(run: ActiveRun, baseModelDirDbfs: String, model: PipelineModel) = {
+    val modelDir = s"$baseModelDirDbfs/spark-model"
     model.write.overwrite().save(modelDir)
     run.logArtifacts(Paths.get(MlflowUtils.mkFusePath(modelDir)), "spark-model")
 }
@@ -101,7 +126,7 @@ import org.apache.spark.sql.DataFrame
 def saveModelAsMLeapClassic(client: MlflowClient, runId: String, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelDir = new java.io.File(s"${MlflowUtils.mkFusePath(baseModelDir)}/mleap-model")
     modelDir.mkdir
-    MLeapUtils.saveModel(model, predictions, "file:"+modelDir.getAbsolutePath)
+    MLeapUtils.saveModelAsSparkBundle("file:"+modelDir.getAbsolutePath, model, predictions)
     client.logArtifacts(runId, modelDir, "mleap-model/mleap/model") // NOTE: Make compatible with MLflow Python mlflow.mleap.log_model  
 }
 
@@ -110,6 +135,6 @@ def saveModelAsMLeapClassic(client: MlflowClient, runId: String, baseModelDir: S
 def saveModelAsMLeapContext(run: ActiveRun, baseModelDir: String, model: PipelineModel, predictions: DataFrame) = {
     val modelDir = Paths.get(MlflowUtils.mkFusePath(s"$baseModelDir/mleap-model"))
     Files.createDirectories(modelDir)
-    MLeapUtils.saveModel(model, predictions, "file:"+modelDir.toAbsolutePath.toString)
+    MLeapUtils.saveModelAsSparkBundle("file:"+modelDir.toAbsolutePath.toString, model, predictions)
     run.logArtifacts(modelDir, "mleap-model/mleap/model") // Make compatible with MLflow Python mlflow.mleap.log_model
 }
