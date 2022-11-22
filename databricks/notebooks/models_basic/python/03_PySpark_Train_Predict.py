@@ -1,6 +1,10 @@
 # Databricks notebook source
-# MAGIC %md # Simple PySpark MLflow train and predict notebook
-# MAGIC * Predicts as Spark ML and UDF 
+# MAGIC %md # SparkML MLflow train and predict notebook
+# MAGIC * Trains and saves model as Spark ML
+# MAGIC * Predicts as Spark ML
+# MAGIC * Spark.autolog - automatically logs datasource in tag `sparkDatasourceInfo`
+# MAGIC   * https://www.mlflow.org/docs/latest/python_api/mlflow.spark.html#mlflow.spark.autolog
+# MAGIC   * [Sample run with tag sparkDatasourceInfo](https://demo.cloud.databricks.com/#mlflow/experiments/6682638/runs/5527319e739a450b9af24b1dc98e1c59)
 
 # COMMAND ----------
 
@@ -8,24 +12,28 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("maxDepth", "2")
-dbutils.widgets.text("maxBins", "32")
-maxDepth = int(dbutils.widgets.get("maxDepth"))
-maxBins = float(dbutils.widgets.get("maxBins"))
-maxDepth, maxBins
+dbutils.widgets.text("Max Depth", "5")
+dbutils.widgets.text("Max Bins", "32")
+dbutils.widgets.dropdown("UDF predict","no",["yes","no"])
+dbutils.widgets.text("Registered Model","")
+
+maxDepth = int(dbutils.widgets.get("Max Depth"))
+maxBins = float(dbutils.widgets.get("Max Bins"))
+udf_predict = dbutils.widgets.get("UDF predict") == "yes"
+registered_model = dbutils.widgets.get("Registered Model")
+if registered_model=="": registered_model = None
+
+maxDepth, maxBins, udf_predict, registered_model
 
 # COMMAND ----------
 
 import mlflow
 import mlflow.spark
-print("MLflow Version:", mlflow.version.VERSION)
-
-# COMMAND ----------
-
-metrics = ["rmse","r2", "mae"]
-colLabel = "quality"
-colPrediction = "prediction"
-colFeatures = "features"
+import pyspark
+print("MLflow Version:", mlflow.__version__)
+print("Spark Version:", spark.version)
+print("PySpark Version:", pyspark.__version__)
+print("sparkVersion:", get_notebook_tag("sparkVersion"))
 
 # COMMAND ----------
 
@@ -41,7 +49,7 @@ data = spark.read.format("csv") \
   .option("header", "true") \
   .option("inferSchema", "true") \
   .load(data_path.replace("/dbfs","dbfs:")) 
-(trainingData, testData) = data.randomSplit([0.7, 0.3], 2019)
+(trainData, testData) = data.randomSplit([0.7, 0.3], 42)
 
 # COMMAND ----------
 
@@ -49,6 +57,7 @@ data = spark.read.format("csv") \
 
 # COMMAND ----------
 
+import pyspark
 from pyspark.ml import Pipeline
 from pyspark.ml.regression import DecisionTreeRegressor
 from pyspark.ml.evaluation import RegressionEvaluator
@@ -58,14 +67,19 @@ with mlflow.start_run() as run:
     run_id = run.info.run_uuid
     experiment_id = run.info.experiment_id
     print("run_id:",run_id)
-    print("experiment_id:",experiment_id)  
+    print("experiment_id:",experiment_id) 
     
+    # Set MLflow tags
+    mlflow.set_tag("mlflow_version", mlflow.__version__)
+    mlflow.set_tag("spark_version", spark.version)
+    mlflow.set_tag("pyspark_version", pyspark.__version__)
+    mlflow.set_tag("sparkVersion", get_notebook_tag("sparkVersion"))
+    mlflow.set_tag("DATABRICKS_RUNTIME_VERSION", os.environ.get('DATABRICKS_RUNTIME_VERSION'))
+
     # Log MLflow parameters
     print("Parameters:")
     print("  maxDepth:",maxDepth)
     print("  maxBins:",maxBins)
-    mlflow.log_param("maxDepth",maxDepth)
-    mlflow.log_param("maxBins",maxBins)
     
     # Create model
     dt = DecisionTreeRegressor(labelCol=colLabel, featuresCol=colFeatures, \
@@ -76,19 +90,25 @@ with mlflow.start_run() as run:
     pipeline = Pipeline(stages=[assembler, dt])
     
     # Fit model
-    model = pipeline.fit(trainingData)
+    model = pipeline.fit(trainData)
+    
+    spark_model_name = "model"
+    mlflow.log_param("maxDepth",maxDepth)
+    mlflow.log_param("maxBins",maxBins)
     
     # Log MLflow training metrics
+    metrics = ["rmse","r2", "mae"]
     print("Metrics:")
     predictions = model.transform(testData)
+    
     for metric in metrics:
         evaluator = RegressionEvaluator(labelCol=colLabel, predictionCol=colPrediction, metricName=metric)
         v = evaluator.evaluate(predictions)
         print("  {}: {}".format(metric,v))
         mlflow.log_metric(metric,v)
-    
-    # Log MLflow model
-    mlflow.spark.log_model(model, "spark-model")
+        
+    mlflow.spark.log_model(model, spark_model_name, registered_model_name=registered_model)
+    print("Model:",spark_model_name)
 
 # COMMAND ----------
 
@@ -100,7 +120,8 @@ display_run_uri(experiment_id, run_id)
 
 # COMMAND ----------
 
-model_uri = "runs:/{}/spark-model".format(run_id)
+model_uri = f"runs:/{run_id}/{spark_model_name}"
+#model_uri = f"models:/andre_03a_SparkML_Train_Predict/production"
 model_uri
 
 # COMMAND ----------
@@ -110,15 +131,49 @@ model_uri
 # COMMAND ----------
 
 model = mlflow.spark.load_model(model_uri)
+
+# COMMAND ----------
+
 predictions = model.transform(data)
 display(predictions.select(colPrediction, colLabel, colFeatures))
 
 # COMMAND ----------
 
-# MAGIC %md #### Predict as UDF
+type(predictions)
 
 # COMMAND ----------
 
-udf = mlflow.pyfunc.spark_udf(spark, model_uri)
-data.withColumn("prediction", udf(*data.columns))
-display(predictions)
+# MAGIC %md #### Predict as PyFunc
+
+# COMMAND ----------
+
+model = mlflow.pyfunc.load_model(model_uri)
+type(model)
+
+# COMMAND ----------
+
+predictions = model.predict(data.toPandas())
+type(predictions),len(predictions)
+
+# COMMAND ----------
+
+display(pd.DataFrame(predictions))
+
+# COMMAND ----------
+
+# MAGIC %md #### Predict as Spark UDF
+# MAGIC 
+# MAGIC Error:
+# MAGIC ```
+# MAGIC py4j.protocol.Py4JJavaError: An error occurred while calling o55.transform.
+# MAGIC : java.lang.IllegalArgumentException: Field "fixed acidity" does not exist.
+# MAGIC Available fields: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+# MAGIC ```
+
+# COMMAND ----------
+
+if udf_predict:
+    model_uri = f"runs:/{run_id}/spark-model"
+    udf = mlflow.pyfunc.spark_udf(spark, model_uri)
+    predictions = data.withColumn(colPrediction, udf(*data.columns))
+    display(predictions)
