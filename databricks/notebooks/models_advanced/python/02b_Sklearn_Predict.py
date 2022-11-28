@@ -1,10 +1,10 @@
 # Databricks notebook source
 # MAGIC %md ## MLflow Advanced Sklearn Predict
-# MAGIC * Runs predictions for runs from [02a_Sklearn_Train](https://demo.cloud.databricks.com/#notebook/3528347).
+# MAGIC * Runs predictions for a run trained in [02a_Sklearn_Train]($02a_Sklearn_Train).
 # MAGIC * Predicts with following flavors:
-# MAGIC   * sklearn - [mlflow.sklearn.load_model()](https://mlflow.org/docs/latest/python_api/mlflow.sklearn.html#mlflow.sklearn.load_model)
+# MAGIC   * Sklearn - [mlflow.sklearn.load_model()](https://mlflow.org/docs/latest/python_api/mlflow.sklearn.html#mlflow.sklearn.load_model)
 # MAGIC   * UDF - [mlflow.pyfunc.spark_udf()](https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html#mlflow.pyfunc.spark_udf) - as DataFrame and SQL
-# MAGIC   * pyfunc - both klearn and ONX - [mlflow.pyfunc.load_pyfunc()](https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_pyfunc)
+# MAGIC   * pyfunc - both Sklearn and ONNX - [mlflow.pyfunc.load_pyfunc()](https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html#mlflow.pyfunc.load_pyfunc)
 # MAGIC   * ONNX - [mlflow.onnx.load_model](https://www.mlflow.org/docs/latest/python_api/mlflow.onnx.html#mlflow.onnx.load_model)
 
 # COMMAND ----------
@@ -17,10 +17,19 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install onnx==1.9.0
-# MAGIC %pip install onnxmltools==1.7.0
-# MAGIC %pip install onnxruntime==1.8.0
-# MAGIC %pip install mlflow==1.19.0
+# MAGIC %pip install onnx==1.12.0
+# MAGIC %pip install onnxmltools==1.11.1
+# MAGIC %pip install onnxruntime==1.13.1
+
+# COMMAND ----------
+
+# %pip install onnx==1.9.0
+# %pip install onnxmltools==1.7.0
+# %pip install onnxruntime==1.8.0
+
+# COMMAND ----------
+
+# %pip install mlflow==1.19.0
 
 # COMMAND ----------
 
