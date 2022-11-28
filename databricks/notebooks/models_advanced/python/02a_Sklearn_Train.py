@@ -11,6 +11,20 @@
 
 # COMMAND ----------
 
+# MAGIC %md ### Pip install libraries
+
+# COMMAND ----------
+
+# MAGIC %pip install onnx==1.9.0
+# MAGIC %pip install onnxmltools==1.7.0
+# MAGIC %pip install onnxruntime==1.8.0
+
+# COMMAND ----------
+
+# MAGIC %run ../../Versions
+
+# COMMAND ----------
+
 # MAGIC %md ### Setup
 
 # COMMAND ----------
@@ -22,14 +36,16 @@
 # Default values per: https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html
 
 dbutils.widgets.text(WIDGET_TRAIN_EXPERIMENT, create_experiment_name("sklearn"))
-dbutils.widgets.text("maxDepth", "") 
-dbutils.widgets.text("maxLeafNodes", "")
+dbutils.widgets.text("Max Depth", "") 
+dbutils.widgets.text("Max Leaf Nodes", "")
+dbutils.widgets.dropdown("Use ONNX","no",["yes","no"])
 
 experiment_name = dbutils.widgets.get(WIDGET_TRAIN_EXPERIMENT)   
-max_depth = to_int(dbutils.widgets.get("maxDepth"))
-max_leaf_nodes = to_int(dbutils.widgets.get("maxLeafNodes"))
+max_depth = to_int(dbutils.widgets.get("Max Depth"))
+max_leaf_nodes = to_int(dbutils.widgets.get("Max Leaf Nodes"))
+log_as_onnx = dbutils.widgets.get("Use ONNX") == "yes"
 
-max_depth, max_leaf_nodes, experiment_name
+max_depth, max_leaf_nodes, experiment_name, log_as_onnx
 
 # COMMAND ----------
 
@@ -88,6 +104,8 @@ def create_plot_file(y_test_set, y_predicted, plot_file):
 # COMMAND ----------
 
 # MAGIC %md ### Train
+# MAGIC 
+# MAGIC * ONNX note: 1.8.0 - ConnectException error: This is often caused by an OOM error that causes the connection to the Python REPL to be closed. Check your query's memory usage.
 
 # COMMAND ----------
 
@@ -95,41 +113,55 @@ import mlflow.sklearn
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.tree import DecisionTreeRegressor
+from mlflow.entities import Metric, Param, RunTag
 
 with mlflow.start_run() as run:
-    mlflow.log_param("mlflow.version",mlflow.version.VERSION)
-    run_id = run.info.run_uuid
+    run_id = run.info.run_id
     experiment_id = run.info.experiment_id
     print("MLflow:")
-    print("  run_id:",run_id)
-    print("  experiment_id:",experiment_id)  
+    print("  run_id:", run_id)
+    print("  experiment_id:", experiment_id)  
 
-    # Log params
-    mlflow.log_param("max_depth", max_depth)
-    mlflow.log_param("max_leaf_nodes", max_leaf_nodes)
+    #  Params
     print("Parameters:")
-    print("  max_depth:",max_depth)
-    print("  max_leaf_nodes:",max_leaf_nodes)
+    print("  max_depth:", max_depth)
+    print("  max_leaf_nodes:", max_leaf_nodes)
     
     # Create and fit model
     dt = DecisionTreeRegressor(max_depth=max_depth, max_leaf_nodes=max_leaf_nodes)
     dt.fit(train_x, train_y)
         
-    # Log metrics
+    # Metrics
     predictions = dt.predict(test_x)
     rmse = np.sqrt(mean_squared_error(test_y, predictions))
     mae = mean_absolute_error(test_y, predictions)
     r2 = r2_score(test_y, predictions)  
-    mlflow.log_metric("rmse", rmse)
-    mlflow.log_metric("r2", r2)
-    mlflow.log_metric("mae", mae)
     print("Metrics:")
-    print("  rmse:",rmse)
-    print("  mae:",mae)
-    print("  r2:",r2)
+    print("  rmse:", rmse)
+    print("  mae:", mae)
+    print("  r2:", r2)
+    
+    # Log params, metrics and tags
+    import time
+    now = round(time.time())
+    metrics = [Metric("rmse",rmse, now, 0), Metric("r2", r2, now, 0)]
+    params = [Param("max_depth", str(max_depth)), 
+              Param("max_leaf_nodes", str(max_leaf_nodes))]
+    client.log_batch(run_id, metrics, params, create_version_tags())
 
-    # Log model
+    # Log Sklearn model
     mlflow.sklearn.log_model(dt, "sklearn-model")
+    
+    # Log ONNX model
+    if log_as_onnx:
+        import mlflow.onnx
+        import onnx
+        import skl2onnx
+        initial_type = [('float_input', skl2onnx.common.data_types.FloatTensorType([None, test_x.shape[1]]))]
+        onnx_model = skl2onnx.convert_sklearn(dt, initial_types=initial_type)
+        print("onnx_model.type:", type(onnx_model))
+        mlflow.onnx.log_model(onnx_model, "onnx-model")
+        mlflow.set_tag("onnx_version", onnx.__version__)
     
     # Create and log plot
     plot_file = "ground_truth_vs_predicted.png"
@@ -146,7 +178,7 @@ display_run_uri(experiment_id, run_id)
 
 # COMMAND ----------
 
-dump_run_id(run_id)
+dump_run_id(run_id, 5)
 
 # COMMAND ----------
 
@@ -154,4 +186,4 @@ dump_run_id(run_id)
 
 # COMMAND ----------
 
-dbutils.notebook.exit("{} {}".format(run_id,experiment_id))
+dbutils.notebook.exit(f"{run_id} {experiment_id}")
