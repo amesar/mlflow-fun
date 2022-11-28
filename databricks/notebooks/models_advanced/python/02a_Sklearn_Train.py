@@ -1,13 +1,12 @@
 # Databricks notebook source
 # MAGIC %md ## MLflow Advanced Sklearn Train Model
 # MAGIC 
-# MAGIC * Libraries:
-# MAGIC   * PyPI package: mlflow 
 # MAGIC * Synopsis:
 # MAGIC   * Model: DecisionTreeRegressor
 # MAGIC   * Data: Wine quality
 # MAGIC   * Logs  model as sklearn (pickle) format
 # MAGIC   * Logs a PNG plot artifact
+# MAGIC   * Option to log model as ONNX
 
 # COMMAND ----------
 
@@ -15,9 +14,9 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install onnx==1.9.0
-# MAGIC %pip install onnxmltools==1.7.0
-# MAGIC %pip install onnxruntime==1.8.0
+# MAGIC %pip install onnx==1.12.0
+# MAGIC %pip install onnxmltools==1.11.1
+# MAGIC %pip install onnxruntime==1.13.1
 
 # COMMAND ----------
 
